@@ -26,11 +26,12 @@ function Pagination({
   onPageChange,
   className
 }) {
-  const startItem = (currentPage - 1) * itemsPerPage + 1;
-  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
-
   const canGoPrevious = currentPage > 1;
   const canGoNext = currentPage < totalPages;
+
+  // Calcular rango de items mostrados
+  const startItem = totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
+  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   return (
     <div className={cn(
@@ -39,7 +40,10 @@ function Pagination({
     )}>
       {/* Info de registros */}
       <div className="text-sm text-slate-400">
-        Mostrando {startItem} - {endItem} de {totalItems} registros
+        {totalItems === 0
+          ? 'No hay registros'
+          : `Mostrando ${startItem} - ${endItem} de ${totalItems} registros`
+        }
       </div>
 
       {/* Controles de navegacion */}
@@ -50,7 +54,7 @@ function Pagination({
           size="icon"
           onClick={() => onPageChange(1)}
           disabled={!canGoPrevious}
-          title="Primera pagina"
+          aria-label="Primera pagina"
         >
           <ChevronsLeft className="h-4 w-4" />
         </Button>
@@ -61,7 +65,7 @@ function Pagination({
           size="icon"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={!canGoPrevious}
-          title="Pagina anterior"
+          aria-label="Pagina anterior"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -77,7 +81,7 @@ function Pagination({
           size="icon"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={!canGoNext}
-          title="Pagina siguiente"
+          aria-label="Pagina siguiente"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -88,7 +92,7 @@ function Pagination({
           size="icon"
           onClick={() => onPageChange(totalPages)}
           disabled={!canGoNext}
-          title="Ultima pagina"
+          aria-label="Ultima pagina"
         >
           <ChevronsRight className="h-4 w-4" />
         </Button>

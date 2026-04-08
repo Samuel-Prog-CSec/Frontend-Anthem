@@ -9,6 +9,7 @@
 
 import apiClient from './axios';
 import { PAGINATION } from '../constants';
+import { normalizarRespuestaLista } from './normalizarRespuesta';
 
 /**
  * Obtiene ubicaciones con filtros opcionales
@@ -27,19 +28,8 @@ export async function getLocations(params = {}) {
     ...params
   };
   
-  const response = await apiClient.get('/locations', { params: queryParams });
-  
-  // Normalizar respuesta para el frontend
-  if (response.data && response.data.data && response.data.data.ubicaciones) {
-    const { data, ...rest } = response.data;
-    return {
-      ...rest,
-      data: data.ubicaciones,
-      pagination: data.pagination
-    };
-  }
-
-  return response.data;
+  const response = await apiClient.get('/ubicaciones', { params: queryParams });
+  return normalizarRespuestaLista(response, 'ubicaciones');
 }
 
 /**
@@ -48,7 +38,7 @@ export async function getLocations(params = {}) {
  * @returns {Promise<Object>} Lista de puntos de medicion
  */
 export async function getMeasurementPoints(measurementType) {
-  const response = await apiClient.get(`/locations/measurement-points/${measurementType}`);
+  const response = await apiClient.get(`/ubicaciones/puntos-medicion/${measurementType}`);
   return response.data;
 }
 
@@ -58,21 +48,6 @@ export async function getMeasurementPoints(measurementType) {
  * @returns {Promise<Object>} Datos de la ruta
  */
 export async function getTransportRoutes(transportType) {
-  const response = await apiClient.get(`/locations/transport/${transportType}`);
-  return response.data;
-}
-
-
-/**
- * Busca ubicaciones cercanas a un punto
- * @param {number} x - Coordenada X (UTM)
- * @param {number} y - Coordenada Y (UTM)
- * @param {number} radius - Radio en metros
- * @returns {Promise<Object>} Ubicaciones cercanas
- */
-export async function getNearbyLocations(x, y, radius) {
-  const response = await apiClient.get('/locations/proximity', {
-    params: { x, y, radius }
-  });
+  const response = await apiClient.get(`/ubicaciones/transporte/${transportType}`);
   return response.data;
 }

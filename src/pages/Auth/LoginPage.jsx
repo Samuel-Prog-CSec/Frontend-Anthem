@@ -26,6 +26,17 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Validacion basica client-side
+    if (!identifier.trim()) {
+      setError('El usuario o email es obligatorio');
+      return;
+    }
+    if (!password || password.length < 8) {
+      setError('La contrasena debe tener al menos 8 caracteres');
+      return;
+    }
+
     setIsLoading(true);
 
     try {

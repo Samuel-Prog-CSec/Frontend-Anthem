@@ -16,6 +16,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ReferenceLine,
   PieChart as RechartsPieChart,
   Pie,
   Cell
@@ -49,8 +50,9 @@ function CustomTooltip({ active, payload, label }) {
  * @param {Array} props.lines - Configuracion de lineas [{key, name, color}]
  * @param {string} [props.title] - Titulo del grafico
  * @param {number} [props.height] - Altura del grafico
+ * @param {Array} [props.referenceLines] - Lineas de referencia [{y, label, color}]
  */
-function LineChartCard({ data, xKey, lines, title, height = 300 }) {
+function LineChartCard({ data, xKey, lines, title, height = 300, referenceLines = [] }) {
   return (
     <Card>
       {title && (
@@ -76,6 +78,16 @@ function LineChartCard({ data, xKey, lines, title, height = 300 }) {
               wrapperStyle={{ paddingTop: '1rem' }}
               formatter={(value) => <span className="text-slate-300">{value}</span>}
             />
+            {referenceLines.map((ref, index) => (
+              <ReferenceLine
+                key={`ref-line-${index}`}
+                y={ref.y}
+                label={{ value: ref.label, position: 'right', fill: ref.color || '#ef4444', fontSize: 11 }}
+                stroke={ref.color || '#ef4444'}
+                strokeDasharray="5 5"
+                strokeWidth={1.5}
+              />
+            ))}
             {lines.map((line, index) => (
               <Line
                 key={line.key}
@@ -103,8 +115,9 @@ function LineChartCard({ data, xKey, lines, title, height = 300 }) {
  * @param {Array} props.bars - Configuracion de barras [{key, name, color}]
  * @param {string} [props.title] - Titulo del grafico
  * @param {number} [props.height] - Altura del grafico
+ * @param {Array} [props.referenceLines] - Lineas de referencia [{y, label, color}]
  */
-function BarChartCard({ data, xKey, bars, title, height = 300 }) {
+function BarChartCard({ data, xKey, bars, title, height = 300, referenceLines = [] }) {
   return (
     <Card>
       {title && (
@@ -130,6 +143,16 @@ function BarChartCard({ data, xKey, bars, title, height = 300 }) {
               wrapperStyle={{ paddingTop: '1rem' }}
               formatter={(value) => <span className="text-slate-300">{value}</span>}
             />
+            {referenceLines.map((ref, index) => (
+              <ReferenceLine
+                key={`ref-bar-${index}`}
+                y={ref.y}
+                label={{ value: ref.label, position: 'right', fill: ref.color || '#ef4444', fontSize: 11 }}
+                stroke={ref.color || '#ef4444'}
+                strokeDasharray="5 5"
+                strokeWidth={1.5}
+              />
+            ))}
             {bars.map((bar, index) => (
               <Bar
                 key={bar.key}

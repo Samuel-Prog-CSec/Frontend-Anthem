@@ -6,7 +6,7 @@
  */
 
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User, LogOut, MapPin, Wind, Volume2, LayoutDashboard, ChevronDown } from 'lucide-react';
+import { Menu, X, User, LogOut, MapPin, Wind, Volume2, LayoutDashboard, ChevronDown, AlertTriangle, Zap, Bike } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../common';
 import { useAuth } from '../../context';
@@ -17,7 +17,10 @@ const navigationItems = [
   { path: ROUTES.DASHBOARD, label: 'Dashboard', icon: LayoutDashboard },
   { path: ROUTES.LOCATIONS, label: 'Ubicaciones', icon: MapPin },
   { path: ROUTES.AIR_QUALITY, label: 'Calidad del Aire', icon: Wind },
-  { path: ROUTES.NOISE_MONITORING, label: 'Ruido', icon: Volume2 }
+  { path: ROUTES.NOISE_MONITORING, label: 'Ruido', icon: Volume2 },
+  { path: ROUTES.ACCIDENTS, label: 'Accidentes', icon: AlertTriangle },
+  { path: ROUTES.SCOOTER_ASSIGNMENTS, label: 'Patinetes', icon: Zap },
+  { path: ROUTES.BIKE_AVAILABILITY, label: 'Bicicletas', icon: Bike }
 ];
 
 /**
@@ -29,7 +32,12 @@ function Navbar() {
   const location = useLocation();
 
   const handleLogout = async () => {
-    await logout();
+    try {
+      await logout();
+    } catch {
+      // Forzar navegacion a login incluso si logout falla
+      window.location.href = '/login';
+    }
   };
 
   return (
@@ -113,6 +121,8 @@ function Navbar() {
               size="icon"
               className="md:hidden"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={isMobileMenuOpen ? 'Cerrar menu de navegacion' : 'Abrir menu de navegacion'}
+              aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? (
                 <X className="h-5 w-5" />

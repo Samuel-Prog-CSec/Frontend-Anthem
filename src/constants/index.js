@@ -312,6 +312,10 @@ const SCOOTER_PROVIDERS = {
 // COLORES Y ESTILOS
 // ========================================
 
+export const CHART_LIMITS = {
+  MAX_ITEMS: 10 // Maximo de puntos de datos en graficos de resumen
+};
+
 export const CHART_COLORS = {
   primary: '#06b6d4',    // Cyan
   secondary: '#10b981',  // Green
@@ -358,6 +362,9 @@ export const ROUTES = {
   LOCATIONS: '/ubicaciones',
   AIR_QUALITY: '/calidad-aire',
   NOISE_MONITORING: '/ruido',
+  ACCIDENTS: '/accidentes',
+  SCOOTER_ASSIGNMENTS: '/patinetes',
+  BIKE_AVAILABILITY: '/bicicletas',
   LOGIN: '/login',
   REGISTER: '/register',
   NOT_FOUND: '*'

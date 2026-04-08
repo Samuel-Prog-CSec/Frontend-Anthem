@@ -10,9 +10,9 @@ import { Link } from 'react-router-dom';
 import { MapPin, Wind, Volume2, ArrowRight, Activity, TrendingUp, Sparkles, ChevronRight, Cpu, Database, Zap } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, Button } from '../../components/common';
-import { getLocations } from '../../api/locationService';
-import { getAirQualityData } from '../../api/airQualityService';
-import { getNoiseData } from '../../api/noiseService';
+import { getLocations } from '../../api/servicioUbicaciones';
+import { getAirQualityData } from '../../api/servicioCalidadAire';
+import { getNoiseData } from '../../api/servicioRuido';
 import { ROUTES, DATE_CONFIG } from '../../constants';
 import { cn } from '../../utils';
 

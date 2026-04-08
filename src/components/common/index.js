@@ -12,3 +12,5 @@ export { EmptyState } from './EmptyState';
 export { ErrorState } from './ErrorState';
 export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption } from './Table';
 export { Pagination } from './Pagination';
+export { ErrorBoundary } from './ErrorBoundary';
+export { Skeleton, TableSkeleton, StatsSkeleton } from './Skeleton';
