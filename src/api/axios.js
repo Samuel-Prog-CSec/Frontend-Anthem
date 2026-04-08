@@ -33,12 +33,6 @@ let refreshToken = null;
 export function setAuthTokens(access, refresh) {
   accessToken = access;
   refreshToken = refresh;
-  
-  // Guardar refresh token en localStorage para persistencia
-  // El access token se mantiene solo en memoria por seguridad
-  if (refresh) {
-    localStorage.setItem(AUTH_CONFIG.REFRESH_TOKEN_KEY, refresh);
-  }
 }
 
 /**
@@ -55,15 +49,15 @@ export function getAccessToken() {
 export function clearAuthTokens() {
   accessToken = null;
   refreshToken = null;
-  localStorage.removeItem(AUTH_CONFIG.REFRESH_TOKEN_KEY);
 }
 
 /**
- * Recupera el refresh token almacenado
+ * Recupera el refresh token en memoria
+ * No se persiste en localStorage por seguridad (prevencion XSS)
  * @returns {string|null} Refresh token o null
  */
 export function getStoredRefreshToken() {
-  return localStorage.getItem(AUTH_CONFIG.REFRESH_TOKEN_KEY);
+  return refreshToken;
 }
 
 // ========================================

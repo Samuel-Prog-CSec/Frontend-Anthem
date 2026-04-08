@@ -27,7 +27,7 @@ import { normalizarRespuestaLista } from './normalizarRespuesta';
  * @param {boolean} [params.includeInvalid] - Incluir datos invalidos (true, false)
  * @returns {Promise<Object>} Lista de mediciones con paginacion
  */
-export async function getAirQualityData(params = {}) {
+export async function obtenerDatosCalidadAire(params = {}) {
   const queryParams = {
     page: params.page || PAGINATION.DEFAULT_PAGE,
     limit: params.limit || PAGINATION.DEFAULT_LIMIT,
@@ -49,7 +49,7 @@ export async function getAirQualityData(params = {}) {
  * @param {number} [params.magnitud] - Codigo de magnitud
  * @returns {Promise<Object>} Estadisticas agregadas
  */
-export async function getAirQualityStatistics(params = {}) {
+export async function obtenerEstadisticasCalidadAire(params = {}) {
   const response = await apiClient.get('/calidad-aire/estadisticas', { params });
   return response.data;
 }
@@ -64,7 +64,7 @@ export async function getAirQualityStatistics(params = {}) {
  * @param {number} [params.magnitud] - Codigo de magnitud
  * @returns {Promise<Object>} Datos de tendencias
  */
-export async function getAirQualityTrends(params = {}) {
+export async function obtenerTendenciasCalidadAire(params = {}) {
   const response = await apiClient.get('/calidad-aire/tendencias', { params });
   return response.data;
 }
@@ -73,7 +73,7 @@ export async function getAirQualityTrends(params = {}) {
  * Obtiene las estaciones de medicion de calidad del aire disponibles
  * @returns {Promise<Array>} Lista de estaciones unicas con su identificador
  */
-export async function getAirQualityStations() {
+export async function obtenerEstacionesCalidadAire() {
   try {
     const response = await apiClient.get('/calidad-aire/estadisticas', {
       params: { groupBy: 'station' }
@@ -104,7 +104,7 @@ export async function getAirQualityStations() {
  * Obtiene las magnitudes disponibles desde las constantes del frontend
  * @returns {Array} Lista de codigos de magnitud ordenados
  */
-export function getAvailableMagnitudes() {
+export function obtenerMagnitudesDisponibles() {
   // Las magnitudes estan definidas en las constantes del frontend (AIR_QUALITY_MAGNITUDES)
   // No es necesario hacer una llamada a la API para obtenerlas
   return Object.keys(AIR_QUALITY_MAGNITUDES).map(Number).sort((a, b) => a - b);

@@ -8,20 +8,20 @@
  * - Tabla detallada con filtros
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Zap, Filter, RefreshCw, MapPin, BarChart3, Users, TrendingUp, Layers, X } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
 import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
   Button, Select, Badge,
-  Table, TableHeader, TableBody, TableHead, TableRow, TableCell,
+  Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
   LoadingState, ErrorState, EmptyState, Pagination
 } from '../../components/common';
 import { StatCard, BarChartCard, PieChartCard } from '../../components/charts';
 import {
-  obtenerAsignaciones, obtenerEstadisticasDistritos, obtenerAnalisisMercado,
-  obtenerZonasConcentracion, obtenerDetallesArea
-} from '../../api/servicioPatinetes';
+  usePatinetes, usePatinetesEstadisticas, usePatinetesMercado,
+  usePatinetesZonas, usePatinetesDetallesArea
+} from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
 import { formatNumber } from '../../utils';
 
@@ -76,14 +76,6 @@ function getDemandBadgeVariant(demand) {
  * Pagina de asignacion de patinetes
  */
 function PaginaPatinetes() {
-  const [datos, setDatos] = useState([]);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
-  const [estadisticasDistritos, setEstadisticasDistritos] = useState([]);
-  const [datosMercado, setDatosMercado] = useState([]);
-  const [zonasConcentracion, setZonasConcentracion] = useState([]);
-  const [areaSeleccionada, setAreaSeleccionada] = useState(null);
-  const [cargandoArea, setCargandoArea] = useState(false);
   const [filtros, setFiltros] = useState({
     distrito: '',
     densidad: '',
@@ -95,114 +87,79 @@ function PaginaPatinetes() {
     totalItems: 0,
     itemsPerPage: PAGINATION.DEFAULT_LIMIT
   });
+  const [areaQuery, setAreaQuery] = useState(null);
 
-  // Cargar datos
-  const cargarDatos = useCallback(async () => {
-    setCargando(true);
-    setError(null);
+  // Parametros de consulta para la query principal
+  const queryParams = useMemo(() => {
+    const params = {
+      page: paginacion.currentPage,
+      limit: paginacion.itemsPerPage
+    };
+    if (filtros.distrito) params.distrito = filtros.distrito;
+    if (filtros.densidad) params.densidad = filtros.densidad;
+    if (filtros.tipoZona) params.tipoZona = filtros.tipoZona;
+    return params;
+  }, [paginacion.currentPage, paginacion.itemsPerPage, filtros]);
 
-    try {
-      const params = {
-        page: paginacion.currentPage,
-        limit: paginacion.itemsPerPage
-      };
+  // React Query hooks (se ejecutan en paralelo automaticamente)
+  const {
+    data: assignmentsResult,
+    isLoading,
+    error: mainError,
+    refetch
+  } = usePatinetes(queryParams);
 
-      if (filtros.distrito) {
-        params.distrito = filtros.distrito;
-      }
+  const { data: statsResult } = usePatinetesEstadisticas();
+  const { data: mercadoResult } = usePatinetesMercado();
+  const { data: zonasResult } = usePatinetesZonas();
+  const {
+    data: areaResult,
+    isLoading: cargandoArea
+  } = usePatinetesDetallesArea(areaQuery?.distrito, areaQuery?.barrio);
 
-      if (filtros.densidad) {
-        params.densidad = filtros.densidad;
-      }
+  // Extraer datos de las respuestas (estabilizar referencias para useMemo)
+  const datos = useMemo(() => assignmentsResult?.data || [], [assignmentsResult?.data]);
+  const estadisticasDistritos = useMemo(() => statsResult?.data || [], [statsResult?.data]);
+  const datosMercado = useMemo(() => mercadoResult?.data || [], [mercadoResult?.data]);
+  const zonasConcentracion = useMemo(() => zonasResult?.data || [], [zonasResult?.data]);
+  const areaSeleccionada = areaQuery ? (areaResult?.data || null) : null;
+  const error = mainError?.message || null;
 
-      if (filtros.tipoZona) {
-        params.tipoZona = filtros.tipoZona;
-      }
-
-      // Llamadas paralelas para datos principales, estadisticas, mercado y zonas
-      const [assignmentsResponse, districtResponse, marketResponse, zonasResponse] = await Promise.all([
-        obtenerAsignaciones(params),
-        obtenerEstadisticasDistritos(),
-        obtenerAnalisisMercado(),
-        obtenerZonasConcentracion()
-      ]);
-
-      // Procesar asignaciones
-      if (assignmentsResponse.success) {
-        setDatos(assignmentsResponse.data || []);
-        setPaginacion(prev => ({
-          ...prev,
-          totalPages: assignmentsResponse.pagination?.totalPages || 1,
-          totalItems: assignmentsResponse.pagination?.totalDocuments || assignmentsResponse.pagination?.totalItems || 0
-        }));
-      } else {
-        setError(assignmentsResponse.message);
-      }
-
-      // Procesar estadisticas por distrito
-      if (districtResponse.success) {
-        setEstadisticasDistritos(districtResponse.data || []);
-      }
-
-      // Procesar analisis de mercado
-      if (marketResponse.success) {
-        setDatosMercado(marketResponse.data || []);
-      }
-
-      // Procesar zonas de concentracion
-      if (zonasResponse.success) {
-        setZonasConcentracion(zonasResponse.data || []);
-      }
-    } catch (err) {
-      setError(err.message || 'Error al cargar datos de patinetes');
-    } finally {
-      setCargando(false);
-    }
-  }, [paginacion.currentPage, paginacion.itemsPerPage, filtros.distrito, filtros.densidad, filtros.tipoZona]);
-
-  useEffect(() => {
-    cargarDatos();
-  }, [cargarDatos]);
+  // Actualizar paginacion cuando cambian los datos
+  const paginacionActual = useMemo(() => ({
+    ...paginacion,
+    totalPages: assignmentsResult?.pagination?.totalPages || 1,
+    totalItems: assignmentsResult?.pagination?.totalDocuments || assignmentsResult?.pagination?.totalItems || 0
+  }), [paginacion, assignmentsResult?.pagination]);
 
   // Cambiar pagina
-  const manejarCambioPagina = (page) => {
+  const manejarCambioPagina = useCallback((page) => {
     setPaginacion(prev => ({ ...prev, currentPage: page }));
-  };
+  }, []);
 
   // Cambiar filtros
-  const manejarCambioFiltro = (name, value) => {
+  const manejarCambioFiltro = useCallback((name, value) => {
     setFiltros(prev => ({ ...prev, [name]: value }));
     setPaginacion(prev => ({ ...prev, currentPage: 1 }));
-  };
+  }, []);
 
   // Limpiar filtros
-  const limpiarFiltros = () => {
+  const limpiarFiltros = useCallback(() => {
     setFiltros({ distrito: '', densidad: '', tipoZona: '' });
     setPaginacion(prev => ({ ...prev, currentPage: 1 }));
-  };
+  }, []);
 
-  // Cargar detalle de area
-  const manejarClickArea = useCallback(async (distrito, barrio) => {
+  // Toggle detalle de area
+  const manejarClickArea = useCallback((distrito, barrio) => {
     if (!distrito || !barrio) return;
 
-    // Si ya esta seleccionada la misma area, cerrar
-    if (areaSeleccionada?.distrito?.nombre === distrito && areaSeleccionada?.barrio?.nombre === barrio) {
-      setAreaSeleccionada(null);
-      return;
-    }
-
-    setCargandoArea(true);
-    try {
-      const response = await obtenerDetallesArea(distrito, barrio);
-      if (response.success) {
-        setAreaSeleccionada(response.data || null);
+    setAreaQuery(prev => {
+      if (prev?.distrito === distrito && prev?.barrio === barrio) {
+        return null;
       }
-    } catch (err) {
-      setAreaSeleccionada(null);
-    } finally {
-      setCargandoArea(false);
-    }
-  }, [areaSeleccionada]);
+      return { distrito, barrio };
+    });
+  }, []);
 
   // Calcular estadisticas del resumen
   const estadisticas = useMemo(() => {
@@ -235,9 +192,9 @@ function PaginaPatinetes() {
       totalPatinetes,
       proveedoresActivos,
       promedioPorBarrio,
-      totalAreas: paginacion.totalItems
+      totalAreas: paginacionActual.totalItems
     };
-  }, [datos, paginacion.totalItems]);
+  }, [datos, paginacionActual.totalItems]);
 
   // Preparar opciones de distrito desde estadisticasDistritos
   const districtOptions = useMemo(() => {
@@ -270,7 +227,7 @@ function PaginaPatinetes() {
       title="Asignacion de Patinetes"
       description={`Distribucion y asignacion de patinetes por distrito - ${DATE_CONFIG.DATASET_YEAR}`}
       actions={
-        <Button variant="outline" onClick={cargarDatos}>
+        <Button variant="outline" onClick={() => refetch()}>
           <RefreshCw className="h-4 w-4 mr-2" />
           Actualizar
         </Button>
@@ -348,7 +305,7 @@ function PaginaPatinetes() {
       </Card>
 
       {/* Graficos */}
-      {!cargando && (estadisticasDistritos.length > 0 || datosMercado.length > 0) && (
+      {!isLoading && (estadisticasDistritos.length > 0 || datosMercado.length > 0) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {estadisticasDistritos.length > 0 && (
             <BarChartCard
@@ -373,7 +330,7 @@ function PaginaPatinetes() {
       )}
 
       {/* Zonas de concentracion */}
-      {!cargando && zonasConcentracion.length > 0 && (
+      {!isLoading && zonasConcentracion.length > 0 && (
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -432,12 +389,12 @@ function PaginaPatinetes() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {cargando ? (
+          {isLoading ? (
             <LoadingState message="Cargando asignaciones..." />
           ) : error ? (
             <ErrorState
               message={error}
-              onRetry={cargarDatos}
+              onRetry={() => refetch()}
             />
           ) : datos.length === 0 ? (
             <EmptyState
@@ -448,6 +405,7 @@ function PaginaPatinetes() {
           ) : (
             <>
               <Table>
+                <TableCaption className="sr-only">Tabla de asignacion de patinetes por distrito y barrio</TableCaption>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Distrito</TableHead>
@@ -506,10 +464,10 @@ function PaginaPatinetes() {
 
               {/* Paginacion */}
               <Pagination
-                currentPage={paginacion.currentPage}
-                totalPages={paginacion.totalPages}
-                totalItems={paginacion.totalItems}
-                itemsPerPage={paginacion.itemsPerPage}
+                currentPage={paginacionActual.currentPage}
+                totalPages={paginacionActual.totalPages}
+                totalItems={paginacionActual.totalItems}
+                itemsPerPage={paginacionActual.itemsPerPage}
                 onPageChange={manejarCambioPagina}
               />
             </>
@@ -533,7 +491,7 @@ function PaginaPatinetes() {
                 <MapPin className="h-5 w-5" />
                 {areaSeleccionada.distrito?.nombre || '-'} - {areaSeleccionada.barrio?.nombre || '-'}
               </CardTitle>
-              <Button variant="ghost" onClick={() => setAreaSeleccionada(null)}>
+              <Button variant="ghost" onClick={() => setAreaQuery(null)}>
                 <X className="h-4 w-4" />
               </Button>
             </div>

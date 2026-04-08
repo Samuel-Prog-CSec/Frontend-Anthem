@@ -4,20 +4,20 @@
  * Dashboard con datos diarios de uso de bicicletas (abonados, usos, ocupacion)
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Bike, Filter, RefreshCw, TrendingUp, Clock, BarChart3, ArrowUp, ArrowDown, Users, UserCheck } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
 import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
   Button, Select, Badge,
-  Table, TableHeader, TableBody, TableHead, TableRow, TableCell,
+  Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
   LoadingState, ErrorState, EmptyState, Pagination
 } from '../../components/common';
 import { StatCard, LineChartCard } from '../../components/charts';
 import {
-  obtenerDisponibilidad, obtenerEstadisticas, obtenerTendenciasMensuales,
-  obtenerMayorUso, obtenerComparativaSuscripciones
-} from '../../api/servicioBicicletas';
+  useBicicletas, useBicicletasEstadisticas, useBicicletasTendencias,
+  useBicicletasMayorUso, useBicicletasSuscripciones
+} from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
 import { formatDate, formatNumber } from '../../utils';
 
@@ -54,13 +54,6 @@ function getOccupancyBadge(value) {
  * Pagina de disponibilidad de bicicletas
  */
 function PaginaBicicletas() {
-  const [datosDisponibilidad, setDatosDisponibilidad] = useState([]);
-  const [estadisticas, setEstadisticas] = useState(null);
-  const [tendenciasMensuales, setTendenciasMensuales] = useState([]);
-  const [datosMayorUso, setDatosMayorUso] = useState(null);
-  const [comparativaSuscripciones, setComparativaSuscripciones] = useState(null);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
   const [filtros, setFiltros] = useState({ mes: '' });
   const [paginacionDisponibilidad, setPaginacionDisponibilidad] = useState({
     currentPage: 1,
@@ -69,94 +62,67 @@ function PaginaBicicletas() {
     itemsPerPage: PAGINATION.BIKES_DEFAULT_LIMIT
   });
 
-  // Cargar datos de disponibilidad
-  const cargarDatosDisponibilidad = useCallback(async () => {
-    setCargando(true);
-    setError(null);
-
-    try {
-      const params = {
-        page: paginacionDisponibilidad.currentPage,
-        limit: paginacionDisponibilidad.itemsPerPage,
-        año: DATE_CONFIG.DATASET_YEAR
-      };
-
-      if (filtros.mes) {
-        params.mes = parseInt(filtros.mes);
-      }
-
-      const statsParams = { año: DATE_CONFIG.DATASET_YEAR };
-      if (filtros.mes) {
-        statsParams.mes = parseInt(filtros.mes);
-      }
-
-      const [availabilityRes, statsRes, trendsRes, mayorUsoRes, comparativaRes] = await Promise.all([
-        obtenerDisponibilidad(params),
-        obtenerEstadisticas(statsParams),
-        obtenerTendenciasMensuales({ year: DATE_CONFIG.DATASET_YEAR }),
-        obtenerMayorUso(),
-        obtenerComparativaSuscripciones()
-      ]);
-
-      if (availabilityRes.success) {
-        setDatosDisponibilidad(availabilityRes.data || []);
-        setPaginacionDisponibilidad(prev => ({
-          ...prev,
-          totalPages: availabilityRes.pagination?.totalPages || 1,
-          totalItems: availabilityRes.pagination?.totalDocuments || availabilityRes.pagination?.totalItems || 0
-        }));
-      } else {
-        setError(availabilityRes.message);
-      }
-
-      if (statsRes.success) {
-        setEstadisticas(statsRes.data || null);
-      }
-
-      if (trendsRes.success) {
-        setTendenciasMensuales(trendsRes.data || []);
-      }
-
-      if (mayorUsoRes.success) {
-        setDatosMayorUso(mayorUsoRes.data || null);
-      }
-
-      if (comparativaRes.success) {
-        setComparativaSuscripciones(comparativaRes.data || null);
-      }
-    } catch (err) {
-      setError(err.message || 'Error al cargar datos de disponibilidad de bicicletas');
-    } finally {
-      setCargando(false);
-    }
+  // Parametros de consulta
+  const queryParams = useMemo(() => {
+    const params = {
+      page: paginacionDisponibilidad.currentPage,
+      limit: paginacionDisponibilidad.itemsPerPage,
+      año: DATE_CONFIG.DATASET_YEAR
+    };
+    if (filtros.mes) params.mes = parseInt(filtros.mes);
+    return params;
   }, [paginacionDisponibilidad.currentPage, paginacionDisponibilidad.itemsPerPage, filtros]);
 
-  // Ejecutar la funcion de carga
-  useEffect(() => {
-    cargarDatosDisponibilidad();
-  }, [cargarDatosDisponibilidad]);
+  const statsParams = useMemo(() => {
+    const params = { año: DATE_CONFIG.DATASET_YEAR };
+    if (filtros.mes) params.mes = parseInt(filtros.mes);
+    return params;
+  }, [filtros]);
 
-  // Refrescar datos
-  const handleRefresh = () => {
-    cargarDatosDisponibilidad();
-  };
+  // React Query hooks
+  const {
+    data: availabilityResult,
+    isLoading,
+    error: mainError,
+    refetch
+  } = useBicicletas(queryParams);
+
+  const { data: statsResult } = useBicicletasEstadisticas(statsParams);
+  const { data: trendsResult } = useBicicletasTendencias({ year: DATE_CONFIG.DATASET_YEAR });
+  const { data: mayorUsoResult } = useBicicletasMayorUso();
+  const { data: suscripcionesResult } = useBicicletasSuscripciones();
+
+  // Extraer datos de las respuestas (estabilizar referencias para useMemo)
+  const datosDisponibilidad = useMemo(() => availabilityResult?.data || [], [availabilityResult?.data]);
+  const estadisticas = statsResult?.data || null;
+  const tendenciasMensuales = useMemo(() => trendsResult?.data || [], [trendsResult?.data]);
+  const datosMayorUso = mayorUsoResult?.data || null;
+  const comparativaSuscripciones = suscripcionesResult?.data || null;
+  const error = mainError?.message || null;
+
+  // Paginacion actualizada
+  const paginacionActual = useMemo(() => ({
+    ...paginacionDisponibilidad,
+    totalPages: availabilityResult?.pagination?.totalPages || 1,
+    totalItems: availabilityResult?.pagination?.totalDocuments || availabilityResult?.pagination?.totalItems || 0
+  }), [paginacionDisponibilidad, availabilityResult?.pagination]);
 
   // Cambiar pagina
-  const manejarCambioPagina = (page) => {
+  const manejarCambioPagina = useCallback((page) => {
     setPaginacionDisponibilidad(prev => ({ ...prev, currentPage: page }));
-  };
+  }, []);
 
   // Cambiar filtros
-  const manejarCambioFiltro = (name, value) => {
+  const manejarCambioFiltro = useCallback((name, value) => {
     setFiltros(prev => ({ ...prev, [name]: value }));
     setPaginacionDisponibilidad(prev => ({ ...prev, currentPage: 1 }));
-  };
+  }, []);
 
   // Limpiar filtros
-  const limpiarFiltros = () => {
+  const limpiarFiltros = useCallback(() => {
     setFiltros({ mes: '' });
     setPaginacionDisponibilidad(prev => ({ ...prev, currentPage: 1 }));
-  };
+  }, []);
 
   // Estadisticas computadas para las tarjetas
   const computedStats = useMemo(() => {
@@ -167,7 +133,7 @@ function PaginaBicicletas() {
 
     const mediaBicisDisponibles = estadisticas?.promedioMediaBicicletas || 0;
     const tasaOcupacion = estadisticas?.promedioTasaOcupacion || 0;
-    const totalRegistros = paginacionDisponibilidad.totalItems;
+    const totalRegistros = paginacionActual.totalItems;
 
     return {
       promedioUsosDiarios,
@@ -175,7 +141,7 @@ function PaginaBicicletas() {
       tasaOcupacion,
       totalRegistros
     };
-  }, [estadisticas, datosDisponibilidad, paginacionDisponibilidad.totalItems]);
+  }, [estadisticas, datosDisponibilidad, paginacionActual.totalItems]);
 
   // Preparar datos para grafico de tendencias mensuales
   const trendChartData = useMemo(() => {
@@ -199,7 +165,7 @@ function PaginaBicicletas() {
       title="Bicicletas"
       description={`Disponibilidad de bicicletas - ${DATE_CONFIG.DATASET_YEAR}`}
       actions={
-        <Button variant="outline" onClick={handleRefresh}>
+        <Button variant="outline" onClick={() => refetch()}>
           <RefreshCw className="h-4 w-4 mr-2" />
           Actualizar
         </Button>
@@ -259,7 +225,7 @@ function PaginaBicicletas() {
       </Card>
 
       {/* Graficos de disponibilidad */}
-      {!cargando && trendChartData.length > 0 && (
+      {!isLoading && trendChartData.length > 0 && (
         <div className="mb-6">
           <LineChartCard
             title="Tendencias Mensuales de Uso"
@@ -276,7 +242,7 @@ function PaginaBicicletas() {
       )}
 
       {/* Comparativa de suscripciones */}
-      {!cargando && comparativaSuscripciones?.comparativa && (
+      {!isLoading && comparativaSuscripciones?.comparativa && (
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -314,7 +280,7 @@ function PaginaBicicletas() {
       )}
 
       {/* Dias de mayor y menor uso */}
-      {!cargando && datosMayorUso && (
+      {!isLoading && datosMayorUso && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Top dias de mayor uso */}
           {datosMayorUso.diasMayorUso?.length > 0 && (
@@ -395,12 +361,12 @@ function PaginaBicicletas() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {cargando ? (
+            {isLoading ? (
               <LoadingState message="Cargando datos de disponibilidad..." />
             ) : error ? (
               <ErrorState
                 message={error}
-                onRetry={cargarDatosDisponibilidad}
+                onRetry={() => refetch()}
               />
             ) : datosDisponibilidad.length === 0 ? (
               <EmptyState
@@ -411,6 +377,7 @@ function PaginaBicicletas() {
             ) : (
               <>
                 <Table>
+                  <TableCaption className="sr-only">Datos diarios de disponibilidad y uso de bicicletas</TableCaption>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Dia</TableHead>
@@ -447,10 +414,10 @@ function PaginaBicicletas() {
 
                 {/* Paginacion */}
                 <Pagination
-                  currentPage={paginacionDisponibilidad.currentPage}
-                  totalPages={paginacionDisponibilidad.totalPages}
-                  totalItems={paginacionDisponibilidad.totalItems}
-                  itemsPerPage={paginacionDisponibilidad.itemsPerPage}
+                  currentPage={paginacionActual.currentPage}
+                  totalPages={paginacionActual.totalPages}
+                  totalItems={paginacionActual.totalItems}
+                  itemsPerPage={paginacionActual.itemsPerPage}
                   onPageChange={manejarCambioPagina}
                 />
               </>

@@ -3,7 +3,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { getNoiseData, getNoiseStatistics, getNoiseStationsList, getNoiseRanking, getNoiseCompliance, getNoiseTrends } from '../servicioRuido';
+import { obtenerDatosRuido, obtenerEstadisticasRuido, obtenerListaEstacionesRuido, obtenerRankingRuido, obtenerCumplimientoRuido, obtenerTendenciasRuido } from '../servicioRuido';
 
 /**
  * Hook para obtener datos de contaminacion acustica con filtros y paginacion
@@ -13,7 +13,7 @@ import { getNoiseData, getNoiseStatistics, getNoiseStationsList, getNoiseRanking
 export function useRuido(params) {
   return useQuery({
     queryKey: ['ruido', params],
-    queryFn: () => getNoiseData(params),
+    queryFn: () => obtenerDatosRuido(params),
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,
@@ -30,7 +30,7 @@ export function useRuido(params) {
 export function useEstacionesRuido() {
   return useQuery({
     queryKey: ['ruido-estaciones'],
-    queryFn: () => getNoiseStationsList(),
+    queryFn: () => obtenerListaEstacionesRuido(),
     staleTime: 30 * 60 * 1000, // 30 minutos - las estaciones no cambian
     select: (stations) => stations.map(s => ({
       value: String(s.nmt),
@@ -47,7 +47,7 @@ export function useEstacionesRuido() {
 export function useRuidoStats(params) {
   return useQuery({
     queryKey: ['ruido-stats', params],
-    queryFn: () => getNoiseStatistics(params),
+    queryFn: () => obtenerEstadisticasRuido(params),
     staleTime: 5 * 60 * 1000
   });
 }
@@ -60,7 +60,7 @@ export function useRuidoStats(params) {
 export function useRuidoRanking(params) {
   return useQuery({
     queryKey: ['ruido-ranking', params],
-    queryFn: () => getNoiseRanking(params),
+    queryFn: () => obtenerRankingRuido(params),
     staleTime: 5 * 60 * 1000
   });
 }
@@ -73,7 +73,7 @@ export function useRuidoRanking(params) {
 export function useRuidoCumplimiento(params) {
   return useQuery({
     queryKey: ['ruido-cumplimiento', params],
-    queryFn: () => getNoiseCompliance(params),
+    queryFn: () => obtenerCumplimientoRuido(params),
     staleTime: 5 * 60 * 1000
   });
 }
@@ -87,7 +87,7 @@ export function useRuidoCumplimiento(params) {
 export function useRuidoTendencias(params, options = {}) {
   return useQuery({
     queryKey: ['ruido-tendencias', params],
-    queryFn: () => getNoiseTrends(params),
+    queryFn: () => obtenerTendenciasRuido(params),
     staleTime: 5 * 60 * 1000,
     ...options
   });

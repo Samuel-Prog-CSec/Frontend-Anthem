@@ -21,7 +21,7 @@ import { normalizarRespuestaLista } from './normalizarRespuesta';
  * @param {string} [params.near] - Proximidad (x,y,radio_metros)
  * @returns {Promise<Object>} Lista de ubicaciones con paginacion
  */
-export async function getLocations(params = {}) {
+export async function obtenerUbicaciones(params = {}) {
   const queryParams = {
     page: params.page || PAGINATION.DEFAULT_PAGE,
     limit: params.limit || PAGINATION.LOCATIONS_DEFAULT_LIMIT,
@@ -37,7 +37,7 @@ export async function getLocations(params = {}) {
  * @param {string} measurementType - Tipo: 'acustica' o 'trafico'
  * @returns {Promise<Object>} Lista de puntos de medicion
  */
-export async function getMeasurementPoints(measurementType) {
+export async function obtenerPuntosMedicion(measurementType) {
   const response = await apiClient.get(`/ubicaciones/puntos-medicion/${measurementType}`);
   return response.data;
 }
@@ -47,7 +47,7 @@ export async function getMeasurementPoints(measurementType) {
  * @param {string} transportType - Tipo: 'todos', 'cercanias', 'autobus', 'interurbano', 'metro', 'metro_ligero', 'taxi'
  * @returns {Promise<Object>} Datos de la ruta
  */
-export async function getTransportRoutes(transportType) {
+export async function obtenerRutasTransporte(transportType) {
   const response = await apiClient.get(`/ubicaciones/transporte/${transportType}`);
   return response.data;
 }

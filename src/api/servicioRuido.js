@@ -26,7 +26,7 @@ import { normalizarRespuestaLista } from './normalizarRespuesta';
  * @param {boolean} [params.includeInvalid] - Incluir datos invalidos (true, false)
  * @returns {Promise<Object>} Lista de mediciones con paginacion
  */
-export async function getNoiseData(params = {}) {
+export async function obtenerDatosRuido(params = {}) {
   const queryParams = {
     page: params.page || PAGINATION.DEFAULT_PAGE,
     limit: params.limit || PAGINATION.DEFAULT_LIMIT,
@@ -44,7 +44,7 @@ export async function getNoiseData(params = {}) {
  * @param {number} [params.nmt] - ID de estacion
  * @returns {Promise<Object>} Estadisticas agregadas
  */
-export async function getNoiseStatistics(params = {}) {
+export async function obtenerEstadisticasRuido(params = {}) {
   const response = await apiClient.get('/ruido/estadisticas', { params });
   return response.data;
 }
@@ -58,7 +58,7 @@ export async function getNoiseStatistics(params = {}) {
  * @param {number} [params.limit] - Numero de estaciones a retornar
  * @returns {Promise<Object>} Ranking de estaciones
  */
-export async function getNoiseRanking(params = {}) {
+export async function obtenerRankingRuido(params = {}) {
   const response = await apiClient.get('/ruido/ranking', { params });
   return response.data;
 }
@@ -72,7 +72,7 @@ export async function getNoiseRanking(params = {}) {
  * @param {string} [params.zoneType] - Tipo de zona geografica: 'residential', 'commercial', 'industrial', 'mixed'
  * @returns {Promise<Object>} Datos de cumplimiento
  */
-export async function getNoiseCompliance(params = {}) {
+export async function obtenerCumplimientoRuido(params = {}) {
   const response = await apiClient.get('/ruido/cumplimiento/zona', { params });
   return response.data;
 }
@@ -87,7 +87,7 @@ export async function getNoiseCompliance(params = {}) {
  * @param {string} [params.metric] - Metrica: 'laeq24', 'nivelDiurno', 'nivelVespertino', 'nivelNocturno'
  * @returns {Promise<Object>} Datos de tendencias temporales
  */
-export async function getNoiseTrends(params = {}) {
+export async function obtenerTendenciasRuido(params = {}) {
   const response = await apiClient.get('/ruido/tendencias/temporal', { params });
   return response.data;
 }
@@ -96,7 +96,7 @@ export async function getNoiseTrends(params = {}) {
  * Obtiene lista de estaciones unicas
  * @returns {Promise<Array>} Lista de estaciones con nombre e ID
  */
-export async function getNoiseStationsList() {
+export async function obtenerListaEstacionesRuido() {
   // Intentar obtener estaciones desde estadisticas agrupadas por estacion
   try {
     const statsResponse = await apiClient.get('/ruido/estadisticas', {

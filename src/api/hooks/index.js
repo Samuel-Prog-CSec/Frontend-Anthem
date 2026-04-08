@@ -5,3 +5,6 @@
 export { useUbicaciones, useUbicacionesStats, usePuntosMedicion, useRutasTransporte } from './useUbicaciones';
 export { useCalidadAire, useCalidadAireStats, useCalidadAireTrends } from './useCalidadAire';
 export { useRuido, useEstacionesRuido, useRuidoStats, useRuidoRanking, useRuidoCumplimiento, useRuidoTendencias } from './useRuido';
+export { usePatinetes, usePatinetesEstadisticas, usePatinetesMercado, usePatinetesZonas, usePatinetesDetallesArea } from './usePatinetes';
+export { useAccidentes, useAccidenteExpediente, useAccidentesEstadisticas, useAccidentesComparativa, useAccidentesMapaCalor } from './useAccidentes';
+export { useBicicletas, useBicicletasEstadisticas, useBicicletasTendencias, useBicicletasMayorUso, useBicicletasSuscripciones } from './useBicicletas';

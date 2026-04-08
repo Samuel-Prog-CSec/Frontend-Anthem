@@ -5,7 +5,7 @@
  * Muestra un valor, etiqueta e icono.
  */
 
-import { Card } from '../common';
+import { Card, Skeleton } from '../common';
 import { cn } from '../../utils';
 
 /**
@@ -17,17 +17,33 @@ import { cn } from '../../utils';
  * @param {React.ComponentType} [props.icon] - Icono
  * @param {string} [props.trend] - Tendencia: 'up', 'down', 'neutral'
  * @param {string} [props.trendValue] - Valor de la tendencia
+ * @param {boolean} [props.isLoading] - Mostrar skeleton de carga
  * @param {string} [props.className] - Clases adicionales
  */
-function StatCard({ 
-  title, 
-  value, 
-  subtitle, 
-  icon: Icon, 
-  trend, 
+function StatCard({
+  title,
+  value,
+  subtitle,
+  icon: Icon,
+  trend,
   trendValue,
-  className 
+  isLoading,
+  className
 }) {
+  if (isLoading) {
+    return (
+      <Card className={cn('p-6', className)}>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <Skeleton className="h-4 w-24 mb-3" />
+            <Skeleton className="h-8 w-20 mb-2" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+          <Skeleton className="h-12 w-12 rounded-lg" />
+        </div>
+      </Card>
+    );
+  }
   const trendColors = {
     up: 'text-emerald-400',
     down: 'text-red-400',

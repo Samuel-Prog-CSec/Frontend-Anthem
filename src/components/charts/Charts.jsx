@@ -21,8 +21,37 @@ import {
   Pie,
   Cell
 } from 'recharts';
-import { Card, CardHeader, CardTitle, CardContent } from '../common';
+import { Card, CardHeader, CardTitle, CardContent, Skeleton } from '../common';
 import { CHART_COLORS } from '../../constants';
+
+/**
+ * Placeholder de carga para graficos
+ * @param {Object} props
+ * @param {string} [props.title] - Titulo del grafico
+ * @param {number} [props.height] - Altura del area del grafico
+ */
+function ChartSkeleton({ title, height = 300 }) {
+  return (
+    <Card>
+      {title && (
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+        </CardHeader>
+      )}
+      <CardContent>
+        <div style={{ height }} className="flex items-end gap-2 pt-8">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton
+              key={i}
+              className="flex-1 rounded-t"
+              style={{ height: `${30 + Math.random() * 60}%` }}
+            />
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 /**
  * Tooltip personalizado para graficos
@@ -52,7 +81,9 @@ function CustomTooltip({ active, payload, label }) {
  * @param {number} [props.height] - Altura del grafico
  * @param {Array} [props.referenceLines] - Lineas de referencia [{y, label, color}]
  */
-function LineChartCard({ data, xKey, lines, title, height = 300, referenceLines = [] }) {
+function LineChartCard({ data, xKey, lines, title, height = 300, referenceLines = [], isLoading }) {
+  if (isLoading) return <ChartSkeleton title={title} height={height} />;
+
   return (
     <Card>
       {title && (
@@ -117,7 +148,8 @@ function LineChartCard({ data, xKey, lines, title, height = 300, referenceLines 
  * @param {number} [props.height] - Altura del grafico
  * @param {Array} [props.referenceLines] - Lineas de referencia [{y, label, color}]
  */
-function BarChartCard({ data, xKey, bars, title, height = 300, referenceLines = [] }) {
+function BarChartCard({ data, xKey, bars, title, height = 300, referenceLines = [], isLoading }) {
+  if (isLoading) return <ChartSkeleton title={title} height={height} />;
   return (
     <Card>
       {title && (
@@ -177,7 +209,8 @@ function BarChartCard({ data, xKey, bars, title, height = 300, referenceLines = 
  * @param {number} [props.height] - Altura del grafico
  * @param {boolean} [props.donut] - Si es grafico de dona
  */
-function PieChartCard({ data, title, height = 300, donut = false }) {
+function PieChartCard({ data, title, height = 300, donut = false, isLoading }) {
+  if (isLoading) return <ChartSkeleton title={title} height={height} />;
   const colors = Object.values(CHART_COLORS);
 
   return (

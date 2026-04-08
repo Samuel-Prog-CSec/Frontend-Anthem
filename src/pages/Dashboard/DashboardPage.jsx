@@ -10,9 +10,9 @@ import { Link } from 'react-router-dom';
 import { MapPin, Wind, Volume2, ArrowRight, Activity, TrendingUp, Sparkles, ChevronRight, Cpu, Database, Zap } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, Button } from '../../components/common';
-import { getLocations } from '../../api/servicioUbicaciones';
-import { getAirQualityData } from '../../api/servicioCalidadAire';
-import { getNoiseData } from '../../api/servicioRuido';
+import { obtenerUbicaciones } from '../../api/servicioUbicaciones';
+import { obtenerDatosCalidadAire } from '../../api/servicioCalidadAire';
+import { obtenerDatosRuido } from '../../api/servicioRuido';
 import { ROUTES, DATE_CONFIG } from '../../constants';
 import { cn } from '../../utils';
 
@@ -157,7 +157,7 @@ function DashboardPage() {
     const fetchStats = async () => {
       // Cargar ubicaciones
       try {
-        const locationsRes = await getLocations({ limit: 1 });
+        const locationsRes = await obtenerUbicaciones({ limit: 1 });
         setStats(prev => ({
           ...prev,
           locations: { 
@@ -175,7 +175,7 @@ function DashboardPage() {
 
       // Cargar calidad del aire
       try {
-        const airRes = await getAirQualityData({ limit: 1 });
+        const airRes = await obtenerDatosCalidadAire({ limit: 1 });
         setStats(prev => ({
           ...prev,
           airQuality: { 
@@ -193,7 +193,7 @@ function DashboardPage() {
 
       // Cargar ruido
       try {
-        const noiseRes = await getNoiseData({ limit: 1 });
+        const noiseRes = await obtenerDatosRuido({ limit: 1 });
         setStats(prev => ({
           ...prev,
           noise: { 

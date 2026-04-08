@@ -3,7 +3,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { getAirQualityData, getAirQualityStatistics, getAirQualityTrends } from '../servicioCalidadAire';
+import { obtenerDatosCalidadAire, obtenerEstadisticasCalidadAire, obtenerTendenciasCalidadAire } from '../servicioCalidadAire';
 
 /**
  * Hook para obtener datos de calidad del aire con filtros y paginacion
@@ -13,7 +13,7 @@ import { getAirQualityData, getAirQualityStatistics, getAirQualityTrends } from 
 export function useCalidadAire(params) {
   return useQuery({
     queryKey: ['calidad-aire', params],
-    queryFn: () => getAirQualityData(params),
+    queryFn: () => obtenerDatosCalidadAire(params),
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,
@@ -31,7 +31,7 @@ export function useCalidadAire(params) {
 export function useCalidadAireStats(params) {
   return useQuery({
     queryKey: ['calidad-aire-stats', params],
-    queryFn: () => getAirQualityStatistics(params),
+    queryFn: () => obtenerEstadisticasCalidadAire(params),
     staleTime: 5 * 60 * 1000
   });
 }
@@ -45,7 +45,7 @@ export function useCalidadAireStats(params) {
 export function useCalidadAireTrends(params, options = {}) {
   return useQuery({
     queryKey: ['calidad-aire-trends', params],
-    queryFn: () => getAirQualityTrends(params),
+    queryFn: () => obtenerTendenciasCalidadAire(params),
     staleTime: 5 * 60 * 1000,
     ...options
   });

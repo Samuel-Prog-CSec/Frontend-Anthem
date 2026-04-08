@@ -3,7 +3,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { getLocations, getMeasurementPoints, getTransportRoutes } from '../servicioUbicaciones';
+import { obtenerUbicaciones, obtenerPuntosMedicion, obtenerRutasTransporte } from '../servicioUbicaciones';
 
 /**
  * Hook para obtener ubicaciones con filtros y paginacion
@@ -13,7 +13,7 @@ import { getLocations, getMeasurementPoints, getTransportRoutes } from '../servi
 export function useUbicaciones(params) {
   return useQuery({
     queryKey: ['ubicaciones', params],
-    queryFn: () => getLocations(params),
+    queryFn: () => obtenerUbicaciones(params),
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,
@@ -31,12 +31,12 @@ export function useUbicacionesStats() {
     queryKey: ['ubicaciones-stats'],
     queryFn: async () => {
       const [totalRes, acusticaRes, traficoRes, metroRes, busRes, cercaniasRes] = await Promise.all([
-        getLocations({ limit: 1 }),
-        getLocations({ limit: 1, type: 'estacion_acustica' }),
-        getLocations({ limit: 1, type: 'punto_trafico' }),
-        getLocations({ limit: 1, type: 'ruta_metro' }),
-        getLocations({ limit: 1, type: 'ruta_autobus' }),
-        getLocations({ limit: 1, type: 'ruta_cercanias' })
+        obtenerUbicaciones({ limit: 1 }),
+        obtenerUbicaciones({ limit: 1, type: 'estacion_acustica' }),
+        obtenerUbicaciones({ limit: 1, type: 'punto_trafico' }),
+        obtenerUbicaciones({ limit: 1, type: 'ruta_metro' }),
+        obtenerUbicaciones({ limit: 1, type: 'ruta_autobus' }),
+        obtenerUbicaciones({ limit: 1, type: 'ruta_cercanias' })
       ]);
 
       return {
@@ -61,7 +61,7 @@ export function useUbicacionesStats() {
 export function usePuntosMedicion(measurementType, options = {}) {
   return useQuery({
     queryKey: ['puntos-medicion', measurementType],
-    queryFn: () => getMeasurementPoints(measurementType),
+    queryFn: () => obtenerPuntosMedicion(measurementType),
     staleTime: 10 * 60 * 1000,
     enabled: !!measurementType,
     ...options
@@ -77,7 +77,7 @@ export function usePuntosMedicion(measurementType, options = {}) {
 export function useRutasTransporte(transportType, options = {}) {
   return useQuery({
     queryKey: ['rutas-transporte', transportType],
-    queryFn: () => getTransportRoutes(transportType),
+    queryFn: () => obtenerRutasTransporte(transportType),
     staleTime: 10 * 60 * 1000,
     enabled: !!transportType,
     ...options

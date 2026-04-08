@@ -69,6 +69,7 @@ function Navbar() {
                   <Link
                     key={item.path}
                     to={item.path}
+                    aria-current={isActive ? 'page' : undefined}
                     className={cn(
                       'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200',
                       isActive
@@ -97,11 +98,12 @@ function Navbar() {
                 </div>
                 
                 {/* Boton logout */}
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={handleLogout} 
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleLogout}
                   title="Cerrar sesion"
+                  aria-label="Cerrar sesion"
                   className="text-slate-400 hover:text-red-400 hover:bg-red-500/10"
                 >
                   <LogOut className="h-4 w-4" />
@@ -146,6 +148,7 @@ function Navbar() {
                     key={item.path}
                     to={item.path}
                     onClick={() => setIsMobileMenuOpen(false)}
+                    aria-current={isActive ? 'page' : undefined}
                     className={cn(
                       'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all',
                       isActive

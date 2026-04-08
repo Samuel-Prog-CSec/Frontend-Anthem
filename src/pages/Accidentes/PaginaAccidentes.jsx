@@ -8,21 +8,21 @@
  * - Analisis de presencia de alcohol
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { AlertTriangle, Filter, RefreshCw, ShieldAlert, Skull, Wine, Car, Users, X, FileText, MapPin } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
 import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
   Button, Select, Badge,
-  Table, TableHeader, TableBody, TableHead, TableRow, TableCell,
+  Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
   LoadingState, ErrorState, EmptyState, Pagination
 } from '../../components/common';
 import { StatCard, BarChartCard, PieChartCard } from '../../components/charts';
 import {
-  obtenerDatosAccidentes, obtenerComparativaDistritos,
-  obtenerEstadisticasAccidentes, obtenerAccidentePorExpediente,
-  obtenerMapaCalorAccidentes
-} from '../../api/servicioAccidentes';
+  useAccidentes, useAccidentesComparativa,
+  useAccidentesEstadisticas, useAccidenteExpediente,
+  useAccidentesMapaCalor
+} from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
 import { formatDate, formatNumber } from '../../utils';
 
@@ -92,14 +92,6 @@ function obtenerBadgeAlcohol(value) {
  * Pagina de accidentalidad
  */
 function PaginaAccidentes() {
-  const [datos, setDatos] = useState([]);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
-  const [datosDistritos, setDatosDistritos] = useState([]);
-  const [estadisticasGenerales, setEstadisticasGenerales] = useState(null);
-  const [zonasAccidentalidad, setZonasAccidentalidad] = useState([]);
-  const [expedienteSeleccionado, setExpedienteSeleccionado] = useState(null);
-  const [cargandoExpediente, setCargandoExpediente] = useState(false);
   const [filtros, setFiltros] = useState({
     distrito: '',
     tipoAccidente: '',
@@ -112,119 +104,95 @@ function PaginaAccidentes() {
     totalElementos: 0,
     elementosPorPagina: PAGINATION.DEFAULT_LIMIT
   });
+  const [expedienteQuery, setExpedienteQuery] = useState(null);
 
-  // Cargar datos
-  const cargarDatos = useCallback(async () => {
-    setCargando(true);
-    setError(null);
-
-    try {
-      const params = {
-        page: paginacion.paginaActual,
-        limit: paginacion.elementosPorPagina
-      };
-
-      if (filtros.distrito) params.distrito = filtros.distrito;
-      if (filtros.tipoAccidente) params.tipoAccidente = filtros.tipoAccidente;
-      if (filtros.gravedad) params.gravedad = filtros.gravedad;
-
-      if (filtros.mes) {
-        const year = DATE_CONFIG.DATASET_YEAR;
-        const month = parseInt(filtros.mes);
-        params.startDate = new Date(year, month - 1, 1).toISOString();
-        params.endDate = new Date(year, month, 0, 23, 59, 59).toISOString();
-      }
-
-      const [dataResponse, districtResponse, statsResponse, heatmapResponse] = await Promise.all([
-        obtenerDatosAccidentes(params),
-        obtenerComparativaDistritos(),
-        obtenerEstadisticasAccidentes(),
-        obtenerMapaCalorAccidentes({ limite: 300, precision: 100 }).catch(() => null)
-      ]);
-
-      if (dataResponse.success) {
-        setDatos(dataResponse.data || []);
-        setPaginacion(prev => ({
-          ...prev,
-          totalPaginas: dataResponse.pagination?.totalPages || 1,
-          totalElementos: dataResponse.pagination?.totalDocuments || dataResponse.pagination?.totalItems || 0
-        }));
-      }
-
-      if (districtResponse.success) {
-        setDatosDistritos(districtResponse.data || []);
-      }
-
-      if (statsResponse.success) {
-        setEstadisticasGenerales(statsResponse.data || null);
-      }
-
-      // Procesar zonas de accidentalidad del mapa de calor
-      if (heatmapResponse?.success && heatmapResponse?.data?.data) {
-        const zonas = Array.isArray(heatmapResponse.data.data)
-          ? heatmapResponse.data.data
-              .sort((a, b) => b.totalAccidentes - a.totalAccidentes)
-              .slice(0, 10)
-          : [];
-        setZonasAccidentalidad(zonas);
-      }
-    } catch (err) {
-      setError(err.message || 'Error al cargar datos de accidentes');
-    } finally {
-      setCargando(false);
+  // Parametros de consulta para la query principal
+  const queryParams = useMemo(() => {
+    const params = {
+      page: paginacion.paginaActual,
+      limit: paginacion.elementosPorPagina
+    };
+    if (filtros.distrito) params.distrito = filtros.distrito;
+    if (filtros.tipoAccidente) params.tipoAccidente = filtros.tipoAccidente;
+    if (filtros.gravedad) params.gravedad = filtros.gravedad;
+    if (filtros.mes) {
+      const year = DATE_CONFIG.DATASET_YEAR;
+      const month = parseInt(filtros.mes);
+      params.startDate = new Date(year, month - 1, 1).toISOString();
+      params.endDate = new Date(year, month, 0, 23, 59, 59).toISOString();
     }
+    return params;
   }, [paginacion.paginaActual, paginacion.elementosPorPagina, filtros]);
 
-  useEffect(() => {
-    cargarDatos();
-  }, [cargarDatos]);
+  // React Query hooks (se ejecutan en paralelo automaticamente)
+  const {
+    data: accidentesResult,
+    isLoading,
+    error: mainError,
+    refetch
+  } = useAccidentes(queryParams);
+
+  const { data: distritosResult } = useAccidentesComparativa();
+  const { data: statsResult } = useAccidentesEstadisticas();
+  const { data: heatmapResult } = useAccidentesMapaCalor({ limite: 300, precision: 100 });
+  const {
+    data: expedienteResult,
+    isLoading: cargandoExpediente
+  } = useAccidenteExpediente(expedienteQuery);
+
+  // Extraer datos de las respuestas (estabilizar referencias para useMemo)
+  const datos = useMemo(() => accidentesResult?.data || [], [accidentesResult?.data]);
+  const datosDistritos = useMemo(() => distritosResult?.data || [], [distritosResult?.data]);
+  const estadisticasGenerales = statsResult?.data || null;
+  const error = mainError?.message || null;
+
+  // Procesar zonas de accidentalidad del mapa de calor
+  const zonasAccidentalidad = useMemo(() => {
+    const rawData = heatmapResult?.data?.data || heatmapResult?.data || [];
+    if (!Array.isArray(rawData)) return [];
+    return [...rawData]
+      .sort((a, b) => b.totalAccidentes - a.totalAccidentes)
+      .slice(0, 10);
+  }, [heatmapResult]);
+
+  // Datos del expediente seleccionado
+  const expedienteSeleccionado = expedienteQuery ? (expedienteResult?.data || null) : null;
+
+  // Actualizar paginacion cuando cambian los datos
+  const paginacionActual = useMemo(() => ({
+    ...paginacion,
+    totalPaginas: accidentesResult?.pagination?.totalPages || 1,
+    totalElementos: accidentesResult?.pagination?.totalDocuments || accidentesResult?.pagination?.totalItems || 0
+  }), [paginacion, accidentesResult?.pagination]);
 
   // Cambiar pagina
-  const manejarCambioPagina = (page) => {
+  const manejarCambioPagina = useCallback((page) => {
     setPaginacion(prev => ({ ...prev, paginaActual: page }));
-  };
+  }, []);
 
   // Cambiar filtros
-  const manejarCambioFiltro = (name, value) => {
+  const manejarCambioFiltro = useCallback((name, value) => {
     setFiltros(prev => ({ ...prev, [name]: value }));
     setPaginacion(prev => ({ ...prev, paginaActual: 1 }));
-  };
+  }, []);
 
   // Limpiar filtros
-  const limpiarFiltros = () => {
+  const limpiarFiltros = useCallback(() => {
     setFiltros({ distrito: '', tipoAccidente: '', gravedad: '', mes: '' });
     setPaginacion(prev => ({ ...prev, paginaActual: 1 }));
-  };
+  }, []);
 
-  // Cargar detalle de expediente
-  const manejarClickExpediente = useCallback(async (numeroExpediente) => {
+  // Toggle detalle de expediente
+  const manejarClickExpediente = useCallback((numeroExpediente) => {
     if (!numeroExpediente) return;
-
-    // Si ya esta seleccionado, cerrar el detalle
-    if (expedienteSeleccionado?.numeroExpediente === numeroExpediente) {
-      setExpedienteSeleccionado(null);
-      return;
-    }
-
-    setCargandoExpediente(true);
-    try {
-      const response = await obtenerAccidentePorExpediente(numeroExpediente);
-      if (response.success) {
-        setExpedienteSeleccionado(response.data || null);
-      }
-    } catch (err) {
-      // Silenciar error - simplemente no mostrar el detalle
-      setExpedienteSeleccionado(null);
-    } finally {
-      setCargandoExpediente(false);
-    }
-  }, [expedienteSeleccionado]);
+    setExpedienteQuery(prev => prev === numeroExpediente ? null : numeroExpediente);
+  }, []);
 
   // Calcular estadisticas de la pagina actual
   const estadisticas = useMemo(() => {
     if (datos.length === 0) {
       return {
-        totalPersonasAfectadas: paginacion.totalElementos,
+        totalPersonasAfectadas: paginacionActual.totalElementos,
         accidentesGraves: 0,
         accidentesMortales: 0,
         conAlcohol: 0
@@ -245,12 +213,12 @@ function PaginaAccidentes() {
     ).length;
 
     return {
-      totalPersonasAfectadas: paginacion.totalElementos,
+      totalPersonasAfectadas: paginacionActual.totalElementos,
       accidentesGraves,
       accidentesMortales,
       conAlcohol
     };
-  }, [datos, paginacion.totalElementos]);
+  }, [datos, paginacionActual.totalElementos]);
 
   // Preparar datos para grafico de barras (top 10 distritos)
   const datosGrafico = useMemo(() => {
@@ -288,7 +256,7 @@ function PaginaAccidentes() {
       title="Accidentalidad"
       description={`Datos de accidentes de trafico - ${DATE_CONFIG.DATASET_YEAR}`}
       actions={
-        <Button variant="outline" onClick={cargarDatos}>
+        <Button variant="outline" onClick={() => refetch()}>
           <RefreshCw className="h-4 w-4 mr-2" />
           Actualizar
         </Button>
@@ -379,7 +347,7 @@ function PaginaAccidentes() {
       </Card>
 
       {/* Graficos */}
-      {!cargando && datos.length > 0 && (
+      {!isLoading && datos.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {datosGrafico.length > 0 && (
             <BarChartCard
@@ -452,12 +420,12 @@ function PaginaAccidentes() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {cargando ? (
+          {isLoading ? (
             <LoadingState message="Cargando accidentes..." />
           ) : error ? (
             <ErrorState
               message={error}
-              onRetry={cargarDatos}
+              onRetry={() => refetch()}
             />
           ) : datos.length === 0 ? (
             <EmptyState
@@ -468,6 +436,7 @@ function PaginaAccidentes() {
           ) : (
             <>
               <Table>
+                <TableCaption className="sr-only">Registro de personas afectadas en accidentes de trafico</TableCaption>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Expediente</TableHead>
@@ -546,10 +515,10 @@ function PaginaAccidentes() {
 
               {/* Paginacion */}
               <Pagination
-                currentPage={paginacion.paginaActual}
-                totalPages={paginacion.totalPaginas}
-                totalItems={paginacion.totalElementos}
-                itemsPerPage={paginacion.elementosPorPagina}
+                currentPage={paginacionActual.paginaActual}
+                totalPages={paginacionActual.totalPaginas}
+                totalItems={paginacionActual.totalElementos}
+                itemsPerPage={paginacionActual.elementosPorPagina}
                 onPageChange={manejarCambioPagina}
               />
             </>
@@ -573,7 +542,7 @@ function PaginaAccidentes() {
                 <FileText className="h-5 w-5" />
                 Expediente: {expedienteSeleccionado.numeroExpediente}
               </CardTitle>
-              <Button variant="ghost" onClick={() => setExpedienteSeleccionado(null)}>
+              <Button variant="ghost" onClick={() => setExpedienteQuery(null)}>
                 <X className="h-4 w-4" />
               </Button>
             </div>

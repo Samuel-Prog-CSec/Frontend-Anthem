@@ -89,6 +89,7 @@ function PublicRoute({ children }) {
  */
 function AppRoutes() {
   return (
+    <ErrorBoundary>
     <Suspense fallback={<PageLoadingFallback />}>
       <Routes>
         {/* Rutas publicas */}
@@ -179,6 +180,7 @@ function AppRoutes() {
         <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
       </Routes>
     </Suspense>
+    </ErrorBoundary>
   );
 }
 
