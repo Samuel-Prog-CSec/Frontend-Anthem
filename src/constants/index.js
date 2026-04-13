@@ -113,7 +113,7 @@ export const SORT_FIELDS = {
   AIR_QUALITY: ['fecha', 'estacion', 'magnitud', 'provincia', 'municipio'],
   BIKE_AVAILABILITY: ['dia', 'fecha', 'totalUsos', 'mediaBicicletasDisponibles', 'horasTotalesUsos', 'horasTotalesDisponibilidad'],
   BIKE_CAPACITY: ['fecha', 'estacion', 'aforoEntradas', 'aforoSalidas'],
-  CENSUS: ['fechaCenso', 'totalPoblacion', 'porcentajeExtranjeros', 'edad', 'distrito', 'barrio'],
+  CENSO: ['fechaCenso', 'totalPoblacion', 'porcentajeExtranjeros', 'edad', 'distrito', 'barrio'],
   CONTAINER: ['tipoContenedor', 'distrito', 'barrio', 'direccion', 'lote'],
   FINE: ['fecha', 'importeFinal', 'puntosDetraídos', 'lugar', 'calificacion'],
   LOCATION: ['nombre', 'distrito', 'barrio', 'tipo'],
@@ -126,31 +126,6 @@ export const SORT_FIELDS = {
 // ========================================
 // TIPOS DE DATOS Y ENUMS (Sincronizado con Backend)
 // ========================================
-
-/**
- * Niveles de severidad/gravedad por tipo de dato
- */
-const SEVERITY_LEVELS = {
-  ACCIDENT: {
-    LEVE: 'LEVE',
-    GRAVE: 'GRAVE',
-    MORTAL: 'MORTAL',
-    SIN_LESIONES: 'SIN_LESIONES'
-  },
-  FINE: {
-    LEVE: 'LEVE',
-    GRAVE: 'GRAVE',
-    MUY_GRAVE: 'MUY_GRAVE'
-  },
-  AIR_QUALITY: {
-    BUENA: 'BUENA',
-    MODERADA: 'MODERADA',
-    DAÑINA_GRUPOS_SENSIBLES: 'DAÑINA_GRUPOS_SENSIBLES',
-    DAÑINA: 'DAÑINA',
-    MUY_DAÑINA: 'MUY_DAÑINA',
-    PELIGROSA: 'PELIGROSA'
-  }
-};
 
 /**
  * Tipos de contenedores de residuos
@@ -277,37 +252,6 @@ export const SCOOTER_ZONE_TYPES = {
   ZONA_TRANSPORTE: 'ZONA_TRANSPORTE'
 };
 
-const SCOOTER_PRIORITY_LEVELS = {
-  BAJA: 'BAJA',
-  MEDIA: 'MEDIA',
-  ALTA: 'ALTA',
-  CRITICA: 'CRITICA'
-};
-
-const SCOOTER_DEMAND_LEVELS = {
-  BAJA: 'BAJA',
-  MEDIA: 'MEDIA',
-  ALTA: 'ALTA',
-  MUY_ALTA: 'MUY_ALTA'
-};
-
-const SCOOTER_PROVIDERS = {
-  ACCIONA: 'ACCIONA',
-  BIRD: 'BIRD',
-  FLASH: 'FLASH',
-  JUMP_UBER: 'JUMP_UBER',
-  KOKO: 'KOKO',
-  LIME: 'LIME',
-  MOVO: 'MOVO',
-  MYGO: 'MYGO',
-  REBY_RIDES: 'REBY_RIDES',
-  RIDECONGA: 'RIDECONGA',
-  SJV_CONSULTING: 'SJV_CONSULTING',
-  TAXIFY: 'TAXIFY',
-  UFO: 'UFO',
-  WIND: 'WIND'
-};
-
 // ========================================
 // COLORES Y ESTILOS
 // ========================================
@@ -330,7 +274,7 @@ export const CHART_COLORS = {
 // ========================================
 
 export const DATE_CONFIG = {
-  DATASET_YEAR: 2051, // Ano de los datos del dataset
+  DATASET_YEAR: 2051, // Año de los datos del dataset
   LOCALE: 'es-ES',
   FORMAT_OPTIONS: {
     short: { day: '2-digit', month: '2-digit', year: 'numeric' },
@@ -356,6 +300,79 @@ export const UI_MESSAGES = {
 // RUTAS DE NAVEGACION
 // ========================================
 
+// ========================================
+// CENSO - GRUPOS DE EDAD
+// ========================================
+
+// ========================================
+// AFORO BICICLETAS - FRANJAS HORARIAS
+// ========================================
+
+export const FRANJAS_HORARIAS = {
+  MADRUGADA: 'MADRUGADA',
+  MAÑANA: 'MAÑANA',
+  MEDIODIA: 'MEDIODIA',
+  TARDE: 'TARDE',
+  NOCHE: 'NOCHE'
+};
+
+export const ETIQUETAS_FRANJAS_HORARIAS = {
+  MADRUGADA: 'Madrugada (0-5h)',
+  MAÑANA: 'Mañana (6-11h)',
+  MEDIODIA: 'Mediodia (12-14h)',
+  TARDE: 'Tarde (15-20h)',
+  NOCHE: 'Noche (21-23h)'
+};
+
+// ========================================
+// MULTAS - CALIFICACIONES Y DENUNCIANTES
+// ========================================
+
+export const CALIFICACIONES_MULTA = {
+  LEVE: 'LEVE',
+  GRAVE: 'GRAVE',
+  MUY_GRAVE: 'MUY_GRAVE'
+};
+
+export const ETIQUETAS_CALIFICACION_MULTA = {
+  LEVE: 'Leve',
+  GRAVE: 'Grave',
+  MUY_GRAVE: 'Muy Grave'
+};
+
+export const TIPOS_DENUNCIANTE = {
+  POLICIA_MUNICIPAL: 'POLICIA MUNICIPAL',
+  SER: 'SER',
+  SACE: 'SACE',
+  AGENTES_DE_MOVILIDAD: 'AGENTES DE MOVILIDAD'
+};
+
+// ========================================
+// CENSO - GRUPOS DE EDAD
+// ========================================
+
+export const GRUPOS_EDAD_CENSO = {
+  INFANTIL: 'INFANTIL',
+  JUVENIL: 'JUVENIL',
+  ADULTO_JOVEN: 'ADULTO_JOVEN',
+  ADULTO: 'ADULTO',
+  MAYOR: 'MAYOR',
+  ANCIANO: 'ANCIANO'
+};
+
+export const ETIQUETAS_GRUPOS_EDAD = {
+  INFANTIL: 'Infantil (0-14)',
+  JUVENIL: 'Juvenil (15-24)',
+  ADULTO_JOVEN: 'Adulto joven (25-44)',
+  ADULTO: 'Adulto (45-64)',
+  MAYOR: 'Mayor (65-79)',
+  ANCIANO: 'Anciano (80+)'
+};
+
+// ========================================
+// RUTAS DE NAVEGACION
+// ========================================
+
 export const ROUTES = {
   HOME: '/',
   DASHBOARD: '/dashboard',
@@ -365,6 +382,9 @@ export const ROUTES = {
   ACCIDENTS: '/accidentes',
   SCOOTER_ASSIGNMENTS: '/patinetes',
   BIKE_AVAILABILITY: '/bicicletas',
+  CENSO: '/censo',
+  MULTAS: '/multas',
+  AFORO_BICICLETAS: '/aforo-bicicletas',
   LOGIN: '/login',
   REGISTER: '/register',
   NOT_FOUND: '*'

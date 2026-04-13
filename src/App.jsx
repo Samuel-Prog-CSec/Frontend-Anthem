@@ -23,6 +23,9 @@ const PaginaRuido = lazy(() => import('./pages/Ruido/PaginaRuido'));
 const PaginaAccidentes = lazy(() => import('./pages/Accidentes/PaginaAccidentes'));
 const PaginaPatinetes = lazy(() => import('./pages/Patinetes/PaginaPatinetes'));
 const PaginaBicicletas = lazy(() => import('./pages/Bicicletas/PaginaBicicletas'));
+const PaginaCenso = lazy(() => import('./pages/Censo/PaginaCenso'));
+const PaginaMultas = lazy(() => import('./pages/Multas/PaginaMultas'));
+const PaginaAforoBicicletas = lazy(() => import('./pages/AforoBicicletas/PaginaAforoBicicletas'));
 const NotFoundPage = lazy(() => import('./pages/NotFound/NotFoundPage'));
 
 // Configuracion de React Query
@@ -172,6 +175,30 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PaginaBicicletas />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CENSO}
+          element={
+            <ProtectedRoute>
+              <PaginaCenso />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.MULTAS}
+          element={
+            <ProtectedRoute>
+              <PaginaMultas />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.AFORO_BICICLETAS}
+          element={
+            <ProtectedRoute>
+              <PaginaAforoBicicletas />
             </ProtectedRoute>
           }
         />

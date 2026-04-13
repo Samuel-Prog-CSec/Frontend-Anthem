@@ -11,3 +11,6 @@ export * from './servicioRuido';
 export * from './servicioAccidentes';
 export * from './servicioPatinetes';
 export * from './servicioBicicletas';
+export * from './servicioCenso';
+export * from './servicioMultas';
+export * from './servicioAforoBicicletas';

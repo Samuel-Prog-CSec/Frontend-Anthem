@@ -6,7 +6,7 @@
  */
 
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User, LogOut, MapPin, Wind, Volume2, LayoutDashboard, ChevronDown, AlertTriangle, Zap, Bike } from 'lucide-react';
+import { Menu, X, User, LogOut, MapPin, Wind, Volume2, LayoutDashboard, AlertTriangle, Zap, Bike, Users, FileWarning, Activity } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../common';
 import { useAuth } from '../../context';
@@ -20,7 +20,10 @@ const navigationItems = [
   { path: ROUTES.NOISE_MONITORING, label: 'Ruido', icon: Volume2 },
   { path: ROUTES.ACCIDENTS, label: 'Accidentes', icon: AlertTriangle },
   { path: ROUTES.SCOOTER_ASSIGNMENTS, label: 'Patinetes', icon: Zap },
-  { path: ROUTES.BIKE_AVAILABILITY, label: 'Bicicletas', icon: Bike }
+  { path: ROUTES.BIKE_AVAILABILITY, label: 'Bicicletas', icon: Bike },
+  { path: ROUTES.CENSO, label: 'Censo', icon: Users },
+  { path: ROUTES.MULTAS, label: 'Multas', icon: FileWarning },
+  { path: ROUTES.AFORO_BICICLETAS, label: 'Aforo Bicis', icon: Activity }
 ];
 
 /**

@@ -109,7 +109,7 @@ function PaginaRuido() {
   // React Query: cumplimiento normativo por zona
   const { data: cumplimientoApi, isLoading: cargandoCumplimiento } = useRuidoCumplimiento();
 
-  // React Query: tendencias temporales (todo el ano del dataset)
+  // React Query: tendencias temporales (todo el año del dataset)
   const parametrosTendencia = useMemo(() => ({
     startDate: `${DATE_CONFIG.DATASET_YEAR}-01-01`,
     endDate: `${DATE_CONFIG.DATASET_YEAR}-12-31`,

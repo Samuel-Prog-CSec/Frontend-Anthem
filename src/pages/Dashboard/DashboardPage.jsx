@@ -7,7 +7,10 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Wind, Volume2, ArrowRight, Activity, TrendingUp, Sparkles, ChevronRight, Cpu, Database, Zap } from 'lucide-react';
+import {
+  MapPin, Wind, Volume2, Activity, TrendingUp, Sparkles,
+  ChevronRight, Cpu, Database, Zap, AlertTriangle, Bike, Users, FileWarning
+} from 'lucide-react';
 import { PageLayout } from '../../components/layout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, Button } from '../../components/common';
 import { obtenerUbicaciones } from '../../api/servicioUbicaciones';
@@ -103,6 +106,24 @@ function QuickAccessCard({ title, description, icon: Icon, color, to }) {
       iconColor: 'text-purple-400',
       hoverBorder: 'group-hover:border-purple-500/50',
       arrow: 'group-hover:text-purple-400'
+    },
+    amber: {
+      iconBg: 'bg-gradient-to-br from-amber-500/20 to-amber-600/10',
+      iconColor: 'text-amber-400',
+      hoverBorder: 'group-hover:border-amber-500/50',
+      arrow: 'group-hover:text-amber-400'
+    },
+    rose: {
+      iconBg: 'bg-gradient-to-br from-rose-500/20 to-rose-600/10',
+      iconColor: 'text-rose-400',
+      hoverBorder: 'group-hover:border-rose-500/50',
+      arrow: 'group-hover:text-rose-400'
+    },
+    sky: {
+      iconBg: 'bg-gradient-to-br from-sky-500/20 to-sky-600/10',
+      iconColor: 'text-sky-400',
+      hoverBorder: 'group-hover:border-sky-500/50',
+      arrow: 'group-hover:text-sky-400'
     }
   };
 
@@ -252,7 +273,7 @@ function DashboardPage() {
             {/* Estadistica destacada */}
             <div className="flex-shrink-0">
               <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-6">
-                <p className="text-sm text-slate-400 mb-1">Dataset del ano</p>
+                <p className="text-sm text-slate-400 mb-1">Dataset del año</p>
                 <p className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
                   {DATE_CONFIG.DATASET_YEAR}
                 </p>
@@ -303,27 +324,69 @@ function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <QuickAccessCard
             title="Ubicaciones"
-            description="Explora estaciones de medicion, rutas de transporte y zonas de interes de la ciudad"
+            description="Estaciones de medicion, rutas de transporte y zonas de interes"
             icon={MapPin}
             color="cyan"
             to={ROUTES.LOCATIONS}
           />
           <QuickAccessCard
             title="Calidad del Aire"
-            description="Monitorea niveles de contaminantes como NO2, O3, PM10 y analiza tendencias"
+            description="Niveles de contaminantes (NO2, O3, PM10) y tendencias"
             icon={Wind}
             color="emerald"
             to={ROUTES.AIR_QUALITY}
           />
           <QuickAccessCard
             title="Ruido Ambiental"
-            description="Analiza niveles de ruido por zona y periodo del dia (diurno, vespertino, nocturno)"
+            description="Niveles de ruido por zona y periodo (diurno, vespertino, nocturno)"
             icon={Volume2}
             color="purple"
             to={ROUTES.NOISE_MONITORING}
+          />
+          <QuickAccessCard
+            title="Accidentes"
+            description="Datos de accidentalidad por distrito, tipo y gravedad"
+            icon={AlertTriangle}
+            color="amber"
+            to={ROUTES.ACCIDENTS}
+          />
+          <QuickAccessCard
+            title="Patinetes"
+            description="Asignacion de patinetes por distrito, proveedor y densidad"
+            icon={Zap}
+            color="rose"
+            to={ROUTES.SCOOTER_ASSIGNMENTS}
+          />
+          <QuickAccessCard
+            title="Bicicletas"
+            description="Disponibilidad de bicicletas, usos diarios y suscripciones"
+            icon={Bike}
+            color="sky"
+            to={ROUTES.BIKE_AVAILABILITY}
+          />
+          <QuickAccessCard
+            title="Censo"
+            description="Datos demograficos por distrito, barrio y grupo de edad"
+            icon={Users}
+            color="cyan"
+            to={ROUTES.CENSO}
+          />
+          <QuickAccessCard
+            title="Multas"
+            description="Infracciones de trafico, importes, calificaciones y ubicaciones"
+            icon={FileWarning}
+            color="amber"
+            to={ROUTES.MULTAS}
+          />
+          <QuickAccessCard
+            title="Aforo Bicicletas"
+            description="Conteo horario de trafico ciclista por estacion"
+            icon={Activity}
+            color="emerald"
+            to={ROUTES.AFORO_BICICLETAS}
           />
         </div>
       </div>

@@ -15,7 +15,7 @@ import { normalizarRespuestaLista } from './normalizarRespuesta';
 /**
  * Obtiene datos de contaminacion acustica con filtros
  * @param {Object} params - Parametros de consulta
- * @param {number} [params.año] - Ano de los datos
+ * @param {number} [params.año] - Año de los datos
  * @param {number} [params.mes] - Mes (1-12)
  * @param {number|number[]} [params.nmt] - ID(s) de estacion
  * @param {string} [params.nombre] - Busqueda por nombre
