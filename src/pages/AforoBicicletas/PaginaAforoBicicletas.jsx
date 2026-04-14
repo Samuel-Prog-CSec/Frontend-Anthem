@@ -79,6 +79,20 @@ function PaginaAforoBicicletas() {
       limit: PAGINATION.DEFAULT_LIMIT
     };
     if (filtros.distrito) params.distrito = filtros.distrito;
+    if (filtros.franjaHoraria) {
+      const rangos = {
+        MADRUGADA: { min: 0, max: 5 },
+        MAÑANA: { min: 6, max: 11 },
+        MEDIODIA: { min: 12, max: 14 },
+        TARDE: { min: 15, max: 20 },
+        NOCHE: { min: 21, max: 23 }
+      };
+      const rango = rangos[filtros.franjaHoraria];
+      if (rango) {
+        params.horaMin = rango.min;
+        params.horaMax = rango.max;
+      }
+    }
     if (filtros.mes) {
       const fecha = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes) - 1, 1);
       params.startDate = fecha.toISOString();

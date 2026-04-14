@@ -47,7 +47,7 @@ const zoneTypeOptions = [
  * @param {string} density - Nivel de densidad
  * @returns {string} Variante del badge
  */
-function getDensityBadgeVariant(density) {
+function obtenerVarianteBadgeDensidad(density) {
   switch (density) {
     case 'MUY_ALTA': return 'destructive';
     case 'ALTA': return 'warning';
@@ -62,7 +62,7 @@ function getDensityBadgeVariant(density) {
  * @param {string} demand - Nivel de demanda
  * @returns {string} Variante del badge
  */
-function getDemandBadgeVariant(demand) {
+function obtenerVarianteBadgeDemanda(demand) {
   switch (demand) {
     case 'MUY_ALTA': return 'destructive';
     case 'ALTA': return 'warning';
@@ -365,7 +365,7 @@ function PaginaPatinetes() {
                       {formatNumber(zona.totalPatinetes)}
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant={getDensityBadgeVariant(zona.densidad || zona.densidadPatinetes)}>
+                      <Badge variant={obtenerVarianteBadgeDensidad(zona.densidad || zona.densidadPatinetes)}>
                         {zona.densidad || zona.densidadPatinetes || '-'}
                       </Badge>
                     </TableCell>
@@ -439,7 +439,7 @@ function PaginaPatinetes() {
                         {item.estadisticas?.proveedoresActivos}/{item.estadisticas?.totalProveedores}
                       </TableCell>
                       <TableCell className="text-center">
-                        <Badge variant={getDensityBadgeVariant(item.estadisticas?.densidadPatinetes)}>
+                        <Badge variant={obtenerVarianteBadgeDensidad(item.estadisticas?.densidadPatinetes)}>
                           {item.estadisticas?.densidadPatinetes}
                         </Badge>
                       </TableCell>
@@ -447,7 +447,7 @@ function PaginaPatinetes() {
                         {item.clasificacionArea?.tipoZona?.replace(/_/g, ' ')}
                       </TableCell>
                       <TableCell className="text-center">
-                        <Badge variant={getDemandBadgeVariant(item.clasificacionArea?.demandaEstimada)}>
+                        <Badge variant={obtenerVarianteBadgeDemanda(item.clasificacionArea?.demandaEstimada)}>
                           {item.clasificacionArea?.demandaEstimada}
                         </Badge>
                       </TableCell>
@@ -514,7 +514,7 @@ function PaginaPatinetes() {
               </div>
               <div>
                 <p className="text-sm text-slate-400">Densidad</p>
-                <Badge variant={getDensityBadgeVariant(areaSeleccionada.estadisticas?.densidadPatinetes)}>
+                <Badge variant={obtenerVarianteBadgeDensidad(areaSeleccionada.estadisticas?.densidadPatinetes)}>
                   {areaSeleccionada.estadisticas?.densidadPatinetes || '-'}
                 </Badge>
               </div>
@@ -531,7 +531,7 @@ function PaginaPatinetes() {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                 <div>
                   <p className="text-sm text-slate-400">Demanda Estimada</p>
-                  <Badge variant={getDemandBadgeVariant(areaSeleccionada.clasificacionArea.demandaEstimada)}>
+                  <Badge variant={obtenerVarianteBadgeDemanda(areaSeleccionada.clasificacionArea.demandaEstimada)}>
                     {areaSeleccionada.clasificacionArea.demandaEstimada || '-'}
                   </Badge>
                 </div>

@@ -42,7 +42,7 @@ const monthOptions = [
  * @param {number} value - Tasa de ocupacion en porcentaje
  * @returns {string} Variante del badge
  */
-function getOccupancyBadge(value) {
+function obtenerBadgeOcupacion(value) {
   if (value == null) return 'secondary';
   if (value < 30) return 'success';
   if (value < 60) return 'info';
@@ -402,8 +402,8 @@ function PaginaBicicletas() {
                         <TableCell>{formatNumber(item.usosAbonadoOcasional)}</TableCell>
                         <TableCell className="font-medium">{formatNumber(item.totalUsos)}</TableCell>
                         <TableCell>
-                          <Badge variant={getOccupancyBadge(item.tasaOcupacion)}>
-                            {item.tasaOcupacion?.toFixed(1)}%
+                          <Badge variant={obtenerBadgeOcupacion(item.tasaOcupacion)}>
+                            {item.tasaOcupacion != null ? `${item.tasaOcupacion.toFixed(1)}%` : '-'}
                           </Badge>
                         </TableCell>
                         <TableCell>{item.promedioUsosPorBicicleta?.toFixed(2) || '-'}</TableCell>

@@ -34,7 +34,7 @@ export async function obtenerMultas(params = {}) {
     ...params
   };
 
-  const response = await apiClient.get('/fines', { params: queryParams });
+  const response = await apiClient.get('/multas', { params: queryParams });
   return normalizarRespuestaLista(response);
 }
 
@@ -44,7 +44,7 @@ export async function obtenerMultas(params = {}) {
  * @returns {Promise<Object>} Datos de la multa
  */
 export async function obtenerMultaPorId(id) {
-  const response = await apiClient.get(`/fines/${id}`);
+  const response = await apiClient.get(`/multas/${id}`);
   return normalizarRespuestaDetalle(response);
 }
 
@@ -58,7 +58,7 @@ export async function obtenerMultaPorId(id) {
  * @returns {Promise<Object>} Estadisticas agregadas
  */
 export async function obtenerEstadisticasMultas(params = {}) {
-  const response = await apiClient.get('/fines/statistics', { params });
+  const response = await apiClient.get('/multas/estadisticas', { params });
   return normalizarRespuestaDetalle(response);
 }
 
@@ -72,7 +72,7 @@ export async function obtenerEstadisticasMultas(params = {}) {
  * @returns {Promise<Object>} Ranking de ubicaciones
  */
 export async function obtenerRankingUbicaciones(params = {}) {
-  const response = await apiClient.get('/fines/locations/ranking', { params });
+  const response = await apiClient.get('/multas/ubicaciones/ranking', { params });
   return normalizarRespuestaDetalle(response);
 }
 
@@ -85,7 +85,7 @@ export async function obtenerRankingUbicaciones(params = {}) {
  * @returns {Promise<Object>} Analisis temporal con tendencias
  */
 export async function obtenerAnalisisTemporal(params = {}) {
-  const response = await apiClient.get('/fines/analysis/temporal', { params });
+  const response = await apiClient.get('/multas/analisis/temporal', { params });
   return normalizarRespuestaDetalle(response);
 }
 
@@ -96,6 +96,6 @@ export async function obtenerAnalisisTemporal(params = {}) {
  * @returns {Promise<Object>} Dashboard con metricas generales
  */
 export async function obtenerDashboardMultas(params = {}) {
-  const response = await apiClient.get('/fines/dashboard', { params });
+  const response = await apiClient.get('/multas/dashboard', { params });
   return normalizarRespuestaDetalle(response);
 }

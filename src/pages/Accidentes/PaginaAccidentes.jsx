@@ -222,7 +222,7 @@ function PaginaAccidentes() {
 
   // Preparar datos para grafico de barras (top 10 distritos)
   const datosGrafico = useMemo(() => {
-    return datosDistritos
+    return [...datosDistritos]
       .sort((a, b) => (b.totalAccidentes || 0) - (a.totalAccidentes || 0))
       .slice(0, 10)
       .map(d => ({
@@ -232,19 +232,29 @@ function PaginaAccidentes() {
   }, [datosDistritos]);
 
   // Preparar datos para grafico de pastel (distribucion por tipo de accidente)
+  // Usa estadisticas globales si estan disponibles, no solo la pagina actual
   const datosGraficoPastel = useMemo(() => {
-    if (datos.length === 0) return [];
+    const distribucionTipos = estadisticasGenerales?.distribucionTipos
+      || estadisticasGenerales?.porTipo
+      || null;
 
+    if (distribucionTipos && Array.isArray(distribucionTipos)) {
+      return distribucionTipos
+        .map(item => ({ name: item._id || item.tipo, value: item.total || item.count || 0 }))
+        .sort((a, b) => b.value - a.value);
+    }
+
+    // Fallback: calcular desde datos de la pagina actual
+    if (datos.length === 0) return [];
     const conteosPorTipo = {};
     datos.forEach(d => {
       const tipo = d.circunstancias?.tipoAccidente || 'Desconocido';
       conteosPorTipo[tipo] = (conteosPorTipo[tipo] || 0) + 1;
     });
-
     return Object.entries(conteosPorTipo)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
-  }, [datos]);
+  }, [estadisticasGenerales, datos]);
 
   // Opciones de distrito derivadas de datosDistritos
   const opcionesDistrito = useMemo(() =>

@@ -38,7 +38,7 @@ export async function obtenerDatosCenso(params = {}) {
     ...params
   };
 
-  const response = await apiClient.get('/census', { params: queryParams });
+  const response = await apiClient.get('/censo', { params: queryParams });
   return normalizarRespuestaLista(response);
 }
 
@@ -51,7 +51,7 @@ export async function obtenerDatosCenso(params = {}) {
  * @returns {Promise<Object>} Piramide poblacional detallada y simplificada
  */
 export async function obtenerPiramidePoblacion(params = {}) {
-  const response = await apiClient.get('/census/pyramid', { params });
+  const response = await apiClient.get('/censo/piramide', { params });
   return normalizarRespuestaDetalle(response);
 }
 
@@ -64,7 +64,7 @@ export async function obtenerPiramidePoblacion(params = {}) {
  * @returns {Promise<Object>} Estadisticas por distrito con rankings
  */
 export async function obtenerEstadisticasDistritos(params = {}) {
-  const response = await apiClient.get('/census/districts/statistics', { params });
+  const response = await apiClient.get('/censo/distritos/estadisticas', { params });
   return normalizarRespuestaDetalle(response);
 }
 
@@ -78,7 +78,7 @@ export async function obtenerEstadisticasDistritos(params = {}) {
  * @returns {Promise<Object>} Analisis demografico con indicadores
  */
 export async function obtenerAnalisisDemografico(params = {}) {
-  const response = await apiClient.get('/census/analysis/demographic', { params });
+  const response = await apiClient.get('/censo/analisis/demografico', { params });
   return normalizarRespuestaDetalle(response);
 }
 
@@ -92,7 +92,7 @@ export async function obtenerAnalisisDemografico(params = {}) {
  * @returns {Promise<Object>} Evolucion temporal con tendencia
  */
 export async function obtenerEvolucionCenso(params = {}) {
-  const response = await apiClient.get('/census/evolution', { params });
+  const response = await apiClient.get('/censo/evolucion', { params });
   return normalizarRespuestaDetalle(response);
 }
 
@@ -104,7 +104,7 @@ export async function obtenerEvolucionCenso(params = {}) {
  * @returns {Promise<Object>} Dashboard con resumen general, top distritos, distribucion edad
  */
 export async function obtenerDashboardCenso(params = {}) {
-  const response = await apiClient.get('/census/dashboard', { params });
+  const response = await apiClient.get('/censo/dashboard', { params });
   return normalizarRespuestaDetalle(response);
 }
 
@@ -117,6 +117,6 @@ export async function obtenerDashboardCenso(params = {}) {
  * @returns {Promise<Object>} Array de {codigo, nombre, totalPoblacion} por distrito
  */
 export async function obtenerResumenDistritos(params = {}) {
-  const response = await apiClient.get('/census/distritos/resumen', { params });
+  const response = await apiClient.get('/censo/distritos/resumen', { params });
   return normalizarRespuestaDetalle(response);
 }
