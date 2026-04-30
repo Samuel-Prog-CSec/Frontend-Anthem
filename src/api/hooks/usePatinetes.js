@@ -8,15 +8,10 @@ import {
   obtenerAnalisisMercado, obtenerZonasConcentracion, obtenerDetallesArea
 } from '../servicioPatinetes';
 
-/**
- * Hook para obtener asignaciones de patinetes con filtros y paginacion
- * @param {Object} params - Parametros de consulta (page, limit, distrito, densidad, tipoZona, etc.)
- * @returns {Object} Resultado de useQuery
- */
 export function usePatinetes(params) {
   return useQuery({
     queryKey: ['patinetes', params],
-    queryFn: () => obtenerAsignaciones(params),
+    queryFn: ({ signal }) => obtenerAsignaciones(params, { signal }),
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,
@@ -25,56 +20,34 @@ export function usePatinetes(params) {
   });
 }
 
-/**
- * Hook para obtener estadisticas de patinetes por distrito
- * @param {Object} params - Parametros de consulta
- * @returns {Object} Resultado de useQuery
- */
 export function usePatinetesEstadisticas(params = {}) {
   return useQuery({
     queryKey: ['patinetes-estadisticas', params],
-    queryFn: () => obtenerEstadisticasDistritos(params),
+    queryFn: ({ signal }) => obtenerEstadisticasDistritos(params, { signal }),
     staleTime: 5 * 60 * 1000
   });
 }
 
-/**
- * Hook para obtener analisis de mercado de patinetes (proveedores)
- * @param {Object} params - Parametros de consulta
- * @returns {Object} Resultado de useQuery
- */
 export function usePatinetesMercado(params = {}) {
   return useQuery({
     queryKey: ['patinetes-mercado', params],
-    queryFn: () => obtenerAnalisisMercado(params),
+    queryFn: ({ signal }) => obtenerAnalisisMercado(params, { signal }),
     staleTime: 5 * 60 * 1000
   });
 }
 
-/**
- * Hook para obtener zonas de concentracion de patinetes
- * @param {Object} params - Parametros de consulta
- * @returns {Object} Resultado de useQuery
- */
 export function usePatinetesZonas(params = {}) {
   return useQuery({
     queryKey: ['patinetes-zonas', params],
-    queryFn: () => obtenerZonasConcentracion(params),
+    queryFn: ({ signal }) => obtenerZonasConcentracion(params, { signal }),
     staleTime: 5 * 60 * 1000
   });
 }
 
-/**
- * Hook para obtener detalles de un area especifica (distrito/barrio)
- * @param {string} distrito - Nombre del distrito
- * @param {string} barrio - Nombre del barrio
- * @param {Object} options - Opciones adicionales de useQuery (enabled, etc.)
- * @returns {Object} Resultado de useQuery
- */
 export function usePatinetesDetallesArea(distrito, barrio, options = {}) {
   return useQuery({
     queryKey: ['patinetes-area', distrito, barrio],
-    queryFn: () => obtenerDetallesArea(distrito, barrio),
+    queryFn: ({ signal }) => obtenerDetallesArea(distrito, barrio, { signal }),
     enabled: Boolean(distrito && barrio),
     staleTime: 5 * 60 * 1000,
     ...options

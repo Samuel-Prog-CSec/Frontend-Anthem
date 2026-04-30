@@ -9,12 +9,16 @@ import { cn } from '../../utils';
 
 /**
  * Contenedor de tabla
+ * Pasa rowCount o colCount para emitir aria-rowcount/aria-colcount cuando aplique
  */
-function Table({ className, ...props }) {
+function Table({ className, rowCount, colCount, label, ...props }) {
   return (
     <div className="w-full overflow-auto">
       <table
         className={cn('w-full caption-bottom text-sm', className)}
+        aria-rowcount={rowCount}
+        aria-colcount={colCount}
+        aria-label={label}
         {...props}
       />
     </div>
@@ -26,7 +30,7 @@ function Table({ className, ...props }) {
  */
 function TableHeader({ className, ...props }) {
   return (
-    <thead className={cn('border-b border-slate-700', className)} {...props} />
+    <thead className={cn('border-b border-border', className)} {...props} />
   );
 }
 
@@ -46,7 +50,7 @@ function TableFooter({ className, ...props }) {
   return (
     <tfoot
       className={cn(
-        'border-t border-slate-700 bg-slate-800/50 font-medium',
+        'border-t border-border bg-muted/40 font-medium',
         className
       )}
       {...props}
@@ -61,7 +65,7 @@ function TableRow({ className, ...props }) {
   return (
     <tr
       className={cn(
-        'border-b border-slate-700/50 transition-colors hover:bg-slate-800/30',
+        'border-b border-border/60 transition-colors hover:bg-muted/30',
         className
       )}
       {...props}
@@ -71,15 +75,18 @@ function TableRow({ className, ...props }) {
 
 /**
  * Celda de cabecera
+ * Acepta sortDirection ('asc'|'desc'|'none') para emitir aria-sort
  */
-function TableHead({ className, ...props }) {
+function TableHead({ className, sortDirection, ...props }) {
   return (
     <th
+      scope="col"
       className={cn(
-        'h-12 px-4 text-left align-middle font-medium text-slate-400',
+        'h-12 px-4 text-left align-middle font-medium text-muted-foreground',
         '[&:has([role=checkbox])]:pr-0',
         className
       )}
+      aria-sort={sortDirection}
       {...props}
     />
   );
@@ -92,7 +99,7 @@ function TableCell({ className, ...props }) {
   return (
     <td
       className={cn(
-        'p-4 align-middle text-slate-200 [&:has([role=checkbox])]:pr-0',
+        'p-4 align-middle text-foreground [&:has([role=checkbox])]:pr-0',
         className
       )}
       {...props}
@@ -106,7 +113,7 @@ function TableCell({ className, ...props }) {
 function TableCaption({ className, ...props }) {
   return (
     <caption
-      className={cn('mt-4 text-sm text-slate-400', className)}
+      className={cn('mt-4 text-sm text-muted-foreground', className)}
       {...props}
     />
   );

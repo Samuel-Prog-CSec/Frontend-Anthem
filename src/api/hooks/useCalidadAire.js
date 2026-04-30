@@ -1,19 +1,17 @@
 /**
  * Hooks de React Query para Calidad del Aire
+ *
+ * Cada queryFn recibe { signal } del context de React Query y lo propaga al servicio
+ * para permitir cancelacion automatica y prevenir race conditions.
  */
 
 import { useQuery } from '@tanstack/react-query';
 import { obtenerDatosCalidadAire, obtenerEstadisticasCalidadAire, obtenerTendenciasCalidadAire } from '../servicioCalidadAire';
 
-/**
- * Hook para obtener datos de calidad del aire con filtros y paginacion
- * @param {Object} params - Parametros de consulta
- * @returns {Object} Resultado de useQuery
- */
 export function useCalidadAire(params) {
   return useQuery({
     queryKey: ['calidad-aire', params],
-    queryFn: () => obtenerDatosCalidadAire(params),
+    queryFn: ({ signal }) => obtenerDatosCalidadAire(params, { signal }),
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,
@@ -23,29 +21,18 @@ export function useCalidadAire(params) {
   });
 }
 
-/**
- * Hook para obtener estadisticas de calidad del aire
- * @param {Object} params - Parametros de consulta (groupBy, magnitud, etc.)
- * @returns {Object} Resultado de useQuery
- */
 export function useCalidadAireStats(params) {
   return useQuery({
     queryKey: ['calidad-aire-stats', params],
-    queryFn: () => obtenerEstadisticasCalidadAire(params),
+    queryFn: ({ signal }) => obtenerEstadisticasCalidadAire(params, { signal }),
     staleTime: 5 * 60 * 1000
   });
 }
 
-/**
- * Hook para obtener tendencias de calidad del aire
- * @param {Object} params - Parametros de consulta (magnitud, startDate, endDate)
- * @param {Object} options - Opciones adicionales de useQuery
- * @returns {Object} Resultado de useQuery
- */
-export function useCalidadAireTrends(params, options = {}) {
+export function useCalidadAireTendencias(params, options = {}) {
   return useQuery({
-    queryKey: ['calidad-aire-trends', params],
-    queryFn: () => obtenerTendenciasCalidadAire(params),
+    queryKey: ['calidad-aire-tendencias', params],
+    queryFn: ({ signal }) => obtenerTendenciasCalidadAire(params, { signal }),
     staleTime: 5 * 60 * 1000,
     ...options
   });

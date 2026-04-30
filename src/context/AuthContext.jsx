@@ -1,13 +1,12 @@
 /**
  * Context de Autenticacion
- * 
- * Maneja el estado global de autenticacion:
- * - Usuario actual
- * - Estado de carga inicial
- * - Funciones de login/logout
+ *
+ * Maneja el estado global de autenticacion (usuario actual, estado de carga
+ * inicial y funciones de login/logout). El hook `useAuth` vive en `useAuth.js`
+ * para que este archivo solo exporte componentes (react-refresh / HMR).
  */
 
-import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { createContext, useState, useEffect, useCallback, useRef } from 'react';
 import { login as apiLogin, logout as apiLogout, restoreSession } from '../api/authService';
 
 const AuthContext = createContext(null);
@@ -27,7 +26,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const initAuth = async () => {
       // Evitar doble ejecucion en React Strict Mode
-      if (initRef.current) return;
+      if (initRef.current) {return;}
       initRef.current = true;
 
       try {
@@ -83,20 +82,6 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-/**
- * Hook para acceder al contexto de autenticacion
- * @returns {Object} Estado y funciones de autenticacion
- */
-export function useAuth() {
-  const context = useContext(AuthContext);
-  
-  if (!context) {
-    throw new Error('useAuth debe usarse dentro de un AuthProvider');
-  }
-  
-  return context;
 }
 
 export default AuthContext;

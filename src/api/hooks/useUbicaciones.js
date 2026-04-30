@@ -1,5 +1,9 @@
 /**
  * Hooks de React Query para Ubicaciones
+ *
+ * Cada queryFn recibe { signal } del context de React Query y lo propaga al servicio,
+ * permitiendo cancelar requests automaticamente cuando el componente desmonta o
+ * los queryKeys cambian (evita race conditions).
  */
 
 import { useQuery } from '@tanstack/react-query';
@@ -13,7 +17,7 @@ import { obtenerUbicaciones, obtenerPuntosMedicion, obtenerRutasTransporte } fro
 export function useUbicaciones(params) {
   return useQuery({
     queryKey: ['ubicaciones', params],
-    queryFn: () => obtenerUbicaciones(params),
+    queryFn: ({ signal }) => obtenerUbicaciones(params, { signal }),
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,
@@ -29,14 +33,14 @@ export function useUbicaciones(params) {
 export function useUbicacionesStats() {
   return useQuery({
     queryKey: ['ubicaciones-stats'],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const [totalRes, acusticaRes, traficoRes, metroRes, busRes, cercaniasRes] = await Promise.all([
-        obtenerUbicaciones({ limit: 1 }),
-        obtenerUbicaciones({ limit: 1, type: 'estacion_acustica' }),
-        obtenerUbicaciones({ limit: 1, type: 'punto_trafico' }),
-        obtenerUbicaciones({ limit: 1, type: 'ruta_metro' }),
-        obtenerUbicaciones({ limit: 1, type: 'ruta_autobus' }),
-        obtenerUbicaciones({ limit: 1, type: 'ruta_cercanias' })
+        obtenerUbicaciones({ limit: 1 }, { signal }),
+        obtenerUbicaciones({ limit: 1, type: 'estacion_acustica' }, { signal }),
+        obtenerUbicaciones({ limit: 1, type: 'punto_trafico' }, { signal }),
+        obtenerUbicaciones({ limit: 1, type: 'ruta_metro' }, { signal }),
+        obtenerUbicaciones({ limit: 1, type: 'ruta_autobus' }, { signal }),
+        obtenerUbicaciones({ limit: 1, type: 'ruta_cercanias' }, { signal })
       ]);
 
       return {
@@ -48,7 +52,7 @@ export function useUbicacionesStats() {
                           (cercaniasRes.pagination?.totalDocuments || 0)
       };
     },
-    staleTime: 10 * 60 * 1000 // 10 minutos - los conteos de ubicaciones cambian poco
+    staleTime: 10 * 60 * 1000
   });
 }
 
@@ -56,12 +60,11 @@ export function useUbicacionesStats() {
  * Hook para obtener puntos de medicion por tipo
  * @param {string} measurementType - Tipo: 'acustica' o 'trafico'
  * @param {Object} options - Opciones adicionales de useQuery
- * @returns {Object} Resultado de useQuery
  */
 export function usePuntosMedicion(measurementType, options = {}) {
   return useQuery({
     queryKey: ['puntos-medicion', measurementType],
-    queryFn: () => obtenerPuntosMedicion(measurementType),
+    queryFn: ({ signal }) => obtenerPuntosMedicion(measurementType, { signal }),
     staleTime: 10 * 60 * 1000,
     enabled: !!measurementType,
     ...options
@@ -72,12 +75,11 @@ export function usePuntosMedicion(measurementType, options = {}) {
  * Hook para obtener rutas de transporte publico
  * @param {string} transportType - Tipo: 'cercanias', 'autobus', 'metro', etc.
  * @param {Object} options - Opciones adicionales de useQuery
- * @returns {Object} Resultado de useQuery
  */
 export function useRutasTransporte(transportType, options = {}) {
   return useQuery({
     queryKey: ['rutas-transporte', transportType],
-    queryFn: () => obtenerRutasTransporte(transportType),
+    queryFn: ({ signal }) => obtenerRutasTransporte(transportType, { signal }),
     staleTime: 10 * 60 * 1000,
     enabled: !!transportType,
     ...options

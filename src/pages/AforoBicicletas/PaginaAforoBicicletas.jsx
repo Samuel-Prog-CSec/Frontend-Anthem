@@ -19,12 +19,14 @@ import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
   Button, Select, Badge,
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
-  LoadingState, ErrorState, EmptyState, Pagination
+  LoadingState, ErrorState, EmptyState, Pagination,
+  TableSkeleton, Skeleton, CardSkeleton
 } from '../../components/common';
 import { StatCard, LineChartCard, BarChartCard } from '../../components/charts';
+import { MapaClusterizado } from '../../components/mapas';
 import {
   useAforoBicicletas, useAforoEstadisticas, useAforoDistribucionHoraria,
-  useAforoEstaciones, useAforoEstacion
+  useAforoEstaciones, useAforoEstacion, useMapaAforo
 } from '../../api/hooks';
 import { useCensoResumenDistritos } from '../../api/hooks';
 import {
@@ -109,6 +111,7 @@ function PaginaAforoBicicletas() {
   const { data: estacionesResult } = useAforoEstaciones({ ...queryParams, limit: 10 });
   const { data: detalleEstacion, isLoading: detalleLoading } = useAforoEstacion(estacionSeleccionada);
   const { data: resumenCenso } = useCensoResumenDistritos({ año: DATE_CONFIG.DATASET_YEAR });
+  const { data: featureCollectionMapa, isLoading: cargandoMapa } = useMapaAforo();
 
   // Datos extraidos
   const datos = useMemo(() => aforoResult?.data || [], [aforoResult?.data]);
@@ -213,6 +216,38 @@ function PaginaAforoBicicletas() {
         />
       </div>
 
+      {/* Mapa de estaciones de aforo */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Radio className="h-5 w-5" />
+            Estaciones de Aforo en el Mapa
+          </CardTitle>
+          <CardDescription>
+            Puntos clusterizados con volumen agregado de bicicletas por estacion.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {cargandoMapa ? (
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          ) : (
+            <MapaClusterizado
+              featureCollection={featureCollectionMapa}
+              altura="420px"
+              renderPopup={(props) => (
+                <div className="text-sm">
+                  <div className="font-semibold mb-1">{props.identificador}</div>
+                  <div>Total bicicletas: {formatNumber(props.totalBicicletas)}</div>
+                  <div>Registros: {formatNumber(props.registros)}</div>
+                  {props.distrito && <div>Distrito: {props.distrito}</div>}
+                  {props.nombreVial && <div>Via: {props.nombreVial}</div>}
+                </div>
+              )}
+            />
+          )}
+        </CardContent>
+      </Card>
+
       {/* Metrica cruzada per capita */}
       {bicicletasPerCapita && (
         <Card className="mb-6 border-emerald-500/20 bg-gradient-to-r from-emerald-950/30 to-slate-900/50">
@@ -297,7 +332,7 @@ function PaginaAforoBicicletas() {
       )}
 
       {/* Panel de detalle de estacion */}
-      {detalleLoading && <LoadingState message="Cargando detalle de la estacion..." />}
+      {detalleLoading && <CardSkeleton lines={5} />}
       {detalleEstacion?.data && (
         <Card className="mb-6 border-emerald-500/30">
           <CardHeader>
@@ -354,7 +389,7 @@ function PaginaAforoBicicletas() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <LoadingState message="Cargando datos de aforo..." />
+            <TableSkeleton rows={6} columns={6} />
           ) : error ? (
             <ErrorState
               message="Error al cargar datos de aforo"
@@ -365,7 +400,7 @@ function PaginaAforoBicicletas() {
           ) : (
             <>
               <div className="overflow-x-auto">
-                <Table>
+                <Table label="Aforo de bicicletas por hora" rowCount={paginacion?.totalDocuments}>
                   <TableCaption>Aforo de bicicletas - Anthem City {DATE_CONFIG.DATASET_YEAR}</TableCaption>
                   <TableHeader>
                     <TableRow>

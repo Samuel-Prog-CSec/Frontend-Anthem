@@ -14,10 +14,11 @@ import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
   Button, Select, Badge,
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell,
-  LoadingState, ErrorState, EmptyState, Pagination
+  LoadingState, ErrorState, EmptyState, Pagination,
+  TableSkeleton, ChartSkeleton
 } from '../../components/common';
 import { StatCard, BarChartCard, LineChartCard } from '../../components/charts';
-import { useCalidadAire, useCalidadAireStats, useCalidadAireTrends } from '../../api/hooks';
+import { useCalidadAire, useCalidadAireStats, useCalidadAireTendencias } from '../../api/hooks';
 import { AIR_QUALITY_MAGNITUDES, AIR_QUALITY_LEVELS, PAGINATION, DATE_CONFIG, CHART_LIMITS } from '../../constants';
 import { formatDate, formatNumber } from '../../utils';
 
@@ -131,12 +132,14 @@ function PaginaCalidadAire() {
   }, [magnitudTendencia]);
 
   // React Query: tendencias de calidad del aire
-  const { data: tendenciasApi, isLoading: cargandoTendencias } = useCalidadAireTrends(
+  const { data: tendenciasApi, isLoading: cargandoTendencias } = useCalidadAireTendencias(
     parametrosTendencia,
     { enabled: !!parametrosTendencia }
   );
 
-  const data = airData?.data || [];
+  // Memoizamos para mantener referencia estable y no invalidar useMemos
+  // que dependen de `data` cuando airData es undefined entre renders
+  const data = useMemo(() => airData?.data || [], [airData?.data]);
   const pagination = airData?.pagination || {};
 
   // Cambiar filtros
@@ -341,7 +344,7 @@ function PaginaCalidadAire() {
           </div>
 
           {cargandoTendencias && (
-            <LoadingState message="Cargando tendencias..." />
+            <ChartSkeleton height={300} />
           )}
 
           {!cargandoTendencias && magnitudTendencia && datosTendencia.length > 0 && (
@@ -384,7 +387,7 @@ function PaginaCalidadAire() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <LoadingState message="Cargando mediciones..." />
+            <TableSkeleton rows={6} columns={6} />
           ) : error ? (
             <ErrorState
               message={error.message || 'Error al cargar datos de calidad del aire'}
@@ -398,7 +401,11 @@ function PaginaCalidadAire() {
             />
           ) : (
             <>
-              <Table>
+              <Table
+                label="Mediciones de calidad del aire"
+                rowCount={pagination?.totalDocuments}
+                colCount={5}
+              >
                 <TableHeader>
                   <TableRow>
                     <TableHead>Fecha</TableHead>

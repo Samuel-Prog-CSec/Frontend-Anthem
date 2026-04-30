@@ -24,6 +24,10 @@ import {
 import { Card, CardHeader, CardTitle, CardContent, Skeleton } from '../common';
 import { CHART_COLORS } from '../../constants';
 
+// Alturas pseudoaleatorias estables para barras de placeholder.
+// Evita Math.random() en render (impuro segun React Compiler)
+const ALTURAS_PLACEHOLDER_BARRAS = [45, 72, 38, 85, 60, 50, 78, 42];
+
 /**
  * Placeholder de carga para graficos
  * @param {Object} props
@@ -40,11 +44,11 @@ function ChartSkeleton({ title, height = 300 }) {
       )}
       <CardContent>
         <div style={{ height }} className="flex items-end gap-2 pt-8">
-          {Array.from({ length: 8 }).map((_, i) => (
+          {ALTURAS_PLACEHOLDER_BARRAS.map((altura, i) => (
             <Skeleton
               key={i}
               className="flex-1 rounded-t"
-              style={{ height: `${30 + Math.random() * 60}%` }}
+              style={{ height: `${altura}%` }}
             />
           ))}
         </div>

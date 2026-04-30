@@ -14,7 +14,8 @@ import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
   Button, Select, Badge,
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell,
-  LoadingState, ErrorState, EmptyState, Pagination
+  LoadingState, ErrorState, EmptyState, Pagination,
+  TableSkeleton, ChartSkeleton
 } from '../../components/common';
 import { StatCard, LineChartCard } from '../../components/charts';
 import { useRuido, useEstacionesRuido, useRuidoRanking, useRuidoCumplimiento, useRuidoTendencias } from '../../api/hooks';
@@ -118,7 +119,9 @@ function PaginaRuido() {
   }), []);
   const { data: tendenciasApi } = useRuidoTendencias(parametrosTendencia);
 
-  const data = noiseData?.data || [];
+  // Memoizamos para mantener referencia estable y no invalidar useMemos
+  // que dependen de `data` cuando noiseData es undefined entre renders
+  const data = useMemo(() => noiseData?.data || [], [noiseData?.data]);
   const pagination = noiseData?.pagination || {};
 
   // Preparar datos para grafico de tendencias temporales
@@ -369,7 +372,7 @@ function PaginaRuido() {
           </CardHeader>
           <CardContent>
             {cargandoRanking ? (
-              <LoadingState message="Cargando ranking..." />
+              <ChartSkeleton height={320} />
             ) : datosRanking.length > 0 ? (
               <Table>
                 <TableHeader>
@@ -427,7 +430,7 @@ function PaginaRuido() {
           </CardHeader>
           <CardContent>
             {cargandoCumplimiento ? (
-              <LoadingState message="Cargando cumplimiento..." />
+              <ChartSkeleton height={300} />
             ) : datosCumplimiento.estaciones.length > 0 ? (
               <div className="space-y-3">
                 {datosCumplimiento.estaciones.map((estacion, index) => (
@@ -490,7 +493,7 @@ function PaginaRuido() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <LoadingState message="Cargando mediciones..." />
+            <TableSkeleton rows={6} columns={6} />
           ) : error ? (
             <ErrorState
               message={error.message || 'Error al cargar datos de ruido'}
@@ -504,7 +507,7 @@ function PaginaRuido() {
             />
           ) : (
             <>
-              <Table>
+              <Table label="Mediciones de contaminacion acustica" rowCount={pagination?.totalDocuments}>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Fecha</TableHead>

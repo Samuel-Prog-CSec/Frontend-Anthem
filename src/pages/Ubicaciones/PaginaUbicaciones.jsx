@@ -8,19 +8,21 @@
  * - Zonas de taxi
  */
 
-import { useState, useMemo, useDeferredValue } from 'react';
+import { useState, useMemo } from 'react';
 import { MapPin, Filter, Search, RefreshCw, Train, Bus, AudioLines, Car, Route as RouteIcon, Gauge } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
 import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
   Button, Input, Select, Badge,
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell,
-  LoadingState, ErrorState, EmptyState, Pagination
+  LoadingState, ErrorState, EmptyState, Pagination,
+  TableSkeleton, Skeleton
 } from '../../components/common';
 import { StatCard } from '../../components/charts';
-import { useUbicaciones, useUbicacionesStats, useRutasTransporte, usePuntosMedicion } from '../../api/hooks';
+import { MapaClusterizado } from '../../components/mapas';
+import { useUbicaciones, useUbicacionesStats, useRutasTransporte, usePuntosMedicion, useMapaUbicaciones } from '../../api/hooks';
 import { LOCATION_TYPE_LABELS, PAGINATION } from '../../constants';
-import { formatCoordinates, formatNumber } from '../../utils';
+import { formatCoordinates, formatNumber, useDebouncedValue } from '../../utils';
 
 // Opciones de tipos de ubicacion para el selector
 const opcionesTipo = Object.entries(LOCATION_TYPE_LABELS).map(([value, label]) => ({
@@ -78,8 +80,10 @@ function PaginaUbicaciones() {
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = PAGINATION.LOCATIONS_DEFAULT_LIMIT;
 
-  // Debounce del valor de busqueda para evitar peticiones excesivas
-  const busquedaDiferida = useDeferredValue(filtros.busqueda);
+  // Debounce real del valor de busqueda: useDeferredValue solo retrasa el render,
+  // la query seguia disparandose por cada tecla. useDebouncedValue retrasa el valor
+  // que entra al queryKey, eliminando requests intermedias mientras el usuario escribe
+  const busquedaDiferida = useDebouncedValue(filtros.busqueda, 300);
 
   // Parametros de consulta derivados del estado
   const parametrosConsulta = useMemo(() => {
@@ -112,6 +116,12 @@ function PaginaUbicaciones() {
 
   // React Query: puntos de medicion (solo si el tipo seleccionado es medicion)
   const { data: puntosApi, isLoading: cargandoPuntos } = usePuntosMedicion(tipoMedicion);
+
+  // React Query: FeatureCollection GeoJSON para visualizacion en mapa
+  const parametrosMapa = useMemo(() => (
+    filtros.tipo ? { type: filtros.tipo } : {}
+  ), [filtros.tipo]);
+  const { data: featureCollection, isLoading: cargandoMapa } = useMapaUbicaciones(parametrosMapa);
 
   const locations = locationsData?.data || [];
   const pagination = locationsData?.pagination || {};
@@ -234,6 +244,39 @@ function PaginaUbicaciones() {
         </CardContent>
       </Card>
 
+      {/* Mapa interactivo (cluster de marcadores) */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <MapPin className="h-5 w-5" />
+            Mapa Interactivo
+          </CardTitle>
+          <CardDescription>
+            Visualizacion geografica de estaciones, puntos de medida y rutas de transporte.
+            {filtros.tipo ? ` Filtrado por: ${LOCATION_TYPE_LABELS[filtros.tipo] || filtros.tipo}.` : ''}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {cargandoMapa ? (
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          ) : (
+            <MapaClusterizado
+              featureCollection={featureCollection}
+              altura="500px"
+              renderPopup={(props) => (
+                <div className="text-sm">
+                  <div className="font-semibold mb-1">{props.nombre || props.nmt || 'Ubicacion'}</div>
+                  <div>Tipo: {LOCATION_TYPE_LABELS[props.tipo] || props.tipo}</div>
+                  {props.nmt && <div>NMT: {props.nmt}</div>}
+                  {props.idPunto && <div>ID: {props.idPunto}</div>}
+                  {props.distrito && <div>Distrito: {props.distrito}</div>}
+                </div>
+              )}
+            />
+          )}
+        </CardContent>
+      </Card>
+
       {/* Detalle de rutas de transporte (visible al seleccionar un tipo de transporte) */}
       {tipoTransporte && (
         <Card className="mb-6">
@@ -248,7 +291,7 @@ function PaginaUbicaciones() {
           </CardHeader>
           <CardContent>
             {cargandoRutas ? (
-              <LoadingState message="Cargando rutas..." />
+              <TableSkeleton rows={4} columns={3} />
             ) : hayDetalleRutas ? (
               <Table>
                 <TableHeader>
@@ -297,7 +340,7 @@ function PaginaUbicaciones() {
           </CardHeader>
           <CardContent>
             {cargandoPuntos ? (
-              <LoadingState message="Cargando puntos de medicion..." />
+              <TableSkeleton rows={4} columns={3} />
             ) : hayDetallePuntos ? (
               <Table>
                 <TableHeader>
@@ -335,7 +378,7 @@ function PaginaUbicaciones() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <LoadingState message="Cargando ubicaciones..." />
+            <TableSkeleton rows={6} columns={6} />
           ) : error ? (
             <ErrorState
               message={error.message || 'Error al cargar ubicaciones'}
@@ -349,7 +392,11 @@ function PaginaUbicaciones() {
             />
           ) : (
             <>
-              <Table>
+              <Table
+                label="Listado de ubicaciones"
+                rowCount={pagination?.totalDocuments}
+                colCount={5}
+              >
                 <TableHeader>
                   <TableRow>
                     <TableHead>Tipo</TableHead>

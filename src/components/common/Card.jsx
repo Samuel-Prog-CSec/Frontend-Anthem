@@ -18,10 +18,10 @@ const Card = forwardRef(({ className, hover = false, glow = false, ...props }, r
   <div
     ref={ref}
     className={cn(
-      'rounded-2xl border border-slate-700/50 bg-slate-800/40 backdrop-blur-xl shadow-xl',
+      'rounded-2xl border border-border/60 bg-card/60 text-card-foreground backdrop-blur-xl shadow-xl',
       'transition-all duration-300',
-      hover && 'hover:border-slate-600 hover:bg-slate-800/60 hover:shadow-2xl hover:-translate-y-0.5',
-      glow && 'hover:shadow-cyan-500/10',
+      hover && 'hover:border-border hover:bg-card/80 hover:shadow-2xl hover:-translate-y-0.5',
+      glow && 'hover:shadow-primary/10',
       className
     )}
     {...props}
@@ -35,7 +35,7 @@ Card.displayName = 'Card';
 const CardHeader = forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('flex flex-col space-y-2 p-6 pb-4', className)}
+    className={cn('flex flex-col gap-2 p-6 pb-4', className)}
     {...props}
   />
 ));
@@ -48,7 +48,7 @@ const CardTitle = forwardRef(({ className, ...props }, ref) => (
   <h3
     ref={ref}
     className={cn(
-      'text-xl font-bold leading-tight tracking-tight text-white',
+      'text-xl font-bold leading-tight tracking-tight text-foreground',
       className
     )}
     {...props}
@@ -62,7 +62,7 @@ CardTitle.displayName = 'CardTitle';
 const CardDescription = forwardRef(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn('text-sm text-slate-400 leading-relaxed', className)}
+    className={cn('text-sm text-muted-foreground leading-relaxed', className)}
     {...props}
   />
 ));

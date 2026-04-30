@@ -16,7 +16,8 @@ import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
   Button, Select, Badge,
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
-  LoadingState, ErrorState, EmptyState, Pagination
+  LoadingState, ErrorState, EmptyState, Pagination,
+  TableSkeleton
 } from '../../components/common';
 import { StatCard, BarChartCard, PieChartCard } from '../../components/charts';
 import { useCenso, useCensoDashboard, useCensoDistritos } from '../../api/hooks';
@@ -362,7 +363,7 @@ function PaginaCenso() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <LoadingState message="Cargando datos del censo..." />
+            <TableSkeleton rows={6} columns={6} />
           ) : error ? (
             <ErrorState
               message="Error al cargar datos del censo"
@@ -373,7 +374,7 @@ function PaginaCenso() {
           ) : (
             <>
               <div className="overflow-x-auto">
-                <Table>
+                <Table label="Datos del censo demografico" rowCount={paginacion?.totalDocuments}>
                   <TableCaption>Datos del censo demografico - Anthem City {DATE_CONFIG.DATASET_YEAR}</TableCaption>
                   <TableHeader>
                     <TableRow>

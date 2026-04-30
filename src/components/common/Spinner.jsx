@@ -21,10 +21,12 @@ function Spinner({ size = 'md', className }) {
 
   return (
     <svg
-      className={cn('animate-spin text-cyan-500', sizeClasses[size], className)}
+      className={cn('animate-spin text-primary', sizeClasses[size], className)}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
+      role="status"
+      aria-label="Cargando"
     >
       <circle
         className="opacity-25"
@@ -50,9 +52,9 @@ function Spinner({ size = 'md', className }) {
  */
 function LoadingState({ message = 'Cargando...' }) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 gap-4">
+    <div className="flex flex-col items-center justify-center py-12 gap-4" role="status" aria-live="polite">
       <Spinner size="lg" />
-      <p className="text-slate-400 text-sm">{message}</p>
+      <p className="text-muted-foreground text-sm">{message}</p>
     </div>
   );
 }

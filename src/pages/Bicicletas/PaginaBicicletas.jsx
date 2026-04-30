@@ -11,7 +11,8 @@ import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
   Button, Select, Badge,
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
-  LoadingState, ErrorState, EmptyState, Pagination
+  LoadingState, ErrorState, EmptyState, Pagination,
+  TableSkeleton
 } from '../../components/common';
 import { StatCard, LineChartCard } from '../../components/charts';
 import {
@@ -362,7 +363,7 @@ function PaginaBicicletas() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <LoadingState message="Cargando datos de disponibilidad..." />
+              <TableSkeleton rows={6} columns={6} />
             ) : error ? (
               <ErrorState
                 message={error}
@@ -376,7 +377,7 @@ function PaginaBicicletas() {
               />
             ) : (
               <>
-                <Table>
+                <Table label="Disponibilidad diaria de bicicletas" rowCount={availabilityResult?.pagination?.totalDocuments}>
                   <TableCaption className="sr-only">Datos diarios de disponibilidad y uso de bicicletas</TableCaption>
                   <TableHeader>
                     <TableRow>

@@ -168,7 +168,7 @@ export const PERSON_TYPES = {
 };
 
 export const VEHICLE_TYPES = {
-  AAMBULANCIA_SAMUR: 'AMBULANCIA_SAMUR',
+  AMBULANCIA_SAMUR: 'AMBULANCIA_SAMUR',
   AUTOBUS_EMT: 'AUTOBUS_EMT',
   AUTOBUS: 'AUTOBÚS',
   AUTOBUS_ARTICULADO: 'AUTOBÚS_ARTICULADO',
@@ -373,15 +373,19 @@ export const ETIQUETAS_GRUPOS_EDAD = {
 // RUTAS DE NAVEGACION
 // ========================================
 
+// Todas las claves de recursos de dominio estan en espanol para
+// cumplir la regla de "codigo de dominio en espanol" de CLAUDE.md.
+// Se conservan claves tecnicas en ingles (HOME, DASHBOARD, LOGIN,
+// REGISTER, NOT_FOUND) por tratarse de infraestructura compartida.
 export const ROUTES = {
   HOME: '/',
   DASHBOARD: '/dashboard',
-  LOCATIONS: '/ubicaciones',
-  AIR_QUALITY: '/calidad-aire',
-  NOISE_MONITORING: '/ruido',
-  ACCIDENTS: '/accidentes',
-  SCOOTER_ASSIGNMENTS: '/patinetes',
-  BIKE_AVAILABILITY: '/bicicletas',
+  UBICACIONES: '/ubicaciones',
+  CALIDAD_AIRE: '/calidad-aire',
+  RUIDO: '/ruido',
+  ACCIDENTES: '/accidentes',
+  PATINETES: '/patinetes',
+  BICICLETAS: '/bicicletas',
   CENSO: '/censo',
   MULTAS: '/multas',
   AFORO_BICICLETAS: '/aforo-bicicletas',

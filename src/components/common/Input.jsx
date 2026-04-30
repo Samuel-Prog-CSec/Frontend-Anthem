@@ -19,34 +19,38 @@ import { cn } from '../../utils';
  * @param {string} [props.error] - Mensaje de error
  * @param {React.ComponentType} [props.startIcon] - Icono al inicio del input
  */
-const Input = forwardRef(({ className, type = 'text', error, startIcon: StartIcon, ...props }, ref) => {
+const Input = forwardRef(({ className, type = 'text', error, startIcon: StartIcon, id, ...props }, ref) => {
+  const errorId = error && id ? `${id}-error` : undefined;
   return (
     <div className="w-full relative">
       <input
+        id={id}
         type={type}
         className={cn(
-          'peer flex h-12 w-full rounded-xl border bg-slate-800/60 py-2.5 text-base text-white',
-          'placeholder:text-slate-500 transition-all duration-200',
-          'focus:outline-none focus:ring-2 focus:ring-offset-0',
+          'peer flex h-12 w-full rounded-xl border bg-input/60 py-2.5 text-base text-foreground',
+          'placeholder:text-muted-foreground transition-all duration-200',
+          'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-0',
           'disabled:cursor-not-allowed disabled:opacity-50',
           StartIcon ? 'pl-14 pr-4' : 'px-4',
           error
-            ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20'
-            : 'border-slate-700/50 hover:border-slate-600 focus:border-cyan-500 focus:ring-cyan-500/20',
+            ? 'border-destructive/60 focus-visible:border-destructive focus-visible:ring-destructive/30'
+            : 'border-border/60 hover:border-border focus-visible:border-primary focus-visible:ring-ring/30',
           className
         )}
         ref={ref}
+        aria-invalid={error ? 'true' : undefined}
+        aria-describedby={errorId}
         {...props}
       />
-      
+
       {StartIcon && (
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none transition-colors duration-200 peer-focus:text-cyan-400">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none transition-colors duration-200 peer-focus:text-primary">
           <StartIcon className="h-5 w-5" />
         </div>
       )}
 
       {error && (
-        <p className="mt-1.5 text-xs text-red-400">{error}</p>
+        <p id={errorId} className="mt-1.5 text-xs text-destructive" role="alert">{error}</p>
       )}
     </div>
   );

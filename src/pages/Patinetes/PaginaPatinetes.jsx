@@ -15,12 +15,14 @@ import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
   Button, Select, Badge,
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
-  LoadingState, ErrorState, EmptyState, Pagination
+  LoadingState, ErrorState, EmptyState, Pagination,
+  TableSkeleton, Skeleton, CardSkeleton
 } from '../../components/common';
 import { StatCard, BarChartCard, PieChartCard } from '../../components/charts';
+import { MapaClusterizado } from '../../components/mapas';
 import {
   usePatinetes, usePatinetesEstadisticas, usePatinetesMercado,
-  usePatinetesZonas, usePatinetesDetallesArea
+  usePatinetesZonas, usePatinetesDetallesArea, useMapaPatinetes
 } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
 import { formatNumber } from '../../utils';
@@ -112,6 +114,7 @@ function PaginaPatinetes() {
   const { data: statsResult } = usePatinetesEstadisticas();
   const { data: mercadoResult } = usePatinetesMercado();
   const { data: zonasResult } = usePatinetesZonas();
+  const { data: featureCollectionMapa, isLoading: cargandoMapa } = useMapaPatinetes();
   const {
     data: areaResult,
     isLoading: cargandoArea
@@ -258,6 +261,46 @@ function PaginaPatinetes() {
         />
       </div>
 
+      {/* Mapa de patinetes por distrito */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <MapPin className="h-5 w-5" />
+            Distribucion por Distrito
+          </CardTitle>
+          <CardDescription>
+            Total de patinetes agregado por distrito; cada punto se posiciona
+            en el centroide del distrito correspondiente.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {cargandoMapa ? (
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          ) : (
+            <MapaClusterizado
+              featureCollection={featureCollectionMapa}
+              altura="420px"
+              renderPopup={(props) => (
+                <div className="text-sm">
+                  <div className="font-semibold mb-1">{props.distrito}</div>
+                  <div>Total patinetes: {formatNumber(props.totalPatinetes)}</div>
+                  {props.topProveedores?.length > 0 && (
+                    <div className="mt-1">
+                      <div className="text-xs text-slate-500">Top proveedores:</div>
+                      {props.topProveedores.slice(0, 3).map((p, i) => (
+                        <div key={i} className="text-xs">
+                          {p.nombre}: {formatNumber(p.cantidad)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+          )}
+        </CardContent>
+      </Card>
+
       {/* Filtros */}
       <Card className="mb-6">
         <CardHeader>
@@ -390,7 +433,7 @@ function PaginaPatinetes() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <LoadingState message="Cargando asignaciones..." />
+            <TableSkeleton rows={6} columns={6} />
           ) : error ? (
             <ErrorState
               message={error}
@@ -404,7 +447,7 @@ function PaginaPatinetes() {
             />
           ) : (
             <>
-              <Table>
+              <Table label="Asignaciones de patinetes" rowCount={assignmentsResult?.pagination?.totalDocuments}>
                 <TableCaption className="sr-only">Tabla de asignacion de patinetes por distrito y barrio</TableCaption>
                 <TableHeader>
                   <TableRow>
@@ -478,7 +521,7 @@ function PaginaPatinetes() {
       {cargandoArea && (
         <Card className="mt-6">
           <CardContent className="py-6">
-            <LoadingState message="Cargando detalle del area..." />
+            <CardSkeleton lines={5} />
           </CardContent>
         </Card>
       )}

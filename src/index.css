@@ -1,9 +1,58 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 /* ========================================
    SMART CITY DASHBOARD - DESIGN SYSTEM
    Tema futurista para ciudad inteligente 2051
+   ========================================
+
+   Tokens shadcn/ui mapeados al tema oscuro propio. Esto habilita utilities como
+   bg-primary, text-foreground, border-border, bg-muted, text-muted-foreground...
+   sin perder los tokens de dominio (--color-air-good, --color-noise-low, etc.).
+   Se exponen via @theme inline (Tailwind v4) para que el motor genere las
+   clases utility correspondientes.
    ======================================== */
+@theme inline {
+  --color-background: var(--color-bg-primary);
+  --color-foreground: var(--color-text-primary);
+
+  --color-card: var(--color-bg-card);
+  --color-card-foreground: var(--color-text-primary);
+
+  --color-popover: var(--color-bg-card);
+  --color-popover-foreground: var(--color-text-primary);
+
+  --color-primary: var(--color-primary-500);
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: var(--color-bg-tertiary);
+  --color-secondary-foreground: var(--color-text-primary);
+
+  --color-muted: var(--color-bg-tertiary);
+  --color-muted-foreground: var(--color-text-secondary);
+
+  --color-accent: var(--color-accent-500);
+  --color-accent-foreground: #ffffff;
+
+  --color-destructive: var(--color-error);
+  --color-destructive-foreground: #ffffff;
+
+  --color-success: var(--color-accent-500);
+  --color-success-foreground: #ffffff;
+
+  --color-warning: #f59e0b;
+  --color-warning-foreground: #0a0a0f;
+
+  --color-info: #3b82f6;
+  --color-info-foreground: #ffffff;
+
+  --color-border: #334155;
+  --color-input: var(--color-bg-secondary);
+  --color-ring: var(--color-primary-500);
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
 
 /* CSS Variables - Tema oscuro por defecto */
 :root {

@@ -15,13 +15,15 @@ import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
   Button, Select, Badge,
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
-  LoadingState, ErrorState, EmptyState, Pagination
+  LoadingState, ErrorState, EmptyState, Pagination,
+  TableSkeleton, Skeleton, CardSkeleton
 } from '../../components/common';
 import { StatCard, BarChartCard, PieChartCard } from '../../components/charts';
+import { MapaCalor } from '../../components/mapas';
 import {
   useAccidentes, useAccidentesComparativa,
   useAccidentesEstadisticas, useAccidenteExpediente,
-  useAccidentesMapaCalor
+  useAccidentesMapaCalor, useMapaAccidentes
 } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
 import { formatDate, formatNumber } from '../../utils';
@@ -135,6 +137,17 @@ function PaginaAccidentes() {
   const { data: distritosResult } = useAccidentesComparativa();
   const { data: statsResult } = useAccidentesEstadisticas();
   const { data: heatmapResult } = useAccidentesMapaCalor({ limite: 300, precision: 100 });
+
+  // FeatureCollection GeoJSON para heatmap Leaflet.
+  // Se pasan los filtros activos de distrito/gravedad/tipoAccidente.
+  const parametrosMapa = useMemo(() => {
+    const params = { limite: 3000 };
+    if (filtros.distrito) {params.distrito = filtros.distrito;}
+    if (filtros.gravedad) {params.gravedad = filtros.gravedad;}
+    if (filtros.tipoAccidente) {params.tipoAccidente = filtros.tipoAccidente;}
+    return params;
+  }, [filtros.distrito, filtros.gravedad, filtros.tipoAccidente]);
+  const { data: featureCollectionMapa, isLoading: cargandoMapa } = useMapaAccidentes(parametrosMapa);
   const {
     data: expedienteResult,
     isLoading: cargandoExpediente
@@ -301,6 +314,36 @@ function PaginaAccidentes() {
         />
       </div>
 
+      {/* Mapa de calor de accidentes */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <AlertTriangle className="h-5 w-5" />
+            Mapa de Calor de Accidentes
+          </CardTitle>
+          <CardDescription>
+            Concentracion geografica de accidentes segun los filtros aplicados.
+            Maximo {parametrosMapa.limite || 3000} registros.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {cargandoMapa ? (
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          ) : (
+            <MapaCalor
+              featureCollection={featureCollectionMapa}
+              altura="480px"
+              radius={20}
+              blur={18}
+              extraerIntensidad={(props) => {
+                const gravedadMap = { MORTAL: 10, GRAVE: 6, LEVE: 2, SIN_LESIONES: 1 };
+                return gravedadMap[props.gravedad] || 3;
+              }}
+            />
+          )}
+        </CardContent>
+      </Card>
+
       {/* Filtros */}
       <Card className="mb-6">
         <CardHeader>
@@ -431,7 +474,7 @@ function PaginaAccidentes() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <LoadingState message="Cargando accidentes..." />
+            <TableSkeleton rows={6} columns={7} />
           ) : error ? (
             <ErrorState
               message={error}
@@ -445,7 +488,10 @@ function PaginaAccidentes() {
             />
           ) : (
             <>
-              <Table>
+              <Table
+                label="Listado de accidentes"
+                rowCount={accidentesResult?.pagination?.totalDocuments}
+              >
                 <TableCaption className="sr-only">Registro de personas afectadas en accidentes de trafico</TableCaption>
                 <TableHeader>
                   <TableRow>
@@ -539,7 +585,7 @@ function PaginaAccidentes() {
       {cargandoExpediente && (
         <Card className="mt-6">
           <CardContent className="py-6">
-            <LoadingState message="Cargando detalle del expediente..." />
+            <CardSkeleton lines={5} />
           </CardContent>
         </Card>
       )}

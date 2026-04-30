@@ -1,5 +1,6 @@
 /**
- * Re-exports de contextos
+ * Re-exports de contextos y hooks asociados
  */
 
-export { AuthProvider, useAuth } from './AuthContext';
+export { AuthProvider } from './AuthContext';
+export { useAuth } from './useAuth';

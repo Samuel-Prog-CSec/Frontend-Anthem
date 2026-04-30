@@ -34,21 +34,22 @@ function Pagination({
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   return (
-    <div className={cn(
-      'flex items-center justify-between px-2 py-4',
-      className
-    )}>
-      {/* Info de registros */}
-      <div className="text-sm text-slate-400">
+    <nav
+      role="navigation"
+      aria-label="Paginacion"
+      className={cn(
+        'flex items-center justify-between px-2 py-4',
+        className
+      )}
+    >
+      <div className="text-sm text-muted-foreground" aria-live="polite">
         {totalItems === 0
           ? 'No hay registros'
           : `Mostrando ${startItem} - ${endItem} de ${totalItems} registros`
         }
       </div>
 
-      {/* Controles de navegacion */}
       <div className="flex items-center gap-1">
-        {/* Primera pagina */}
         <Button
           variant="ghost"
           size="icon"
@@ -56,10 +57,9 @@ function Pagination({
           disabled={!canGoPrevious}
           aria-label="Primera pagina"
         >
-          <ChevronsLeft className="h-4 w-4" />
+          <ChevronsLeft className="h-4 w-4" aria-hidden="true" />
         </Button>
 
-        {/* Pagina anterior */}
         <Button
           variant="ghost"
           size="icon"
@@ -67,15 +67,13 @@ function Pagination({
           disabled={!canGoPrevious}
           aria-label="Pagina anterior"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
         </Button>
 
-        {/* Indicador de pagina */}
-        <span className="px-4 text-sm text-slate-300">
+        <span className="px-4 text-sm text-foreground" aria-current="page">
           Pagina {currentPage} de {totalPages}
         </span>
 
-        {/* Pagina siguiente */}
         <Button
           variant="ghost"
           size="icon"
@@ -83,10 +81,9 @@ function Pagination({
           disabled={!canGoNext}
           aria-label="Pagina siguiente"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4" aria-hidden="true" />
         </Button>
 
-        {/* Ultima pagina */}
         <Button
           variant="ghost"
           size="icon"
@@ -94,10 +91,10 @@ function Pagination({
           disabled={!canGoNext}
           aria-label="Ultima pagina"
         >
-          <ChevronsRight className="h-4 w-4" />
+          <ChevronsRight className="h-4 w-4" aria-hidden="true" />
         </Button>
       </div>
-    </div>
+    </nav>
   );
 }
 

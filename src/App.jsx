@@ -131,7 +131,7 @@ function AppRoutes() {
           }
         />
         <Route
-          path={ROUTES.LOCATIONS}
+          path={ROUTES.UBICACIONES}
           element={
             <ProtectedRoute>
               <PaginaUbicaciones />
@@ -139,7 +139,7 @@ function AppRoutes() {
           }
         />
         <Route
-          path={ROUTES.AIR_QUALITY}
+          path={ROUTES.CALIDAD_AIRE}
           element={
             <ProtectedRoute>
               <PaginaCalidadAire />
@@ -147,7 +147,7 @@ function AppRoutes() {
           }
         />
         <Route
-          path={ROUTES.NOISE_MONITORING}
+          path={ROUTES.RUIDO}
           element={
             <ProtectedRoute>
               <PaginaRuido />
@@ -155,7 +155,7 @@ function AppRoutes() {
           }
         />
         <Route
-          path={ROUTES.ACCIDENTS}
+          path={ROUTES.ACCIDENTES}
           element={
             <ProtectedRoute>
               <PaginaAccidentes />
@@ -163,7 +163,7 @@ function AppRoutes() {
           }
         />
         <Route
-          path={ROUTES.SCOOTER_ASSIGNMENTS}
+          path={ROUTES.PATINETES}
           element={
             <ProtectedRoute>
               <PaginaPatinetes />
@@ -171,7 +171,7 @@ function AppRoutes() {
           }
         />
         <Route
-          path={ROUTES.BIKE_AVAILABILITY}
+          path={ROUTES.BICICLETAS}
           element={
             <ProtectedRoute>
               <PaginaBicicletas />

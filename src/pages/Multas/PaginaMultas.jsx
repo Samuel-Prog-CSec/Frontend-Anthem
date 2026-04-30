@@ -19,7 +19,8 @@ import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
   Button, Select, Badge,
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
-  LoadingState, ErrorState, EmptyState, Pagination
+  LoadingState, ErrorState, EmptyState, Pagination,
+  TableSkeleton, CardSkeleton
 } from '../../components/common';
 import { StatCard, BarChartCard } from '../../components/charts';
 import { useMultas, useMultasDashboard, useMultasRanking, useMultaDetalle } from '../../api/hooks';
@@ -302,7 +303,7 @@ function PaginaMultas() {
       )}
 
       {/* Panel de detalle de multa */}
-      {detalleLoading && <LoadingState message="Cargando detalle de la multa..." />}
+      {detalleLoading && <CardSkeleton lines={5} />}
       {detalleResult?.data && (
         <Card className="mb-6 border-cyan-500/30">
           <CardHeader>
@@ -372,7 +373,7 @@ function PaginaMultas() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <LoadingState message="Cargando multas..." />
+            <TableSkeleton rows={6} columns={7} />
           ) : error ? (
             <ErrorState
               message="Error al cargar multas"
@@ -383,7 +384,7 @@ function PaginaMultas() {
           ) : (
             <>
               <div className="overflow-x-auto">
-                <Table>
+                <Table label="Listado de multas de trafico" rowCount={paginacion?.totalDocuments}>
                   <TableCaption>Multas de trafico - Anthem City {DATE_CONFIG.DATASET_YEAR}</TableCaption>
                   <TableHeader>
                     <TableRow>
