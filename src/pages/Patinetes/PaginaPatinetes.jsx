@@ -6,83 +6,35 @@
  * - Distribucion por distrito (grafico de barras)
  * - Cuota de mercado por proveedor (grafico de pastel)
  * - Tabla detallada con filtros
+ *
+ * Esta pagina es solo orquestacion: estado, filtros, llamadas a React Query
+ * y composicion de subcomponentes memoizados que viven en `./components/`.
  */
 
 import { useState, useCallback, useMemo } from 'react';
-import { Zap, Filter, RefreshCw, MapPin, BarChart3, Users, TrendingUp, Layers, X } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
-import {
-  Card, CardHeader, CardTitle, CardContent, CardDescription,
-  Button, Select, Badge,
-  Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
-  LoadingState, ErrorState, EmptyState, Pagination,
-  TableSkeleton, Skeleton, CardSkeleton
-} from '../../components/common';
-import { StatCard, BarChartCard, PieChartCard } from '../../components/charts';
-import { MapaClusterizado } from '../../components/mapas';
+import { Button, EnlacesCruzados } from '../../components/common';
+import { useSincronizarFiltroGeo } from '../../context';
 import {
   usePatinetes, usePatinetesEstadisticas, usePatinetesMercado,
   usePatinetesZonas, usePatinetesDetallesArea, useMapaPatinetes
 } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
-import { formatNumber } from '../../utils';
+import {
+  TarjetasEstadisticasPatinetes,
+  MapaDistribucionPatinetes,
+  FiltrosPatinetes,
+  EstadisticasMercadoPatinetes,
+  ZonasConcentracionPatinetes,
+  TablaPatinetes,
+  DetalleAreaPatinetes
+} from './components';
 
-// Opciones de filtro para densidad de patinetes
-const densityOptions = [
-  { value: 'BAJA', label: 'Baja' },
-  { value: 'MEDIA', label: 'Media' },
-  { value: 'ALTA', label: 'Alta' },
-  { value: 'MUY_ALTA', label: 'Muy Alta' }
-];
+const FILTROS_INICIALES = { distrito: '', densidad: '', tipoZona: '' };
 
-// Opciones de filtro para tipo de zona
-const zoneTypeOptions = [
-  { value: 'CENTRO_URBANO', label: 'Centro Urbano' },
-  { value: 'ZONA_COMERCIAL', label: 'Zona Comercial' },
-  { value: 'ZONA_UNIVERSITARIA', label: 'Zona Universitaria' },
-  { value: 'ZONA_TRANSPORTE', label: 'Zona Transporte' },
-  { value: 'ZONA_RESIDENCIAL', label: 'Zona Residencial' }
-];
-
-/**
- * Obtiene la variante del badge segun el nivel de densidad
- * @param {string} density - Nivel de densidad
- * @returns {string} Variante del badge
- */
-function obtenerVarianteBadgeDensidad(density) {
-  switch (density) {
-    case 'MUY_ALTA': return 'destructive';
-    case 'ALTA': return 'warning';
-    case 'MEDIA': return 'info';
-    case 'BAJA': return 'secondary';
-    default: return 'secondary';
-  }
-}
-
-/**
- * Obtiene la variante del badge segun el nivel de demanda
- * @param {string} demand - Nivel de demanda
- * @returns {string} Variante del badge
- */
-function obtenerVarianteBadgeDemanda(demand) {
-  switch (demand) {
-    case 'MUY_ALTA': return 'destructive';
-    case 'ALTA': return 'warning';
-    case 'MEDIA': return 'info';
-    case 'BAJA': return 'secondary';
-    default: return 'secondary';
-  }
-}
-
-/**
- * Pagina de asignacion de patinetes
- */
 function PaginaPatinetes() {
-  const [filtros, setFiltros] = useState({
-    distrito: '',
-    densidad: '',
-    tipoZona: ''
-  });
+  const [filtros, setFiltros] = useState(FILTROS_INICIALES);
   const [paginacion, setPaginacion] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -90,6 +42,13 @@ function PaginaPatinetes() {
     itemsPerPage: PAGINATION.DEFAULT_LIMIT
   });
   const [areaQuery, setAreaQuery] = useState(null);
+
+  // BI cross-project: sincronizar filtro de distrito local con el global
+  const aplicarDistritoLocal = useCallback((d) => {
+    setFiltros(prev => ({ ...prev, distrito: d || '' }));
+    setPaginacion(prev => ({ ...prev, currentPage: 1 }));
+  }, []);
+  useSincronizarFiltroGeo(filtros.distrito, aplicarDistritoLocal);
 
   // Parametros de consulta para la query principal
   const queryParams = useMemo(() => {
@@ -135,24 +94,21 @@ function PaginaPatinetes() {
     totalItems: assignmentsResult?.pagination?.totalDocuments || assignmentsResult?.pagination?.totalItems || 0
   }), [paginacion, assignmentsResult?.pagination]);
 
-  // Cambiar pagina
+  // Handlers estables (se pasan como props memo)
   const manejarCambioPagina = useCallback((page) => {
     setPaginacion(prev => ({ ...prev, currentPage: page }));
   }, []);
 
-  // Cambiar filtros
   const manejarCambioFiltro = useCallback((name, value) => {
     setFiltros(prev => ({ ...prev, [name]: value }));
     setPaginacion(prev => ({ ...prev, currentPage: 1 }));
   }, []);
 
-  // Limpiar filtros
   const limpiarFiltros = useCallback(() => {
-    setFiltros({ distrito: '', densidad: '', tipoZona: '' });
+    setFiltros(FILTROS_INICIALES);
     setPaginacion(prev => ({ ...prev, currentPage: 1 }));
   }, []);
 
-  // Toggle detalle de area
   const manejarClickArea = useCallback((distrito, barrio) => {
     if (!distrito || !barrio) return;
 
@@ -164,7 +120,9 @@ function PaginaPatinetes() {
     });
   }, []);
 
-  // Calcular estadisticas del resumen
+  const cerrarArea = useCallback(() => setAreaQuery(null), []);
+
+  // Estadisticas derivadas de la pagina actual
   const estadisticas = useMemo(() => {
     if (datos.length === 0) {
       return {
@@ -199,7 +157,7 @@ function PaginaPatinetes() {
     };
   }, [datos, paginacionActual.totalItems]);
 
-  // Preparar opciones de distrito desde estadisticasDistritos
+  // Opciones de distrito derivadas de estadisticasDistritos
   const districtOptions = useMemo(() => {
     return estadisticasDistritos.map(d => ({
       value: d._id,
@@ -207,7 +165,7 @@ function PaginaPatinetes() {
     }));
   }, [estadisticasDistritos]);
 
-  // Preparar datos para grafico de barras (patinetes por distrito)
+  // Datos para grafico de barras (patinetes por distrito)
   const datosGrafico = useMemo(() => {
     return estadisticasDistritos.map(d => ({
       name: d._id,
@@ -215,7 +173,7 @@ function PaginaPatinetes() {
     }));
   }, [estadisticasDistritos]);
 
-  // Preparar datos para grafico de pastel (cuota de mercado por proveedor, top 8)
+  // Datos para grafico de pastel (cuota de mercado por proveedor, top 8)
   const pieChartData = useMemo(() => {
     return datosMercado
       .slice(0, 8)
@@ -231,399 +189,62 @@ function PaginaPatinetes() {
       description={`Distribucion y asignacion de patinetes por distrito - ${DATE_CONFIG.DATASET_YEAR}`}
       actions={
         <Button variant="outline" onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className="size-4 mr-2" />
           Actualizar
         </Button>
       }
     >
-      {/* Tarjetas de resumen */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard
-          title="Total Patinetes"
-          value={formatNumber(estadisticas.totalPatinetes)}
-          icon={Zap}
-        />
-        <StatCard
-          title="Areas Registradas"
-          value={estadisticas.totalAreas}
-          icon={MapPin}
-        />
-        <StatCard
-          title="Promedio por Barrio"
-          value={formatNumber(Math.round(estadisticas.promedioPorBarrio))}
-          icon={BarChart3}
-        />
-        <StatCard
-          title="Proveedores Activos"
-          value={Math.round(estadisticas.proveedoresActivos)}
-          subtitle="promedio por area"
-          icon={Users}
-        />
-      </div>
+      <TarjetasEstadisticasPatinetes estadisticas={estadisticas} />
 
-      {/* Mapa de patinetes por distrito */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <MapPin className="h-5 w-5" />
-            Distribucion por Distrito
-          </CardTitle>
-          <CardDescription>
-            Total de patinetes agregado por distrito; cada punto se posiciona
-            en el centroide del distrito correspondiente.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {cargandoMapa ? (
-            <Skeleton className="h-[400px] w-full rounded-xl" />
-          ) : (
-            <MapaClusterizado
-              featureCollection={featureCollectionMapa}
-              altura="420px"
-              renderPopup={(props) => (
-                <div className="text-sm">
-                  <div className="font-semibold mb-1">{props.distrito}</div>
-                  <div>Total patinetes: {formatNumber(props.totalPatinetes)}</div>
-                  {props.topProveedores?.length > 0 && (
-                    <div className="mt-1">
-                      <div className="text-xs text-slate-500">Top proveedores:</div>
-                      {props.topProveedores.slice(0, 3).map((p, i) => (
-                        <div key={i} className="text-xs">
-                          {p.nombre}: {formatNumber(p.cantidad)}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            />
-          )}
-        </CardContent>
-      </Card>
+      <MapaDistribucionPatinetes
+        cargandoMapa={cargandoMapa}
+        featureCollectionMapa={featureCollectionMapa}
+      />
 
-      {/* Filtros */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Filter className="h-5 w-5" />
-            Filtros
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <label className="text-sm text-slate-400 mb-1 block">Distrito</label>
-              <Select
-                value={filtros.distrito}
-                onChange={(e) => manejarCambioFiltro('distrito', e.target.value)}
-                options={districtOptions}
-                placeholder="Todos los distritos"
-              />
-            </div>
-            <div className="flex-1">
-              <label className="text-sm text-slate-400 mb-1 block">Densidad</label>
-              <Select
-                value={filtros.densidad}
-                onChange={(e) => manejarCambioFiltro('densidad', e.target.value)}
-                options={densityOptions}
-                placeholder="Todas las densidades"
-              />
-            </div>
-            <div className="flex-1">
-              <label className="text-sm text-slate-400 mb-1 block">Tipo de Zona</label>
-              <Select
-                value={filtros.tipoZona}
-                onChange={(e) => manejarCambioFiltro('tipoZona', e.target.value)}
-                options={zoneTypeOptions}
-                placeholder="Todos los tipos"
-              />
-            </div>
-            <div className="flex items-end">
-              <Button variant="ghost" onClick={limpiarFiltros}>
-                Limpiar
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <FiltrosPatinetes
+        filtros={filtros}
+        districtOptions={districtOptions}
+        manejarCambioFiltro={manejarCambioFiltro}
+        limpiarFiltros={limpiarFiltros}
+      />
 
-      {/* Graficos */}
-      {!isLoading && (estadisticasDistritos.length > 0 || datosMercado.length > 0) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {estadisticasDistritos.length > 0 && (
-            <BarChartCard
-              title="Patinetes por Distrito"
-              data={datosGrafico}
-              xKey="name"
-              bars={[
-                { key: 'totalPatinetes', name: 'Total Patinetes', color: '#06b6d4' }
-              ]}
-              height={280}
-            />
-          )}
-          {datosMercado.length > 0 && (
-            <PieChartCard
-              title="Cuota de Mercado por Proveedor"
-              data={pieChartData}
-              height={280}
-              donut
-            />
-          )}
+      {filtros.distrito && (
+        <div className="mb-6">
+          <EnlacesCruzados
+            distrito={filtros.distrito}
+            modulosExcluidos={['patinetes']}
+            titulo={`Ver "${filtros.distrito}" en otros modulos:`}
+          />
         </div>
       )}
 
-      {/* Zonas de concentracion */}
-      {!isLoading && zonasConcentracion.length > 0 && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Layers className="h-5 w-5" />
-              Zonas de Mayor Concentracion
-            </CardTitle>
-            <CardDescription>
-              Areas con la mayor densidad de patinetes asignados
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Distrito</TableHead>
-                  <TableHead>Barrio</TableHead>
-                  <TableHead className="text-right">Total Patinetes</TableHead>
-                  <TableHead className="text-center">Densidad</TableHead>
-                  <TableHead className="text-center">Proveedores</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {zonasConcentracion.slice(0, 10).map((zona, index) => (
-                  <TableRow key={`zona-${index}`}>
-                    <TableCell className="font-medium">
-                      {zona.distrito || zona._id?.distrito || '-'}
-                    </TableCell>
-                    <TableCell>
-                      {zona.barrio || zona._id?.barrio || '-'}
-                    </TableCell>
-                    <TableCell className="text-right font-mono">
-                      {formatNumber(zona.totalPatinetes)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant={obtenerVarianteBadgeDensidad(zona.densidad || zona.densidadPatinetes)}>
-                        {zona.densidad || zona.densidadPatinetes || '-'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {zona.proveedoresActivos || zona.totalProveedores || '-'}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+      {!isLoading && (
+        <EstadisticasMercadoPatinetes
+          datosGrafico={datosGrafico}
+          pieChartData={pieChartData}
+        />
       )}
 
-      {/* Tabla de datos */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Asignaciones de Patinetes</CardTitle>
-          <CardDescription>
-            Distribucion de patinetes por distrito y barrio
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <TableSkeleton rows={6} columns={6} />
-          ) : error ? (
-            <ErrorState
-              message={error}
-              onRetry={() => refetch()}
-            />
-          ) : datos.length === 0 ? (
-            <EmptyState
-              title="Sin asignaciones"
-              description="No se encontraron asignaciones con los filtros seleccionados."
-              icon={Zap}
-            />
-          ) : (
-            <>
-              <Table label="Asignaciones de patinetes" rowCount={assignmentsResult?.pagination?.totalDocuments}>
-                <TableCaption className="sr-only">Tabla de asignacion de patinetes por distrito y barrio</TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Distrito</TableHead>
-                    <TableHead>Barrio</TableHead>
-                    <TableHead className="text-right">Total Patinetes</TableHead>
-                    <TableHead className="text-center">Proveedores</TableHead>
-                    <TableHead className="text-center">Densidad</TableHead>
-                    <TableHead>Tipo Zona</TableHead>
-                    <TableHead className="text-center">Demanda</TableHead>
-                    <TableHead>Proveedor Dominante</TableHead>
-                    <TableHead className="text-right">HHI</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {datos.map(item => (
-                    <TableRow
-                      key={item._id}
-                      className="cursor-pointer hover:bg-slate-800/50 transition-colors"
-                      onClick={() => manejarClickArea(item.distrito?.nombre, item.barrio?.nombre)}
-                    >
-                      <TableCell className="font-medium text-cyan-400">
-                        {item.distrito?.nombre}
-                      </TableCell>
-                      <TableCell>
-                        {item.barrio?.nombre}
-                      </TableCell>
-                      <TableCell className="text-right font-mono">
-                        {formatNumber(item.estadisticas?.totalPatinetes)}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {item.estadisticas?.proveedoresActivos}/{item.estadisticas?.totalProveedores}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant={obtenerVarianteBadgeDensidad(item.estadisticas?.densidadPatinetes)}>
-                          {item.estadisticas?.densidadPatinetes}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {item.clasificacionArea?.tipoZona?.replace(/_/g, ' ')}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant={obtenerVarianteBadgeDemanda(item.clasificacionArea?.demandaEstimada)}>
-                          {item.clasificacionArea?.demandaEstimada}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {item.analisisDistribucion?.proveedorDominante?.nombre || '-'}
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-slate-300">
-                        {formatNumber(item.analisisDistribucion?.indiceHerfindahl)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {/* Paginacion */}
-              <Pagination
-                currentPage={paginacionActual.currentPage}
-                totalPages={paginacionActual.totalPages}
-                totalItems={paginacionActual.totalItems}
-                itemsPerPage={paginacionActual.itemsPerPage}
-                onPageChange={manejarCambioPagina}
-              />
-            </>
-          )}
-        </CardContent>
-      </Card>
-      {/* Detalle de area seleccionada */}
-      {cargandoArea && (
-        <Card className="mt-6">
-          <CardContent className="py-6">
-            <CardSkeleton lines={5} />
-          </CardContent>
-        </Card>
+      {!isLoading && (
+        <ZonasConcentracionPatinetes zonas={zonasConcentracion} />
       )}
 
-      {areaSeleccionada && !cargandoArea && (
-        <Card className="mt-6">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <MapPin className="h-5 w-5" />
-                {areaSeleccionada.distrito?.nombre || '-'} - {areaSeleccionada.barrio?.nombre || '-'}
-              </CardTitle>
-              <Button variant="ghost" onClick={() => setAreaQuery(null)}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            <CardDescription>
-              Detalle de asignacion de patinetes en el area seleccionada
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* Estadisticas del area */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div>
-                <p className="text-sm text-slate-400">Total Patinetes</p>
-                <p className="text-xl font-bold">{formatNumber(areaSeleccionada.estadisticas?.totalPatinetes)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-400">Proveedores Activos</p>
-                <p className="text-xl font-bold">
-                  {areaSeleccionada.estadisticas?.proveedoresActivos || 0}/{areaSeleccionada.estadisticas?.totalProveedores || 0}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-400">Densidad</p>
-                <Badge variant={obtenerVarianteBadgeDensidad(areaSeleccionada.estadisticas?.densidadPatinetes)}>
-                  {areaSeleccionada.estadisticas?.densidadPatinetes || '-'}
-                </Badge>
-              </div>
-              <div>
-                <p className="text-sm text-slate-400">Tipo de Zona</p>
-                <p className="font-medium">
-                  {areaSeleccionada.clasificacionArea?.tipoZona?.replace(/_/g, ' ') || '-'}
-                </p>
-              </div>
-            </div>
+      <TablaPatinetes
+        isLoading={isLoading}
+        error={error}
+        datos={datos}
+        paginacionActual={paginacionActual}
+        totalDocuments={assignmentsResult?.pagination?.totalDocuments}
+        onCambioPagina={manejarCambioPagina}
+        onClickArea={manejarClickArea}
+        onRetry={refetch}
+      />
 
-            {/* Clasificacion del area */}
-            {areaSeleccionada.clasificacionArea && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                <div>
-                  <p className="text-sm text-slate-400">Demanda Estimada</p>
-                  <Badge variant={obtenerVarianteBadgeDemanda(areaSeleccionada.clasificacionArea.demandaEstimada)}>
-                    {areaSeleccionada.clasificacionArea.demandaEstimada || '-'}
-                  </Badge>
-                </div>
-                {areaSeleccionada.analisisDistribucion?.proveedorDominante && (
-                  <div>
-                    <p className="text-sm text-slate-400">Proveedor Dominante</p>
-                    <p className="font-medium">{areaSeleccionada.analisisDistribucion.proveedorDominante.nombre || '-'}</p>
-                  </div>
-                )}
-                {areaSeleccionada.analisisDistribucion?.indiceHerfindahl != null && (
-                  <div>
-                    <p className="text-sm text-slate-400">Indice Herfindahl (HHI)</p>
-                    <p className="font-mono font-medium">{formatNumber(areaSeleccionada.analisisDistribucion.indiceHerfindahl)}</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Proveedores en el area */}
-            {areaSeleccionada.proveedores?.length > 0 && (
-              <div>
-                <h4 className="text-sm font-semibold text-slate-300 mb-3">
-                  Proveedores en el Area ({areaSeleccionada.proveedores.length})
-                </h4>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Proveedor</TableHead>
-                      <TableHead className="text-right">Patinetes</TableHead>
-                      <TableHead className="text-right">Cuota</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {areaSeleccionada.proveedores.map((prov, idx) => (
-                      <TableRow key={`prov-${idx}`}>
-                        <TableCell className="font-medium">{prov.nombre || prov.proveedor || '-'}</TableCell>
-                        <TableCell className="text-right font-mono">{formatNumber(prov.totalPatinetes || prov.cantidad)}</TableCell>
-                        <TableCell className="text-right">
-                          {prov.cuota != null ? `${formatNumber(prov.cuota, 1)}%` : '-'}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      <DetalleAreaPatinetes
+        area={areaSeleccionada}
+        cargando={cargandoArea}
+        onCerrar={cerrarArea}
+      />
     </PageLayout>
   );
 }

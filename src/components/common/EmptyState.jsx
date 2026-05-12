@@ -1,9 +1,10 @@
 /**
  * Componente EmptyState
- * 
+ *
  * Estado vacio para cuando no hay datos que mostrar.
  */
 
+import { memo } from 'react';
 import { Inbox } from 'lucide-react';
 import { cn } from '../../utils';
 
@@ -16,7 +17,7 @@ import { cn } from '../../utils';
  * @param {React.ReactNode} [props.action] - Accion opcional (boton)
  * @param {string} [props.className] - Clases adicionales
  */
-function EmptyState({
+const EmptyState = memo(function EmptyState({
   title = 'No hay datos',
   description = 'No se encontraron resultados para mostrar.',
   icon = Inbox,
@@ -30,13 +31,13 @@ function EmptyState({
       className
     )}>
       <div className="rounded-full bg-muted p-4 mb-4">
-        <IconoComponente className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
+        <IconoComponente className="size-8 text-muted-foreground" aria-hidden="true" />
       </div>
       <h3 className="text-lg font-medium text-foreground mb-1">{title}</h3>
       <p className="text-sm text-muted-foreground max-w-sm mb-4">{description}</p>
       {action}
     </div>
   );
-}
+});
 
 export { EmptyState };

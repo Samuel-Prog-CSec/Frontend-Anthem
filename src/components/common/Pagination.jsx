@@ -1,9 +1,10 @@
 /**
  * Componente Pagination
- * 
+ *
  * Control de paginacion para listas de datos.
  */
 
+import { memo } from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Button } from './Button';
 import { cn } from '../../utils';
@@ -18,7 +19,7 @@ import { cn } from '../../utils';
  * @param {Function} props.onPageChange - Callback al cambiar pagina
  * @param {string} [props.className] - Clases adicionales
  */
-function Pagination({
+const Pagination = memo(function Pagination({
   currentPage,
   totalPages,
   totalItems,
@@ -57,7 +58,7 @@ function Pagination({
           disabled={!canGoPrevious}
           aria-label="Primera pagina"
         >
-          <ChevronsLeft className="h-4 w-4" aria-hidden="true" />
+          <ChevronsLeft className="size-4" aria-hidden="true" />
         </Button>
 
         <Button
@@ -67,7 +68,7 @@ function Pagination({
           disabled={!canGoPrevious}
           aria-label="Pagina anterior"
         >
-          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+          <ChevronLeft className="size-4" aria-hidden="true" />
         </Button>
 
         <span className="px-4 text-sm text-foreground" aria-current="page">
@@ -81,7 +82,7 @@ function Pagination({
           disabled={!canGoNext}
           aria-label="Pagina siguiente"
         >
-          <ChevronRight className="h-4 w-4" aria-hidden="true" />
+          <ChevronRight className="size-4" aria-hidden="true" />
         </Button>
 
         <Button
@@ -91,11 +92,11 @@ function Pagination({
           disabled={!canGoNext}
           aria-label="Ultima pagina"
         >
-          <ChevronsRight className="h-4 w-4" aria-hidden="true" />
+          <ChevronsRight className="size-4" aria-hidden="true" />
         </Button>
       </div>
     </nav>
   );
-}
+});
 
 export { Pagination };

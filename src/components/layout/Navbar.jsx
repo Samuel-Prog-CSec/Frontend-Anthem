@@ -7,10 +7,10 @@
  */
 
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User, LogOut, MapPin, Wind, Volume2, LayoutDashboard, AlertTriangle, Zap, Bike, Users, FileWarning, Activity } from 'lucide-react';
+import { Menu, X, User, LogOut, MapPin, Wind, Volume2, LayoutDashboard, AlertTriangle, Zap, Bike, Users, FileWarning, Activity, Recycle, TrafficCone, Filter, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button } from '../common';
-import { useAuth } from '../../context';
+import { useAuth, useFiltroGeo } from '../../context';
 import { ROUTES } from '../../constants';
 import { cn } from '../../utils';
 
@@ -24,10 +24,43 @@ const navigationItems = [
   { path: ROUTES.BICICLETAS, label: 'Bicicletas', icon: Bike },
   { path: ROUTES.CENSO, label: 'Censo', icon: Users },
   { path: ROUTES.MULTAS, label: 'Multas', icon: FileWarning },
-  { path: ROUTES.AFORO_BICICLETAS, label: 'Aforo Bicis', icon: Activity }
+  { path: ROUTES.AFORO_BICICLETAS, label: 'Aforo Bicis', icon: Activity },
+  { path: ROUTES.CONTENEDORES, label: 'Contenedores', icon: Recycle },
+  { path: ROUTES.TRAFICO, label: 'Trafico', icon: TrafficCone },
+  { path: ROUTES.CORRELACIONES, label: 'Analisis BI', icon: Sparkles }
 ];
 
 const MOBILE_MENU_ID = 'navbar-mobile-menu';
+
+/**
+ * Chip que muestra el filtro geografico global activo (BI cross-project).
+ * Se renderiza solo cuando hay filtro y permite limpiarlo de un click.
+ */
+function ChipFiltroGeo() {
+  const { distrito, barrio, tieneFiltro, limpiarFiltro } = useFiltroGeo();
+  if (!tieneFiltro) {return null;}
+
+  return (
+    <div
+      className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs font-medium text-cyan-300"
+      title="Filtro geografico activo en todo el dashboard"
+    >
+      <Filter className="size-3.5" aria-hidden="true" />
+      <span className="max-w-[180px] truncate">
+        {distrito}
+        {barrio ? ` / ${barrio}` : ''}
+      </span>
+      <button
+        type="button"
+        onClick={limpiarFiltro}
+        aria-label="Limpiar filtro geografico"
+        className="ml-1 hover:text-white transition-colors rounded-full hover:bg-cyan-500/20 p-0.5"
+      >
+        <X className="size-3" aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
 
 function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -74,7 +107,7 @@ function Navbar() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to={ROUTES.DASHBOARD} className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 transition-transform group-hover:scale-105">
+              <div className="size-10 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 transition-transform group-hover:scale-105">
                 <span className="text-white font-bold text-xl">A</span>
               </div>
               <div className="hidden sm:block">
@@ -101,7 +134,7 @@ function Navbar() {
                           : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                       )}
                     >
-                      <Icon className="h-4 w-4" aria-hidden="true" />
+                      <Icon className="size-4" aria-hidden="true" />
                       <span>{item.label}</span>
                     </Link>
                   );
@@ -110,11 +143,12 @@ function Navbar() {
             </div>
 
             <div className="flex items-center gap-3">
+              {isAuthenticated && <ChipFiltroGeo />}
               {isAuthenticated ? (
                 <div className="hidden sm:flex items-center gap-3">
                   <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card/50 border border-border/60">
-                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
-                      <User className="h-4 w-4 text-white" aria-hidden="true" />
+                    <div className="size-7 rounded-lg bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
+                      <User className="size-4 text-white" aria-hidden="true" />
                     </div>
                     <span className="text-sm font-medium text-foreground">{user?.username || 'Usuario'}</span>
                   </div>
@@ -127,7 +161,7 @@ function Navbar() {
                     aria-label="Cerrar sesion"
                     className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                   >
-                    <LogOut className="h-4 w-4" aria-hidden="true" />
+                    <LogOut className="size-4" aria-hidden="true" />
                   </Button>
                 </div>
               ) : (
@@ -148,9 +182,9 @@ function Navbar() {
                 aria-controls={MOBILE_MENU_ID}
               >
                 {isMobileMenuOpen ? (
-                  <X className="h-5 w-5" aria-hidden="true" />
+                  <X className="size-5" aria-hidden="true" />
                 ) : (
-                  <Menu className="h-5 w-5" aria-hidden="true" />
+                  <Menu className="size-5" aria-hidden="true" />
                 )}
               </Button>
             </div>
@@ -198,7 +232,7 @@ function Navbar() {
                       : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                   )}
                 >
-                  <Icon className="h-5 w-5" aria-hidden="true" />
+                  <Icon className="size-5" aria-hidden="true" />
                   {item.label}
                 </Link>
               );
@@ -208,8 +242,8 @@ function Navbar() {
               <>
                 <div className="h-px bg-border/60 my-2" />
                 <div className="flex items-center gap-3 px-4 py-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
-                    <User className="h-4 w-4 text-white" aria-hidden="true" />
+                  <div className="size-8 rounded-lg bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
+                    <User className="size-4 text-white" aria-hidden="true" />
                   </div>
                   <span className="text-sm font-medium text-foreground">{user?.username || 'Usuario'}</span>
                 </div>
@@ -218,7 +252,7 @@ function Navbar() {
                   onClick={handleLogout}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
                 >
-                  <LogOut className="h-5 w-5" aria-hidden="true" />
+                  <LogOut className="size-5" aria-hidden="true" />
                   Cerrar Sesion
                 </button>
               </>

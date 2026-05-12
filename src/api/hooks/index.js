@@ -9,13 +9,38 @@ export { usePatinetes, usePatinetesEstadisticas, usePatinetesMercado, usePatinet
 export { useAccidentes, useAccidenteExpediente, useAccidentesEstadisticas, useAccidentesComparativa, useAccidentesMapaCalor } from './useAccidentes';
 export { useBicicletas, useBicicletasEstadisticas, useBicicletasTendencias, useBicicletasMayorUso, useBicicletasSuscripciones } from './useBicicletas';
 export { useCenso, useCensoPiramide, useCensoDistritos, useCensoAnalisis, useCensoEvolucion, useCensoDashboard, useCensoResumenDistritos } from './useCenso';
+export { useDistritoPorCodigo } from './useDistritoPorCodigo';
+export { useDistritoPorNombre } from './useDistritoPorNombre';
 export { useMultas, useMultaDetalle, useMultasEstadisticas, useMultasRanking, useMultasTemporal, useMultasDashboard } from './useMultas';
 export { useAforoBicicletas, useAforoEstacion, useAforoEstadisticas, useAforoDistribucionHoraria, useAforoEstaciones, useAforoTendencias } from './useAforoBicicletas';
+export {
+  useContenedores,
+  useContenedoresEstadisticas,
+  useContenedoresPorDistrito,
+  useContenedoresPorBarrio,
+  useContenedoresCercanos,
+  useConteoContenedoresPorTipo,
+  useDistritosContenedores,
+  useBarriosContenedores,
+  useBuscarContenedores,
+  useMapaCalorContenedores,
+  useCoberturaContenedores,
+  useDensidadContenedores
+} from './useContenedores';
 export {
   useMapaUbicaciones,
   useMapaAccidentes,
   useMapaPatinetes,
   useMapaAforo,
   useMapaRuido,
-  useMapaMultas
+  useMapaMultas,
+  useMapaContenedores,
+  useMapaTrafico
 } from './useMapas';
+export {
+  useTrafico,
+  usePuntoTrafico,
+  useEstadisticasTrafico,
+  useAnalisisCongestion,
+  useHistoricoTrafico
+} from './useTrafico';

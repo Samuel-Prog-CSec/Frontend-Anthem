@@ -39,7 +39,7 @@ function StatCard({
             <Skeleton className="h-8 w-20 mb-2" />
             <Skeleton className="h-3 w-16" />
           </div>
-          <Skeleton className="h-12 w-12 rounded-lg" />
+          <Skeleton className="size-12 rounded-lg" />
         </div>
       </Card>
     );
@@ -75,7 +75,7 @@ function StatCard({
         
         {Icon && (
           <div className="rounded-lg bg-cyan-600/10 p-3">
-            <Icon className="h-6 w-6 text-cyan-400" />
+            <Icon className="size-6 text-cyan-400" />
           </div>
         )}
       </div>

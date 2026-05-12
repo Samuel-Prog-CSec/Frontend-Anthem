@@ -66,7 +66,7 @@ function LoginPage() {
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
           {/* Logo grande */}
           <div className="mb-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 shadow-2xl shadow-cyan-500/30 mb-6">
+            <div className="inline-flex items-center justify-center size-20 rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 shadow-2xl shadow-cyan-500/30 mb-6">
               <span className="text-white font-bold text-4xl">A</span>
             </div>
             <h1 className="text-5xl font-bold text-white mb-4">
@@ -80,8 +80,8 @@ function LoginPage() {
           {/* Features */}
           <div className="space-y-6">
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center">
-                <Activity className="w-6 h-6 text-cyan-400" />
+              <div className="flex-shrink-0 size-12 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+                <Activity className="size-6 text-cyan-400" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white mb-1">Monitoreo en Tiempo Real</h3>
@@ -90,8 +90,8 @@ function LoginPage() {
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                <Zap className="w-6 h-6 text-emerald-400" />
+              <div className="flex-shrink-0 size-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                <Zap className="size-6 text-emerald-400" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white mb-1">Analisis Inteligente</h3>
@@ -100,8 +100,8 @@ function LoginPage() {
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-violet-500/20 flex items-center justify-center">
-                <Shield className="w-6 h-6 text-violet-400" />
+              <div className="flex-shrink-0 size-12 rounded-xl bg-violet-500/20 flex items-center justify-center">
+                <Shield className="size-6 text-violet-400" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white mb-1">Seguridad Avanzada</h3>
@@ -119,8 +119,8 @@ function LoginPage() {
         </div>
 
         {/* Circulos decorativos */}
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-cyan-500/10 blur-3xl" />
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="absolute -top-24 -right-24 size-96 rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="absolute -bottom-32 -left-32 size-96 rounded-full bg-emerald-500/10 blur-3xl" />
       </div>
 
       {/* Panel derecho - Formulario */}
@@ -128,7 +128,7 @@ function LoginPage() {
         <div className="w-full max-w-lg">
           {/* Logo movil */}
           <div className="lg:hidden text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 shadow-lg shadow-cyan-500/20 mb-4">
+            <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 shadow-lg shadow-cyan-500/20 mb-4">
               <span className="text-white font-bold text-3xl">A</span>
             </div>
             <h1 className="text-2xl font-bold text-white">Anthem City</h1>
@@ -149,7 +149,7 @@ function LoginPage() {
                 {/* Error */}
                 {error && (
                   <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30">
-                    <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
+                    <AlertCircle className="size-5 text-red-400 flex-shrink-0" />
                     <p className="text-sm text-red-300">{error}</p>
                   </div>
                 )}
@@ -200,7 +200,7 @@ function LoginPage() {
                   className="w-full h-12 text-base font-semibold bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 shadow-lg shadow-cyan-500/20" 
                   isLoading={isLoading}
                 >
-                  {!isLoading && <LogIn className="h-5 w-5 mr-2" />}
+                  {!isLoading && <LogIn className="size-5 mr-2" />}
                   Iniciar Sesion
                 </Button>
 
@@ -226,8 +226,8 @@ function LoginPage() {
           {/* Info de demo */}
           <div className="mt-6 p-4 rounded-xl border border-amber-500/30 bg-amber-500/5">
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                <Zap className="w-4 h-4 text-amber-400" />
+              <div className="flex-shrink-0 size-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                <Zap className="size-4 text-amber-400" />
               </div>
               <div>
                 <p className="text-sm font-medium text-amber-300">Modo Demo</p>

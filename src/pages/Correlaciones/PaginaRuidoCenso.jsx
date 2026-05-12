@@ -1,0 +1,195 @@
+/**
+ * Correlacion Ruido x Censo
+ *
+ * Aproximacion a la poblacion potencialmente expuesta a niveles de ruido
+ * superiores al limite legal diurno (65 dB). Cruza:
+ *   - useRuidoRanking: estaciones ordenadas por LAEQ24
+ *   - useCensoResumenDistritos: poblacion por distrito
+ *
+ * Limitacion conocida: el dataset no asocia directamente cada estacion NMT
+ * a un distrito; el calculo es a nivel de distrito agregado y solo cuando
+ * el ranking incluye `distrito` como dimension.
+ */
+
+import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, Volume2, Users, AlertTriangle } from 'lucide-react';
+import { PageLayout } from '../../components/layout';
+import {
+  Card, CardHeader, CardTitle, CardDescription, CardContent, Button,
+  Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
+  Badge, EmptyState, TableSkeleton
+} from '../../components/common';
+import { StatCard, BarChartCard } from '../../components/charts';
+import { useRuidoRanking, useCensoResumenDistritos } from '../../api/hooks';
+import { ROUTES, DATE_CONFIG, NOISE_LIMITS } from '../../constants';
+import { formatNumber, formatDecibels } from '../../utils';
+
+function PaginaRuidoCenso() {
+  const {
+    data: rankingResult,
+    isLoading: cargandoRuido
+  } = useRuidoRanking({ limit: 50, sortBy: 'laeq24', sortOrder: 'desc' });
+
+  const {
+    data: censoResult,
+    isLoading: cargandoCenso
+  } = useCensoResumenDistritos({ año: DATE_CONFIG.DATASET_YEAR });
+
+  const cargando = cargandoRuido || cargandoCenso;
+
+  const estaciones = useMemo(() => {
+    return rankingResult?.data?.ranking || rankingResult?.data || [];
+  }, [rankingResult]);
+
+  const distritos = useMemo(() => {
+    return censoResult?.data?.data || censoResult?.data || [];
+  }, [censoResult]);
+
+  // Mapear estaciones a distritos cuando viene la info, contar incumplimientos
+  const stats = useMemo(() => {
+    const totalEstaciones = estaciones.length;
+    const incumplimientos = estaciones.filter(e =>
+      (e.laeq24 || e.promedioLaeq24 || 0) > NOISE_LIMITS.DIURNO
+    );
+    const porDistrito = new Map();
+    incumplimientos.forEach(e => {
+      const distrito = e.distrito || e.zona || 'SIN_ASIGNAR';
+      const acc = porDistrito.get(distrito) || { distrito, estacionesAfectadas: 0, sumLaeq: 0 };
+      acc.estacionesAfectadas += 1;
+      acc.sumLaeq += (e.laeq24 || e.promedioLaeq24 || 0);
+      porDistrito.set(distrito, acc);
+    });
+
+    const indexCenso = new Map();
+    distritos.forEach(d => {
+      const nombre = d.nombre || d._id;
+      if (nombre) {indexCenso.set(nombre.toUpperCase(), d.totalPoblacion || 0);}
+    });
+
+    const distritosAfectados = Array.from(porDistrito.values()).map(d => ({
+      ...d,
+      laeqMedio: d.estacionesAfectadas > 0 ? d.sumLaeq / d.estacionesAfectadas : 0,
+      poblacion: indexCenso.get((d.distrito || '').toUpperCase()) || 0
+    }))
+    .sort((a, b) => b.poblacion - a.poblacion);
+
+    const poblacionExpuestaEstimada = distritosAfectados.reduce((s, d) => s + d.poblacion, 0);
+
+    return {
+      totalEstaciones,
+      totalIncumplimientos: incumplimientos.length,
+      distritosAfectados,
+      poblacionExpuestaEstimada
+    };
+  }, [estaciones, distritos]);
+
+  const datosGrafico = useMemo(() => {
+    return stats.distritosAfectados
+      .filter(d => d.distrito && d.distrito !== 'SIN_ASIGNAR')
+      .slice(0, 12)
+      .map(d => ({
+        name: d.distrito,
+        poblacion: d.poblacion,
+        laeqMedio: Number(d.laeqMedio.toFixed(1))
+      }));
+  }, [stats.distritosAfectados]);
+
+  return (
+    <PageLayout
+      title="Ruido vs. Censo"
+      description={`Estimacion de poblacion expuesta a niveles diurnos superiores al limite legal (${NOISE_LIMITS.DIURNO} dB).`}
+      actions={
+        <Button asChild variant="outline" size="sm">
+          <Link to={ROUTES.CORRELACIONES}>
+            <ArrowLeft className="size-4 mr-2" aria-hidden="true" />
+            Volver a correlaciones
+          </Link>
+        </Button>
+      }
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <StatCard
+          title="Estaciones analizadas"
+          value={formatNumber(stats.totalEstaciones)}
+          icon={Volume2}
+          isLoading={cargando}
+        />
+        <StatCard
+          title="Estaciones con incumplimiento"
+          value={formatNumber(stats.totalIncumplimientos)}
+          subtitle={`LAeq24 > ${NOISE_LIMITS.DIURNO} dB`}
+          icon={AlertTriangle}
+          isLoading={cargando}
+        />
+        <StatCard
+          title="Poblacion potencial expuesta"
+          value={formatNumber(stats.poblacionExpuestaEstimada)}
+          subtitle="suma poblacion distritos afectados"
+          icon={Users}
+          isLoading={cargando}
+        />
+      </div>
+
+      <BarChartCard
+        title="Top 12 distritos: poblacion en zonas con incumplimiento"
+        data={datosGrafico}
+        xKey="name"
+        bars={[{ key: 'poblacion', name: 'Habitantes', color: '#a855f7' }]}
+        height={360}
+        isLoading={cargando}
+      />
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Detalle por distrito</CardTitle>
+          <CardDescription>
+            Distritos con al menos una estacion en incumplimiento del limite diurno. La poblacion proviene del censo agregado del distrito completo (estimacion superior).
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {cargando ? (
+            <TableSkeleton rows={6} columns={4} />
+          ) : stats.distritosAfectados.length === 0 ? (
+            <EmptyState
+              title="Sin distritos afectados"
+              description="No se detectaron incumplimientos en el ranking actual."
+              icon={Volume2}
+            />
+          ) : (
+            <Table label="Distritos afectados por ruido" rowCount={stats.distritosAfectados.length}>
+              <TableCaption className="sr-only">Distritos con incumplimiento</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Distrito</TableHead>
+                  <TableHead className="text-right">Estaciones afectadas</TableHead>
+                  <TableHead className="text-right">LAeq24 medio</TableHead>
+                  <TableHead className="text-right">Poblacion</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {stats.distritosAfectados.map(d => {
+                  const excedeMucho = d.laeqMedio - NOISE_LIMITS.DIURNO > 5;
+                  return (
+                    <TableRow key={d.distrito}>
+                      <TableCell className="font-medium text-cyan-400">{d.distrito}</TableCell>
+                      <TableCell className="text-right font-mono">{formatNumber(d.estacionesAfectadas)}</TableCell>
+                      <TableCell className="text-right">
+                        <Badge variant={excedeMucho ? 'destructive' : 'warning'}>
+                          {formatDecibels(d.laeqMedio)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right font-mono">{formatNumber(d.poblacion)}</TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+    </PageLayout>
+  );
+}
+
+export default PaginaRuidoCenso;

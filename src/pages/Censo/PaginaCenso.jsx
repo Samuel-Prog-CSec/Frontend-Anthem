@@ -10,7 +10,8 @@
  */
 
 import { useState, useCallback, useMemo } from 'react';
-import { Users, Filter, RefreshCw, Globe, UserCheck, MapPin, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Users, Filter, RefreshCw, Globe, UserCheck, MapPin, X, ArrowRight } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
 import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
@@ -22,7 +23,8 @@ import {
 import { StatCard, BarChartCard, PieChartCard } from '../../components/charts';
 import { useCenso, useCensoDashboard, useCensoDistritos } from '../../api/hooks';
 import {
-  PAGINATION, DATE_CONFIG, GRUPOS_EDAD_CENSO, ETIQUETAS_GRUPOS_EDAD, CHART_COLORS
+  PAGINATION, DATE_CONFIG, GRUPOS_EDAD_CENSO, ETIQUETAS_GRUPOS_EDAD, CHART_COLORS,
+  ROUTES
 } from '../../constants';
 import { formatNumber } from '../../utils';
 
@@ -226,18 +228,18 @@ function PaginaCenso() {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-cyan-400" />
+              <Filter className="size-4 text-cyan-400" />
               <CardTitle className="text-base">Filtros</CardTitle>
             </div>
             <div className="flex items-center gap-2">
               {hayFiltrosActivos && (
                 <Button variant="ghost" size="sm" onClick={limpiarFiltros}>
-                  <X className="h-4 w-4 mr-1" />
+                  <X className="size-4 mr-1" />
                   Limpiar
                 </Button>
               )}
               <Button variant="ghost" size="sm" onClick={() => refetch()}>
-                <RefreshCw className="h-4 w-4" />
+                <RefreshCw className="size-4" />
               </Button>
             </div>
           </div>
@@ -293,15 +295,28 @@ function PaginaCenso() {
       {detalleDistritoData && (
         <Card className="mb-6 border-cyan-500/30">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <CardTitle className="text-base">
                 Detalle: {detalleDistritoData.distrito || `Distrito ${detalleDistritoData.codigoDistrito}`}
               </CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => setDistritoDetalle(null)}>
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-2">
+                {/* Drill-down cross-domain: navega a la vista completa del distrito
+                    que agrega censo + accidentes + patinetes + multas */}
+                <Button asChild variant="outline" size="sm">
+                  <Link to={ROUTES.DISTRITO_PATH(detalleDistritoData.codigoDistrito)}>
+                    Ver vista completa
+                    <ArrowRight className="size-4 ml-2" />
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setDistritoDetalle(null)}>
+                  <X className="size-4" />
+                </Button>
+              </div>
             </div>
-            <CardDescription>Indicadores demograficos del distrito</CardDescription>
+            <CardDescription>
+              Indicadores demograficos del distrito. Pulsa &quot;Ver vista completa&quot;
+              para acceder al perfil cross-domain (censo + accidentes + patinetes + multas).
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

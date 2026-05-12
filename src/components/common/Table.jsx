@@ -1,17 +1,18 @@
 /**
  * Componente DataTable
- * 
+ *
  * Tabla de datos con estilo futurista.
  * Soporta ordenamiento, paginacion y estados de carga.
  */
 
+import { memo } from 'react';
 import { cn } from '../../utils';
 
 /**
  * Contenedor de tabla
  * Pasa rowCount o colCount para emitir aria-rowcount/aria-colcount cuando aplique
  */
-function Table({ className, rowCount, colCount, label, ...props }) {
+const Table = memo(function Table({ className, rowCount, colCount, label, ...props }) {
   return (
     <div className="w-full overflow-auto">
       <table
@@ -23,30 +24,30 @@ function Table({ className, rowCount, colCount, label, ...props }) {
       />
     </div>
   );
-}
+});
 
 /**
  * Cabecera de tabla
  */
-function TableHeader({ className, ...props }) {
+const TableHeader = memo(function TableHeader({ className, ...props }) {
   return (
     <thead className={cn('border-b border-border', className)} {...props} />
   );
-}
+});
 
 /**
  * Cuerpo de tabla
  */
-function TableBody({ className, ...props }) {
+const TableBody = memo(function TableBody({ className, ...props }) {
   return (
     <tbody className={cn('[&_tr:last-child]:border-0', className)} {...props} />
   );
-}
+});
 
 /**
  * Pie de tabla
  */
-function TableFooter({ className, ...props }) {
+const TableFooter = memo(function TableFooter({ className, ...props }) {
   return (
     <tfoot
       className={cn(
@@ -56,12 +57,12 @@ function TableFooter({ className, ...props }) {
       {...props}
     />
   );
-}
+});
 
 /**
  * Fila de tabla
  */
-function TableRow({ className, ...props }) {
+const TableRow = memo(function TableRow({ className, ...props }) {
   return (
     <tr
       className={cn(
@@ -71,13 +72,13 @@ function TableRow({ className, ...props }) {
       {...props}
     />
   );
-}
+});
 
 /**
  * Celda de cabecera
  * Acepta sortDirection ('asc'|'desc'|'none') para emitir aria-sort
  */
-function TableHead({ className, sortDirection, ...props }) {
+const TableHead = memo(function TableHead({ className, sortDirection, ...props }) {
   return (
     <th
       scope="col"
@@ -90,12 +91,12 @@ function TableHead({ className, sortDirection, ...props }) {
       {...props}
     />
   );
-}
+});
 
 /**
  * Celda de datos
  */
-function TableCell({ className, ...props }) {
+const TableCell = memo(function TableCell({ className, ...props }) {
   return (
     <td
       className={cn(
@@ -105,19 +106,19 @@ function TableCell({ className, ...props }) {
       {...props}
     />
   );
-}
+});
 
 /**
  * Caption de tabla
  */
-function TableCaption({ className, ...props }) {
+const TableCaption = memo(function TableCaption({ className, ...props }) {
   return (
     <caption
       className={cn('mt-4 text-sm text-muted-foreground', className)}
       {...props}
     />
   );
-}
+});
 
 export {
   Table,

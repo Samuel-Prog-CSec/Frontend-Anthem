@@ -1,9 +1,10 @@
 /**
  * Componente Spinner / Loading
- * 
+ *
  * Indicador de carga animado.
  */
 
+import { memo } from 'react';
 import { cn } from '../../utils';
 
 /**
@@ -12,11 +13,11 @@ import { cn } from '../../utils';
  * @param {string} [props.size] - Tamano: 'sm', 'md', 'lg'
  * @param {string} [props.className] - Clases adicionales
  */
-function Spinner({ size = 'md', className }) {
+const Spinner = memo(function Spinner({ size = 'md', className }) {
   const sizeClasses = {
-    sm: 'h-4 w-4',
-    md: 'h-8 w-8',
-    lg: 'h-12 w-12'
+    sm: 'size-4',
+    md: 'size-8',
+    lg: 'size-12'
   };
 
   return (
@@ -43,20 +44,20 @@ function Spinner({ size = 'md', className }) {
       />
     </svg>
   );
-}
+});
 
 /**
  * Contenedor de carga con mensaje
  * @param {Object} props - Props del componente
  * @param {string} [props.message] - Mensaje de carga
  */
-function LoadingState({ message = 'Cargando...' }) {
+const LoadingState = memo(function LoadingState({ message = 'Cargando...' }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 gap-4" role="status" aria-live="polite">
       <Spinner size="lg" />
       <p className="text-muted-foreground text-sm">{message}</p>
     </div>
   );
-}
+});
 
 export { Spinner, LoadingState };

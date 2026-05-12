@@ -16,3 +16,4 @@ export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableC
 export { Pagination } from './Pagination';
 export { ErrorBoundary } from './ErrorBoundary';
 export { Skeleton, TableSkeleton, StatsSkeleton, CardSkeleton, ChartSkeleton } from './Skeleton';
+export { EnlacesCruzados } from './EnlacesCruzados';

@@ -5,12 +5,13 @@
  * con un efecto de pulso mas profesional.
  */
 
+import { memo } from 'react';
 import { cn } from '../../utils';
 
 /**
  * Componente base de skeleton con animacion pulse
  */
-function Skeleton({ className, ...props }) {
+const Skeleton = memo(function Skeleton({ className, ...props }) {
   return (
     <div
       className={cn('animate-pulse rounded-md bg-muted/60', className)}
@@ -18,7 +19,7 @@ function Skeleton({ className, ...props }) {
       {...props}
     />
   );
-}
+});
 
 /**
  * Skeleton para filas de tabla
@@ -26,7 +27,7 @@ function Skeleton({ className, ...props }) {
  * @param {number} [props.rows=5] - Numero de filas skeleton
  * @param {number} [props.columns=5] - Numero de columnas por fila
  */
-function TableSkeleton({ rows = 5, columns = 5 }) {
+const TableSkeleton = memo(function TableSkeleton({ rows = 5, columns = 5 }) {
   return (
     <div className="flex flex-col gap-3 py-4" role="status" aria-live="polite" aria-label="Cargando tabla">
       <div className="flex gap-4 pb-3 border-b border-border/60">
@@ -47,7 +48,7 @@ function TableSkeleton({ rows = 5, columns = 5 }) {
       ))}
     </div>
   );
-}
+});
 
 /**
  * Skeleton para tarjetas de estadisticas
@@ -62,7 +63,7 @@ const GRID_COLS = {
   6: 'grid-cols-2 md:grid-cols-6'
 };
 
-function StatsSkeleton({ count = 4 }) {
+const StatsSkeleton = memo(function StatsSkeleton({ count = 4 }) {
   return (
     <div
       className={cn('grid gap-4', GRID_COLS[count] || GRID_COLS[4])}
@@ -79,14 +80,14 @@ function StatsSkeleton({ count = 4 }) {
       ))}
     </div>
   );
-}
+});
 
 /**
  * Skeleton para una tarjeta generica (titulo + descripcion + cuerpo)
  * @param {Object} props
  * @param {number} [props.lines=3] - lineas de texto en el cuerpo
  */
-function CardSkeleton({ lines = 3 }) {
+const CardSkeleton = memo(function CardSkeleton({ lines = 3 }) {
   return (
     <div
       className="p-6 rounded-2xl border border-border/60 bg-card/50"
@@ -103,7 +104,7 @@ function CardSkeleton({ lines = 3 }) {
       </div>
     </div>
   );
-}
+});
 
 // Alturas pseudoaleatorias estables para barras de chart skeleton.
 // No se usa Math.random durante render (efecto secundario impuro)
@@ -112,7 +113,7 @@ const ALTURAS_BARRAS_CHART = [42, 78, 55, 88, 36, 72, 60, 48];
 /**
  * Skeleton para grafica/chart con eje y leyendas
  */
-function ChartSkeleton({ height = 320 }) {
+const ChartSkeleton = memo(function ChartSkeleton({ height = 320 }) {
   return (
     <div
       className="p-6 rounded-2xl border border-border/60 bg-card/50"
@@ -137,13 +138,13 @@ function ChartSkeleton({ height = 320 }) {
       <div className="flex items-center justify-center gap-4 mt-4">
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="flex items-center gap-2">
-            <Skeleton className="h-3 w-3 rounded-full" />
+            <Skeleton className="size-3 rounded-full" />
             <Skeleton className="h-3 w-12" />
           </div>
         ))}
       </div>
     </div>
   );
-}
+});
 
 export { Skeleton, TableSkeleton, StatsSkeleton, CardSkeleton, ChartSkeleton };

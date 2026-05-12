@@ -1,14 +1,14 @@
 /**
  * Componente Input
- * 
+ *
  * Campo de entrada de texto con estilo consistente.
  * Basado en patrones de Shadcn/ui.
- * 
+ *
  * Documentacion de referencia:
  * - Shadcn/ui Input: https://ui.shadcn.com/docs/components/input
  */
 
-import { forwardRef } from 'react';
+import { forwardRef, memo } from 'react';
 import { cn } from '../../utils';
 
 /**
@@ -19,7 +19,7 @@ import { cn } from '../../utils';
  * @param {string} [props.error] - Mensaje de error
  * @param {React.ComponentType} [props.startIcon] - Icono al inicio del input
  */
-const Input = forwardRef(({ className, type = 'text', error, startIcon: StartIcon, id, ...props }, ref) => {
+const Input = memo(forwardRef(({ className, type = 'text', error, startIcon: StartIcon, id, ...props }, ref) => {
   const errorId = error && id ? `${id}-error` : undefined;
   return (
     <div className="w-full relative">
@@ -45,7 +45,7 @@ const Input = forwardRef(({ className, type = 'text', error, startIcon: StartIco
 
       {StartIcon && (
         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none transition-colors duration-200 peer-focus:text-primary">
-          <StartIcon className="h-5 w-5" />
+          <StartIcon className="size-5" />
         </div>
       )}
 
@@ -54,7 +54,7 @@ const Input = forwardRef(({ className, type = 'text', error, startIcon: StartIco
       )}
     </div>
   );
-});
+}));
 
 Input.displayName = 'Input';
 

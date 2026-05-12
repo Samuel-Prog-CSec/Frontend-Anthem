@@ -54,3 +54,13 @@ export async function obtenerMapaMultas(params = {}, { signal } = {}) {
   const response = await apiClient.get(`/multas/mapa${construirQuery(params)}`, { signal });
   return normalizarRespuestaDetalle(response);
 }
+
+export async function obtenerMapaContenedores(params = {}, { signal } = {}) {
+  const response = await apiClient.get(`/contenedores/mapa${construirQuery(params)}`, { signal });
+  return normalizarRespuestaDetalle(response);
+}
+
+export async function obtenerMapaTrafico(params = {}, { signal } = {}) {
+  const response = await apiClient.get(`/trafico/mapa${construirQuery(params)}`, { signal });
+  return normalizarRespuestaDetalle(response);
+}

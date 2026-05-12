@@ -62,7 +62,7 @@ function RegisterPage() {
           to={ROUTES.LOGIN}
           className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-6 group"
         >
-          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+          <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" />
           <span className="text-sm">Volver al login</span>
         </Link>
 
@@ -71,8 +71,8 @@ function RegisterPage() {
           <CardHeader className="text-center pb-2">
             {/* Logo */}
             <div className="mx-auto mb-4">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/20">
-                <UserPlus className="w-8 h-8 text-white" />
+              <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/20">
+                <UserPlus className="size-8 text-white" />
               </div>
             </div>
             <CardTitle className="text-2xl">Crear Cuenta</CardTitle>
@@ -86,7 +86,7 @@ function RegisterPage() {
               {/* Error */}
               {error && (
                 <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30">
-                  <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
+                  <AlertCircle className="size-5 text-red-400 flex-shrink-0" />
                   <p className="text-sm text-red-300">{error}</p>
                 </div>
               )}
@@ -158,7 +158,7 @@ function RegisterPage() {
                   ].map(({ key, label }) => (
                     <div key={key} className="flex items-center gap-2">
                       <CheckCircle2 
-                        className={`w-4 h-4 transition-colors ${
+                        className={`size-4 transition-colors ${
                           passwordChecks[key] ? 'text-emerald-400' : 'text-slate-600'
                         }`} 
                       />
@@ -179,7 +179,7 @@ function RegisterPage() {
                 className="w-full h-12 text-base font-semibold bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 shadow-lg shadow-emerald-500/20" 
                 isLoading={isLoading}
               >
-                {!isLoading && <UserPlus className="h-5 w-5 mr-2" />}
+                {!isLoading && <UserPlus className="size-5 mr-2" />}
                 Crear Cuenta
               </Button>
 

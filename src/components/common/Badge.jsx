@@ -8,6 +8,7 @@
  * - Shadcn/ui Badge: https://ui.shadcn.com/docs/components/badge
  */
 
+import { memo } from 'react';
 import { cn } from '../../utils';
 import { badgeVariants } from './badgeVariants';
 
@@ -17,10 +18,10 @@ import { badgeVariants } from './badgeVariants';
  * @param {string} [props.className] - Clases adicionales
  * @param {string} [props.variant] - Variante de color
  */
-function Badge({ className, variant, ...props }) {
+const Badge = memo(function Badge({ className, variant, ...props }) {
   return (
     <span className={cn(badgeVariants({ variant }), className)} {...props} />
   );
-}
+});
 
 export { Badge };

@@ -167,7 +167,7 @@ function PaginaBicicletas() {
       description={`Disponibilidad de bicicletas - ${DATE_CONFIG.DATASET_YEAR}`}
       actions={
         <Button variant="outline" onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className="size-4 mr-2" />
           Actualizar
         </Button>
       }
@@ -200,7 +200,7 @@ function PaginaBicicletas() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Filter className="h-5 w-5" />
+            <Filter className="size-5" />
             Filtros
           </CardTitle>
         </CardHeader>
@@ -247,7 +247,7 @@ function PaginaBicicletas() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Users className="h-5 w-5" />
+              <Users className="size-5" />
               Comparativa de Suscripciones
             </CardTitle>
             <CardDescription>
@@ -288,7 +288,7 @@ function PaginaBicicletas() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <ArrowUp className="h-5 w-5 text-emerald-400" />
+                  <ArrowUp className="size-5 text-emerald-400" />
                   Top Dias de Mayor Uso
                 </CardTitle>
               </CardHeader>
@@ -322,7 +322,7 @@ function PaginaBicicletas() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <ArrowDown className="h-5 w-5 text-red-400" />
+                  <ArrowDown className="size-5 text-red-400" />
                   Top Dias de Menor Uso
                 </CardTitle>
               </CardHeader>

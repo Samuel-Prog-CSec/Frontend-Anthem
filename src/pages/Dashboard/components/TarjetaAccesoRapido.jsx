@@ -64,12 +64,12 @@ function TarjetaAccesoRapidoImpl({ titulo, descripcion, icono, color, ruta }) {
         )}
       >
         <div className="flex items-start justify-between mb-4">
-          <div className={cn('w-14 h-14 rounded-xl flex items-center justify-center', colores.iconBg)}>
-            <IconoComponente className={cn('w-7 h-7', colores.iconColor)} aria-hidden="true" />
+          <div className={cn('size-14 rounded-xl flex items-center justify-center', colores.iconBg)}>
+            <IconoComponente className={cn('size-7', colores.iconColor)} aria-hidden="true" />
           </div>
           <ChevronRight
             className={cn(
-              'w-5 h-5 text-muted-foreground transition-all duration-300',
+              'size-5 text-muted-foreground transition-all duration-300',
               'group-hover:translate-x-1',
               colores.arrow
             )}

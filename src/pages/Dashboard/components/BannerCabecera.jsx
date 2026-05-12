@@ -24,7 +24,7 @@ export function BannerCabecera() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-5 h-5 text-cyan-400" aria-hidden="true" />
+              <Sparkles className="size-5 text-cyan-400" aria-hidden="true" />
               <span className="text-sm font-medium text-cyan-400">Smart City Dashboard</span>
             </div>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight">

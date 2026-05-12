@@ -1,14 +1,14 @@
 /**
  * Componente Select
- * 
+ *
  * Selector desplegable con estilo consistente.
  * Basado en patrones de Shadcn/ui.
- * 
+ *
  * Documentacion de referencia:
  * - Shadcn/ui Select: https://ui.shadcn.com/docs/components/select
  */
 
-import { forwardRef } from 'react';
+import { forwardRef, memo } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '../../utils';
 
@@ -19,11 +19,11 @@ import { cn } from '../../utils';
  * @param {Array} props.options - Opciones del selector [{value, label}]
  * @param {string} [props.placeholder] - Texto de placeholder
  */
-const Select = forwardRef(({ 
-  className, 
-  options = [], 
-  placeholder = 'Seleccionar...', 
-  ...props 
+const Select = memo(forwardRef(({
+  className,
+  options = [],
+  placeholder = 'Seleccionar...',
+  ...props
 }, ref) => {
   return (
     <div className="relative w-full">
@@ -51,10 +51,10 @@ const Select = forwardRef(({
           </option>
         ))}
       </select>
-      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
     </div>
   );
-});
+}));
 
 Select.displayName = 'Select';
 

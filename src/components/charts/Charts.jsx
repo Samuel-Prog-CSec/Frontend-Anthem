@@ -1,10 +1,16 @@
 /**
  * Componentes de graficos con Recharts
- * 
+ *
  * Graficos personalizados para el dashboard de Smart City.
  * Usa Recharts (https://recharts.org/) para visualizaciones.
+ *
+ * Todos los componentes estan envueltos en `React.memo` porque Recharts
+ * es costoso de re-renderizar y suelen recibir props estables (data,
+ * configuracion de lineas/barras). Sin memo, cada cambio de filtro o
+ * estado en la pagina padre re-renderizaba el chart innecesariamente.
  */
 
+import { memo } from 'react';
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -34,7 +40,7 @@ const ALTURAS_PLACEHOLDER_BARRAS = [45, 72, 38, 85, 60, 50, 78, 42];
  * @param {string} [props.title] - Titulo del grafico
  * @param {number} [props.height] - Altura del area del grafico
  */
-function ChartSkeleton({ title, height = 300 }) {
+const ChartSkeleton = memo(function ChartSkeleton({ title, height = 300 }) {
   return (
     <Card>
       {title && (
@@ -55,12 +61,12 @@ function ChartSkeleton({ title, height = 300 }) {
       </CardContent>
     </Card>
   );
-}
+});
 
 /**
  * Tooltip personalizado para graficos
  */
-function CustomTooltip({ active, payload, label }) {
+const CustomTooltip = memo(function CustomTooltip({ active, payload, label }) {
   if (!active || !payload) return null;
 
   return (
@@ -73,7 +79,7 @@ function CustomTooltip({ active, payload, label }) {
       ))}
     </div>
   );
-}
+});
 
 /**
  * Grafico de lineas
@@ -85,7 +91,7 @@ function CustomTooltip({ active, payload, label }) {
  * @param {number} [props.height] - Altura del grafico
  * @param {Array} [props.referenceLines] - Lineas de referencia [{y, label, color}]
  */
-function LineChartCard({ data, xKey, lines, title, height = 300, referenceLines = [], isLoading }) {
+const LineChartCard = memo(function LineChartCard({ data, xKey, lines, title, height = 300, referenceLines = [], isLoading }) {
   if (isLoading) return <ChartSkeleton title={title} height={height} />;
 
   return (
@@ -99,17 +105,17 @@ function LineChartCard({ data, xKey, lines, title, height = 300, referenceLines 
         <ResponsiveContainer width="100%" height={height}>
           <RechartsLineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-            <XAxis 
-              dataKey={xKey} 
-              stroke="#64748b" 
+            <XAxis
+              dataKey={xKey}
+              stroke="#64748b"
               tick={{ fill: '#94a3b8', fontSize: 12 }}
             />
-            <YAxis 
-              stroke="#64748b" 
+            <YAxis
+              stroke="#64748b"
               tick={{ fill: '#94a3b8', fontSize: 12 }}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend 
+            <Legend
               wrapperStyle={{ paddingTop: '1rem' }}
               formatter={(value) => <span className="text-slate-300">{value}</span>}
             />
@@ -140,7 +146,7 @@ function LineChartCard({ data, xKey, lines, title, height = 300, referenceLines 
       </CardContent>
     </Card>
   );
-}
+});
 
 /**
  * Grafico de barras
@@ -152,7 +158,7 @@ function LineChartCard({ data, xKey, lines, title, height = 300, referenceLines 
  * @param {number} [props.height] - Altura del grafico
  * @param {Array} [props.referenceLines] - Lineas de referencia [{y, label, color}]
  */
-function BarChartCard({ data, xKey, bars, title, height = 300, referenceLines = [], isLoading }) {
+const BarChartCard = memo(function BarChartCard({ data, xKey, bars, title, height = 300, referenceLines = [], isLoading }) {
   if (isLoading) return <ChartSkeleton title={title} height={height} />;
   return (
     <Card>
@@ -165,17 +171,17 @@ function BarChartCard({ data, xKey, bars, title, height = 300, referenceLines = 
         <ResponsiveContainer width="100%" height={height}>
           <RechartsBarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-            <XAxis 
-              dataKey={xKey} 
-              stroke="#64748b" 
+            <XAxis
+              dataKey={xKey}
+              stroke="#64748b"
               tick={{ fill: '#94a3b8', fontSize: 12 }}
             />
-            <YAxis 
-              stroke="#64748b" 
+            <YAxis
+              stroke="#64748b"
               tick={{ fill: '#94a3b8', fontSize: 12 }}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend 
+            <Legend
               wrapperStyle={{ paddingTop: '1rem' }}
               formatter={(value) => <span className="text-slate-300">{value}</span>}
             />
@@ -203,7 +209,7 @@ function BarChartCard({ data, xKey, bars, title, height = 300, referenceLines = 
       </CardContent>
     </Card>
   );
-}
+});
 
 /**
  * Grafico de pastel/dona
@@ -213,7 +219,7 @@ function BarChartCard({ data, xKey, bars, title, height = 300, referenceLines = 
  * @param {number} [props.height] - Altura del grafico
  * @param {boolean} [props.donut] - Si es grafico de dona
  */
-function PieChartCard({ data, title, height = 300, donut = false, isLoading }) {
+const PieChartCard = memo(function PieChartCard({ data, title, height = 300, donut = false, isLoading }) {
   if (isLoading) return <ChartSkeleton title={title} height={height} />;
   const colors = Object.values(CHART_COLORS);
 
@@ -239,9 +245,9 @@ function PieChartCard({ data, title, height = 300, donut = false, isLoading }) {
               labelLine={false}
             >
               {data.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`} 
-                  fill={entry.color || colors[index % colors.length]} 
+                <Cell
+                  key={`cell-${index}`}
+                  fill={entry.color || colors[index % colors.length]}
                 />
               ))}
             </Pie>
@@ -251,6 +257,6 @@ function PieChartCard({ data, title, height = 300, donut = false, isLoading }) {
       </CardContent>
     </Card>
   );
-}
+});
 
 export { LineChartCard, BarChartCard, PieChartCard, CustomTooltip };

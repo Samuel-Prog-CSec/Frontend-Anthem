@@ -228,7 +228,7 @@ function PaginaCalidadAire() {
       description={`Monitoreo de contaminantes atmosfericos - ${DATE_CONFIG.DATASET_YEAR}`}
       actions={
         <Button variant="outline" onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className="size-4 mr-2" />
           Actualizar
         </Button>
       }
@@ -275,7 +275,7 @@ function PaginaCalidadAire() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Filter className="h-5 w-5" />
+            <Filter className="size-5" />
             Filtros
           </CardTitle>
         </CardHeader>
@@ -325,7 +325,7 @@ function PaginaCalidadAire() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
+            <TrendingUp className="size-5" />
             Tendencias por Contaminante
           </CardTitle>
           <CardDescription>
@@ -468,7 +468,7 @@ function PaginaCalidadAire() {
             {Object.entries(AIR_QUALITY_LEVELS).map(([key, level]) => (
               <div key={key} className="flex items-center gap-2">
                 <div
-                  className="w-3 h-3 rounded-full"
+                  className="size-3 rounded-full"
                   style={{ backgroundColor: level.color }}
                 />
                 <span className="text-sm text-slate-300">{level.label}</span>

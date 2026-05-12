@@ -230,18 +230,18 @@ function PaginaMultas() {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-cyan-400" />
+              <Filter className="size-4 text-cyan-400" />
               <CardTitle className="text-base">Filtros</CardTitle>
             </div>
             <div className="flex items-center gap-2">
               {hayFiltrosActivos && (
                 <Button variant="ghost" size="sm" onClick={limpiarFiltros}>
-                  <X className="h-4 w-4 mr-1" />
+                  <X className="size-4 mr-1" />
                   Limpiar
                 </Button>
               )}
               <Button variant="ghost" size="sm" onClick={() => refetch()}>
-                <RefreshCw className="h-4 w-4" />
+                <RefreshCw className="size-4" />
               </Button>
             </div>
           </div>
@@ -310,7 +310,7 @@ function PaginaMultas() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Detalle de la multa</CardTitle>
               <Button variant="ghost" size="sm" onClick={() => setMultaSeleccionada(null)}>
-                <X className="h-4 w-4" />
+                <X className="size-4" />
               </Button>
             </div>
           </CardHeader>

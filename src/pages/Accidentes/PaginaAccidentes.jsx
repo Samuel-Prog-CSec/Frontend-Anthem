@@ -6,100 +6,38 @@
  * - Distribucion por tipo de accidente y gravedad
  * - Comparativa por distritos
  * - Analisis de presencia de alcohol
+ *
+ * Esta pagina es solo orquestacion: estado, filtros, llamadas a React Query
+ * y composicion de subcomponentes memoizados que viven en `./components/`.
  */
 
 import { useState, useCallback, useMemo } from 'react';
-import { AlertTriangle, Filter, RefreshCw, ShieldAlert, Skull, Wine, Car, Users, X, FileText, MapPin } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
-import {
-  Card, CardHeader, CardTitle, CardContent, CardDescription,
-  Button, Select, Badge,
-  Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
-  LoadingState, ErrorState, EmptyState, Pagination,
-  TableSkeleton, Skeleton, CardSkeleton
-} from '../../components/common';
-import { StatCard, BarChartCard, PieChartCard } from '../../components/charts';
-import { MapaCalor } from '../../components/mapas';
+import { Button, EnlacesCruzados } from '../../components/common';
+import { useSincronizarFiltroGeo } from '../../context';
 import {
   useAccidentes, useAccidentesComparativa,
   useAccidentesEstadisticas, useAccidenteExpediente,
   useAccidentesMapaCalor, useMapaAccidentes
 } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
-import { formatDate, formatNumber } from '../../utils';
+import {
+  TarjetasEstadisticasAccidentes,
+  MapaCalorAccidentes,
+  FiltrosAccidentes,
+  GraficosAccidentes,
+  TablaZonasAccidentalidad,
+  TablaAccidentes,
+  DetalleExpediente
+} from './components';
 
-// Meses para selector
-const opcionesMes = [
-  { value: '1', label: 'Enero' },
-  { value: '2', label: 'Febrero' },
-  { value: '3', label: 'Marzo' },
-  { value: '4', label: 'Abril' },
-  { value: '5', label: 'Mayo' },
-  { value: '6', label: 'Junio' },
-  { value: '7', label: 'Julio' },
-  { value: '8', label: 'Agosto' },
-  { value: '9', label: 'Septiembre' },
-  { value: '10', label: 'Octubre' },
-  { value: '11', label: 'Noviembre' },
-  { value: '12', label: 'Diciembre' }
-];
+const FILTROS_INICIALES = { distrito: '', tipoAccidente: '', gravedad: '', mes: '' };
+const PARAMS_HEATMAP_FIJOS = { limite: 300, precision: 100 };
+const LIMITE_MAPA = 3000;
 
-// Tipos de accidente para selector
-const opcionesTipoAccidente = [
-  { value: 'ALCANCE', label: 'Alcance' },
-  { value: 'ATROPELLO_A_PERSONA', label: 'Atropello a persona' },
-  { value: 'CAÍDA', label: 'Caida' },
-  { value: 'CHOQUE_CONTRA_OBSTÁCULO_FIJO', label: 'Choque contra obstaculo fijo' },
-  { value: 'COLISIÓN_FRONTAL', label: 'Colision frontal' },
-  { value: 'COLISIÓN_FRONTO-LATERAL', label: 'Colision fronto-lateral' },
-  { value: 'COLISIÓN_LATERAL', label: 'Colision lateral' },
-  { value: 'COLISIÓN_MÚLTIPLE', label: 'Colision multiple' },
-  { value: 'VUELCO', label: 'Vuelco' },
-  { value: 'OTRO', label: 'Otro' }
-];
-
-// Niveles de gravedad para selector
-const opcionesGravedad = [
-  { value: 'LEVE', label: 'Leve' },
-  { value: 'GRAVE', label: 'Grave' },
-  { value: 'MORTAL', label: 'Mortal' }
-];
-
-/**
- * Obtiene la variante del badge segun la gravedad
- * @param {string} gravedad - Nivel de gravedad
- * @returns {string} Variante del badge
- */
-function obtenerVarianteBadgeGravedad(gravedad) {
-  if (!gravedad) return 'secondary';
-  const upper = gravedad.toUpperCase();
-  if (upper === 'LEVE') return 'success';
-  if (upper === 'GRAVE') return 'warning';
-  if (upper === 'MORTAL') return 'destructive';
-  return 'secondary';
-}
-
-/**
- * Obtiene la variante del badge segun resultado de alcohol
- * @param {string} value - Valor del test de alcohol ('S', 'N', etc.)
- * @returns {{ variant: string, label: string }}
- */
-function obtenerBadgeAlcohol(value) {
-  if (value === 'S') return { variant: 'destructive', label: 'Positivo' };
-  if (value === 'N') return { variant: 'success', label: 'Negativo' };
-  return { variant: 'secondary', label: 'N/D' };
-}
-
-/**
- * Pagina de accidentalidad
- */
 function PaginaAccidentes() {
-  const [filtros, setFiltros] = useState({
-    distrito: '',
-    tipoAccidente: '',
-    gravedad: '',
-    mes: ''
-  });
+  const [filtros, setFiltros] = useState(FILTROS_INICIALES);
   const [paginacion, setPaginacion] = useState({
     paginaActual: 1,
     totalPaginas: 1,
@@ -107,6 +45,12 @@ function PaginaAccidentes() {
     elementosPorPagina: PAGINATION.DEFAULT_LIMIT
   });
   const [expedienteQuery, setExpedienteQuery] = useState(null);
+
+  // BI cross-project: sincronizar el filtro de distrito local con el global
+  const aplicarDistritoLocal = useCallback((d) => {
+    setFiltros(prev => ({ ...prev, distrito: d || '' }));
+  }, []);
+  useSincronizarFiltroGeo(filtros.distrito, aplicarDistritoLocal);
 
   // Parametros de consulta para la query principal
   const queryParams = useMemo(() => {
@@ -136,17 +80,18 @@ function PaginaAccidentes() {
 
   const { data: distritosResult } = useAccidentesComparativa();
   const { data: statsResult } = useAccidentesEstadisticas();
-  const { data: heatmapResult } = useAccidentesMapaCalor({ limite: 300, precision: 100 });
+  const { data: heatmapResult } = useAccidentesMapaCalor(PARAMS_HEATMAP_FIJOS);
 
   // FeatureCollection GeoJSON para heatmap Leaflet.
   // Se pasan los filtros activos de distrito/gravedad/tipoAccidente.
   const parametrosMapa = useMemo(() => {
-    const params = { limite: 3000 };
-    if (filtros.distrito) {params.distrito = filtros.distrito;}
-    if (filtros.gravedad) {params.gravedad = filtros.gravedad;}
-    if (filtros.tipoAccidente) {params.tipoAccidente = filtros.tipoAccidente;}
+    const params = { limite: LIMITE_MAPA };
+    if (filtros.distrito) params.distrito = filtros.distrito;
+    if (filtros.gravedad) params.gravedad = filtros.gravedad;
+    if (filtros.tipoAccidente) params.tipoAccidente = filtros.tipoAccidente;
     return params;
   }, [filtros.distrito, filtros.gravedad, filtros.tipoAccidente]);
+
   const { data: featureCollectionMapa, isLoading: cargandoMapa } = useMapaAccidentes(parametrosMapa);
   const {
     data: expedienteResult,
@@ -159,7 +104,7 @@ function PaginaAccidentes() {
   const estadisticasGenerales = statsResult?.data || null;
   const error = mainError?.message || null;
 
-  // Procesar zonas de accidentalidad del mapa de calor
+  // Procesar zonas de accidentalidad del mapa de calor (top 10)
   const zonasAccidentalidad = useMemo(() => {
     const rawData = heatmapResult?.data?.data || heatmapResult?.data || [];
     if (!Array.isArray(rawData)) return [];
@@ -168,7 +113,6 @@ function PaginaAccidentes() {
       .slice(0, 10);
   }, [heatmapResult]);
 
-  // Datos del expediente seleccionado
   const expedienteSeleccionado = expedienteQuery ? (expedienteResult?.data || null) : null;
 
   // Actualizar paginacion cuando cambian los datos
@@ -178,30 +122,29 @@ function PaginaAccidentes() {
     totalElementos: accidentesResult?.pagination?.totalDocuments || accidentesResult?.pagination?.totalItems || 0
   }), [paginacion, accidentesResult?.pagination]);
 
-  // Cambiar pagina
+  // Handlers estables (se pasan como props memo)
   const manejarCambioPagina = useCallback((page) => {
     setPaginacion(prev => ({ ...prev, paginaActual: page }));
   }, []);
 
-  // Cambiar filtros
   const manejarCambioFiltro = useCallback((name, value) => {
     setFiltros(prev => ({ ...prev, [name]: value }));
     setPaginacion(prev => ({ ...prev, paginaActual: 1 }));
   }, []);
 
-  // Limpiar filtros
   const limpiarFiltros = useCallback(() => {
-    setFiltros({ distrito: '', tipoAccidente: '', gravedad: '', mes: '' });
+    setFiltros(FILTROS_INICIALES);
     setPaginacion(prev => ({ ...prev, paginaActual: 1 }));
   }, []);
 
-  // Toggle detalle de expediente
   const manejarClickExpediente = useCallback((numeroExpediente) => {
     if (!numeroExpediente) return;
     setExpedienteQuery(prev => prev === numeroExpediente ? null : numeroExpediente);
   }, []);
 
-  // Calcular estadisticas de la pagina actual
+  const cerrarExpediente = useCallback(() => setExpedienteQuery(null), []);
+
+  // Estadisticas derivadas de la pagina actual (fallback cuando no hay globales)
   const estadisticas = useMemo(() => {
     if (datos.length === 0) {
       return {
@@ -233,7 +176,7 @@ function PaginaAccidentes() {
     };
   }, [datos, paginacionActual.totalElementos]);
 
-  // Preparar datos para grafico de barras (top 10 distritos)
+  // Datos para grafico de barras (top 10 distritos)
   const datosGrafico = useMemo(() => {
     return [...datosDistritos]
       .sort((a, b) => (b.totalAccidentes || 0) - (a.totalAccidentes || 0))
@@ -244,8 +187,8 @@ function PaginaAccidentes() {
       }));
   }, [datosDistritos]);
 
-  // Preparar datos para grafico de pastel (distribucion por tipo de accidente)
-  // Usa estadisticas globales si estan disponibles, no solo la pagina actual
+  // Datos para grafico de pastel (distribucion por tipo).
+  // Prefiere estadisticas globales si estan disponibles, no solo la pagina actual.
   const datosGraficoPastel = useMemo(() => {
     const distribucionTipos = estadisticasGenerales?.distribucionTipos
       || estadisticasGenerales?.porTipo
@@ -280,445 +223,64 @@ function PaginaAccidentes() {
       description={`Datos de accidentes de trafico - ${DATE_CONFIG.DATASET_YEAR}`}
       actions={
         <Button variant="outline" onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className="size-4 mr-2" />
           Actualizar
         </Button>
       }
     >
-      {/* Tarjetas de resumen */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard
-          title="Total Personas Afectadas"
-          value={formatNumber(estadisticasGenerales?.totalAccidentes || estadisticas.totalPersonasAfectadas)}
-          icon={Users}
-        />
-        <StatCard
-          title="Accidentes Graves"
-          value={formatNumber(estadisticasGenerales?.accidentesGraves || estadisticas.accidentesGraves)}
-          subtitle={estadisticasGenerales ? 'total global' : 'en pagina actual'}
-          icon={ShieldAlert}
-        />
-        <StatCard
-          title="Accidentes Mortales"
-          value={formatNumber(estadisticasGenerales?.accidentesMortales || estadisticas.accidentesMortales)}
-          subtitle={estadisticasGenerales ? 'total global' : 'en pagina actual'}
-          icon={Skull}
-        />
-        <StatCard
-          title={estadisticasGenerales?.promedioGravedad != null ? 'Promedio Gravedad' : 'Con Alcohol'}
-          value={estadisticasGenerales?.promedioGravedad != null
-            ? formatNumber(estadisticasGenerales.promedioGravedad, 2)
-            : estadisticas.conAlcohol}
-          subtitle={estadisticasGenerales?.promedioGravedad != null ? 'escala de severidad' : 'en pagina actual'}
-          icon={estadisticasGenerales?.promedioGravedad != null ? AlertTriangle : Wine}
-        />
-      </div>
+      <TarjetasEstadisticasAccidentes
+        estadisticas={estadisticas}
+        estadisticasGenerales={estadisticasGenerales}
+      />
 
-      {/* Mapa de calor de accidentes */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <AlertTriangle className="h-5 w-5" />
-            Mapa de Calor de Accidentes
-          </CardTitle>
-          <CardDescription>
-            Concentracion geografica de accidentes segun los filtros aplicados.
-            Maximo {parametrosMapa.limite || 3000} registros.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {cargandoMapa ? (
-            <Skeleton className="h-[400px] w-full rounded-xl" />
-          ) : (
-            <MapaCalor
-              featureCollection={featureCollectionMapa}
-              altura="480px"
-              radius={20}
-              blur={18}
-              extraerIntensidad={(props) => {
-                const gravedadMap = { MORTAL: 10, GRAVE: 6, LEVE: 2, SIN_LESIONES: 1 };
-                return gravedadMap[props.gravedad] || 3;
-              }}
-            />
-          )}
-        </CardContent>
-      </Card>
+      <MapaCalorAccidentes
+        cargandoMapa={cargandoMapa}
+        featureCollectionMapa={featureCollectionMapa}
+        limite={parametrosMapa.limite}
+      />
 
-      {/* Filtros */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Filter className="h-5 w-5" />
-            Filtros
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <label className="text-sm text-slate-400 mb-1 block">Distrito</label>
-              <Select
-                value={filtros.distrito}
-                onChange={(e) => manejarCambioFiltro('distrito', e.target.value)}
-                options={opcionesDistrito}
-                placeholder="Todos los distritos"
-              />
-            </div>
-            <div className="flex-1">
-              <label className="text-sm text-slate-400 mb-1 block">Tipo de Accidente</label>
-              <Select
-                value={filtros.tipoAccidente}
-                onChange={(e) => manejarCambioFiltro('tipoAccidente', e.target.value)}
-                options={opcionesTipoAccidente}
-                placeholder="Todos los tipos"
-              />
-            </div>
-            <div className="flex-1">
-              <label className="text-sm text-slate-400 mb-1 block">Gravedad</label>
-              <Select
-                value={filtros.gravedad}
-                onChange={(e) => manejarCambioFiltro('gravedad', e.target.value)}
-                options={opcionesGravedad}
-                placeholder="Todas las gravedades"
-              />
-            </div>
-            <div className="flex-1">
-              <label className="text-sm text-slate-400 mb-1 block">Mes</label>
-              <Select
-                value={filtros.mes}
-                onChange={(e) => manejarCambioFiltro('mes', e.target.value)}
-                options={opcionesMes}
-                placeholder="Todos los meses"
-              />
-            </div>
-            <div className="flex items-end">
-              <Button variant="ghost" onClick={limpiarFiltros}>
-                Limpiar
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <FiltrosAccidentes
+        filtros={filtros}
+        opcionesDistrito={opcionesDistrito}
+        manejarCambioFiltro={manejarCambioFiltro}
+        limpiarFiltros={limpiarFiltros}
+      />
 
-      {/* Graficos */}
-      {!isLoading && datos.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {datosGrafico.length > 0 && (
-            <BarChartCard
-              title="Top 10 Distritos por Accidentes"
-              data={datosGrafico}
-              xKey="distrito"
-              bars={[{ key: 'totalAccidentes', name: 'Total accidentes', color: '#ef4444' }]}
-              height={280}
-            />
-          )}
-          {datosGraficoPastel.length > 0 && (
-            <PieChartCard
-              title="Distribucion por Tipo de Accidente"
-              data={datosGraficoPastel}
-              height={280}
-            />
-          )}
+      {filtros.distrito && (
+        <div className="mb-6">
+          <EnlacesCruzados
+            distrito={filtros.distrito}
+            modulosExcluidos={['accidentes']}
+            titulo={`Ver "${filtros.distrito}" en otros modulos:`}
+          />
         </div>
       )}
 
-      {/* Zonas de mayor accidentalidad (datos del mapa de calor) */}
-      {zonasAccidentalidad.length > 0 && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <MapPin className="h-5 w-5" />
-              Zonas de Mayor Accidentalidad
-            </CardTitle>
-            <CardDescription>
-              Top 10 zonas con mayor concentracion de accidentes (agrupadas por coordenadas)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Zona (coordenadas)</TableHead>
-                  <TableHead>Total Accidentes</TableHead>
-                  <TableHead>Graves</TableHead>
-                  <TableHead>Gravedad Media</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {zonasAccidentalidad.map((zona, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell className="font-mono text-sm">
-                      ({formatNumber(zona.coordenadas?.x, 0)}, {formatNumber(zona.coordenadas?.y, 0)})
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={zona.totalAccidentes >= 10 ? 'destructive' : zona.totalAccidentes >= 5 ? 'warning' : 'secondary'}>
-                        {zona.totalAccidentes}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{zona.accidentesGraves || 0}</TableCell>
-                    <TableCell>{zona.puntuacionGravedadPromedio ? zona.puntuacionGravedadPromedio.toFixed(1) : '-'}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+      {!isLoading && datos.length > 0 && (
+        <GraficosAccidentes
+          datosGrafico={datosGrafico}
+          datosGraficoPastel={datosGraficoPastel}
+        />
       )}
 
-      {/* Tabla de datos */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Registro de Accidentes</CardTitle>
-          <CardDescription>
-            Personas afectadas en accidentes de trafico
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <TableSkeleton rows={6} columns={7} />
-          ) : error ? (
-            <ErrorState
-              message={error}
-              onRetry={() => refetch()}
-            />
-          ) : datos.length === 0 ? (
-            <EmptyState
-              title="Sin accidentes"
-              description="No se encontraron accidentes con los filtros seleccionados."
-              icon={AlertTriangle}
-            />
-          ) : (
-            <>
-              <Table
-                label="Listado de accidentes"
-                rowCount={accidentesResult?.pagination?.totalDocuments}
-              >
-                <TableCaption className="sr-only">Registro de personas afectadas en accidentes de trafico</TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Expediente</TableHead>
-                    <TableHead>Fecha</TableHead>
-                    <TableHead>Hora</TableHead>
-                    <TableHead>Calle</TableHead>
-                    <TableHead>Distrito</TableHead>
-                    <TableHead>Tipo Accidente</TableHead>
-                    <TableHead>Gravedad</TableHead>
-                    <TableHead>Vehiculo</TableHead>
-                    <TableHead>Persona</TableHead>
-                    <TableHead>Alcohol</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {datos.map((record) => {
-                    const alcohol = obtenerBadgeAlcohol(record.personaAfectada?.positivaAlcohol);
+      <TablaZonasAccidentalidad zonas={zonasAccidentalidad} />
 
-                    return (
-                      <TableRow key={record._id}>
-                        <TableCell className="font-medium font-mono text-xs">
-                          {record.numeroExpediente ? (
-                            <button
-                              onClick={() => manejarClickExpediente(record.numeroExpediente)}
-                              className="text-cyan-400 hover:text-cyan-300 underline cursor-pointer transition-colors"
-                              title="Ver detalle del expediente"
-                            >
-                              {record.numeroExpediente}
-                            </button>
-                          ) : '-'}
-                        </TableCell>
-                        <TableCell>
-                          {formatDate(record.fecha)}
-                        </TableCell>
-                        <TableCell className="text-slate-400">
-                          {record.hora || '-'}
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{record.ubicacion?.calle || '-'}</p>
-                            {record.ubicacion?.numero && (
-                              <p className="text-xs text-slate-500">N. {record.ubicacion.numero}</p>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-slate-300">
-                          {record.ubicacion?.nombreDistrito || '-'}
-                        </TableCell>
-                        <TableCell className="text-slate-400 text-sm">
-                          {record.circunstancias?.tipoAccidente || '-'}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={obtenerVarianteBadgeGravedad(record.circunstancias?.gravedad)}>
-                            {record.circunstancias?.gravedad || '-'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-slate-400 text-sm">
-                          {record.vehiculo?.tipo || '-'}
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="text-sm">{record.personaAfectada?.tipoPersona || '-'}</p>
-                            <p className="text-xs text-slate-500">{record.personaAfectada?.sexo || ''} {record.personaAfectada?.rangoEdad || ''}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={alcohol.variant}>
-                            {alcohol.label}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+      <TablaAccidentes
+        isLoading={isLoading}
+        error={error}
+        datos={datos}
+        paginacionActual={paginacionActual}
+        totalDocuments={accidentesResult?.pagination?.totalDocuments}
+        onCambioPagina={manejarCambioPagina}
+        onClickExpediente={manejarClickExpediente}
+        onRetry={refetch}
+      />
 
-              {/* Paginacion */}
-              <Pagination
-                currentPage={paginacionActual.paginaActual}
-                totalPages={paginacionActual.totalPaginas}
-                totalItems={paginacionActual.totalElementos}
-                itemsPerPage={paginacionActual.elementosPorPagina}
-                onPageChange={manejarCambioPagina}
-              />
-            </>
-          )}
-        </CardContent>
-      </Card>
-      {/* Detalle de expediente seleccionado */}
-      {cargandoExpediente && (
-        <Card className="mt-6">
-          <CardContent className="py-6">
-            <CardSkeleton lines={5} />
-          </CardContent>
-        </Card>
-      )}
-
-      {expedienteSeleccionado && !cargandoExpediente && (
-        <Card className="mt-6">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <FileText className="h-5 w-5" />
-                Expediente: {expedienteSeleccionado.numeroExpediente}
-              </CardTitle>
-              <Button variant="ghost" onClick={() => setExpedienteQuery(null)}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            <CardDescription>
-              Detalle completo del accidente y personas afectadas
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* Datos generales del accidente */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div>
-                <p className="text-sm text-slate-400">Fecha</p>
-                <p className="font-medium">{formatDate(expedienteSeleccionado.fecha)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-400">Hora</p>
-                <p className="font-medium">{expedienteSeleccionado.hora || '-'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-400">Ubicacion</p>
-                <p className="font-medium flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  {expedienteSeleccionado.ubicacion?.calle || '-'}
-                  {expedienteSeleccionado.ubicacion?.numero ? `, N. ${expedienteSeleccionado.ubicacion.numero}` : ''}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-400">Distrito</p>
-                <p className="font-medium">{expedienteSeleccionado.ubicacion?.nombreDistrito || '-'}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-              <div>
-                <p className="text-sm text-slate-400">Tipo de Accidente</p>
-                <p className="font-medium">{expedienteSeleccionado.circunstancias?.tipoAccidente || '-'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-400">Gravedad</p>
-                <Badge variant={obtenerVarianteBadgeGravedad(expedienteSeleccionado.circunstancias?.gravedad)}>
-                  {expedienteSeleccionado.circunstancias?.gravedad || '-'}
-                </Badge>
-              </div>
-              <div>
-                <p className="text-sm text-slate-400">Vehiculo</p>
-                <p className="font-medium">{expedienteSeleccionado.vehiculo?.tipo || '-'}</p>
-              </div>
-            </div>
-
-            {/* Persona afectada */}
-            {expedienteSeleccionado.personaAfectada && (
-              <div>
-                <h4 className="text-sm font-semibold text-slate-300 mb-3">Persona Afectada</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-800/50 rounded-lg p-4">
-                  <div>
-                    <p className="text-sm text-slate-400">Tipo</p>
-                    <p className="font-medium">{expedienteSeleccionado.personaAfectada.tipoPersona || '-'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-400">Sexo</p>
-                    <p className="font-medium">{expedienteSeleccionado.personaAfectada.sexo || '-'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-400">Rango de Edad</p>
-                    <p className="font-medium">{expedienteSeleccionado.personaAfectada.rangoEdad || '-'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-400">Alcohol</p>
-                    <Badge variant={obtenerBadgeAlcohol(expedienteSeleccionado.personaAfectada.positivaAlcohol).variant}>
-                      {obtenerBadgeAlcohol(expedienteSeleccionado.personaAfectada.positivaAlcohol).label}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Personas afectadas (lista si viene como array) */}
-            {expedienteSeleccionado.personasAfectadas?.length > 0 && (
-              <div>
-                <h4 className="text-sm font-semibold text-slate-300 mb-3">
-                  Personas Afectadas ({expedienteSeleccionado.personasAfectadas.length})
-                </h4>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Tipo Persona</TableHead>
-                      <TableHead>Sexo</TableHead>
-                      <TableHead>Rango Edad</TableHead>
-                      <TableHead>Gravedad</TableHead>
-                      <TableHead>Alcohol</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {expedienteSeleccionado.personasAfectadas.map((persona, idx) => {
-                      const alcoholPersona = obtenerBadgeAlcohol(persona.positivaAlcohol);
-                      return (
-                        <TableRow key={`persona-${idx}`}>
-                          <TableCell>{persona.tipoPersona || '-'}</TableCell>
-                          <TableCell>{persona.sexo || '-'}</TableCell>
-                          <TableCell>{persona.rangoEdad || '-'}</TableCell>
-                          <TableCell>
-                            <Badge variant={obtenerVarianteBadgeGravedad(persona.gravedad)}>
-                              {persona.gravedad || '-'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={alcoholPersona.variant}>
-                              {alcoholPersona.label}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      <DetalleExpediente
+        expediente={expedienteSeleccionado}
+        cargando={cargandoExpediente}
+        onCerrar={cerrarExpediente}
+      />
     </PageLayout>
   );
 }

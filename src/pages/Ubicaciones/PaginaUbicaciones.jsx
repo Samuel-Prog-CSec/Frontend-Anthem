@@ -19,8 +19,8 @@ import {
   TableSkeleton, Skeleton
 } from '../../components/common';
 import { StatCard } from '../../components/charts';
-import { MapaClusterizado } from '../../components/mapas';
-import { useUbicaciones, useUbicacionesStats, useRutasTransporte, usePuntosMedicion, useMapaUbicaciones } from '../../api/hooks';
+import { MapaUnificado } from '../../components/mapas';
+import { useUbicaciones, useUbicacionesStats, useRutasTransporte, usePuntosMedicion } from '../../api/hooks';
 import { LOCATION_TYPE_LABELS, PAGINATION } from '../../constants';
 import { formatCoordinates, formatNumber, useDebouncedValue } from '../../utils';
 
@@ -117,11 +117,12 @@ function PaginaUbicaciones() {
   // React Query: puntos de medicion (solo si el tipo seleccionado es medicion)
   const { data: puntosApi, isLoading: cargandoPuntos } = usePuntosMedicion(tipoMedicion);
 
-  // React Query: FeatureCollection GeoJSON para visualizacion en mapa
-  const parametrosMapa = useMemo(() => (
-    filtros.tipo ? { type: filtros.tipo } : {}
-  ), [filtros.tipo]);
-  const { data: featureCollection, isLoading: cargandoMapa } = useMapaUbicaciones(parametrosMapa);
+  // Parametros para la capa Ubicaciones del mapa unificado.
+  // El filtro de tipo solo aplica a esa capa (las demas capas tienen sus
+  // propios datasets independientes y se gestionan en sus componentes).
+  const paramsPorCapa = useMemo(() => ({
+    ubicaciones: filtros.tipo ? { type: filtros.tipo } : {}
+  }), [filtros.tipo]);
 
   const locations = locationsData?.data || [];
   const pagination = locationsData?.pagination || {};
@@ -178,7 +179,7 @@ function PaginaUbicaciones() {
       description="Puntos de interes y estaciones de monitoreo de la ciudad"
       actions={
         <Button variant="outline" onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className="size-4 mr-2" />
           Actualizar
         </Button>
       }
@@ -211,7 +212,7 @@ function PaginaUbicaciones() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Filter className="h-5 w-5" />
+            <Filter className="size-5" />
             Filtros
           </CardTitle>
         </CardHeader>
@@ -244,36 +245,30 @@ function PaginaUbicaciones() {
         </CardContent>
       </Card>
 
-      {/* Mapa interactivo (cluster de marcadores) */}
+      {/* Mapa unificado: visualizacion cross-domain con toggles de capas
+          conmutables. Cada capa tiene su propio color y se carga solo cuando
+          el usuario la activa (lazy fetch: el componente solo se monta si la
+          capa esta activa, asi su hook React Query no se dispara). El filtro
+          de tipo de la card de arriba afecta unicamente a la capa
+          "Estaciones y rutas". */}
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <MapPin className="h-5 w-5" />
+            <MapPin className="size-5" />
             Mapa Interactivo
           </CardTitle>
           <CardDescription>
-            Visualizacion geografica de estaciones, puntos de medida y rutas de transporte.
-            {filtros.tipo ? ` Filtrado por: ${LOCATION_TYPE_LABELS[filtros.tipo] || filtros.tipo}.` : ''}
+            Visualizacion cross-domain. Activa o desactiva capas en el panel
+            lateral para superponer estaciones, accidentes, multas, patinetes,
+            aforo de bicicletas y monitoreo acustico en el mismo mapa.
+            {filtros.tipo ? ` Capa "Estaciones y rutas" filtrada por: ${LOCATION_TYPE_LABELS[filtros.tipo] || filtros.tipo}.` : ''}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {cargandoMapa ? (
-            <Skeleton className="h-[400px] w-full rounded-xl" />
-          ) : (
-            <MapaClusterizado
-              featureCollection={featureCollection}
-              altura="500px"
-              renderPopup={(props) => (
-                <div className="text-sm">
-                  <div className="font-semibold mb-1">{props.nombre || props.nmt || 'Ubicacion'}</div>
-                  <div>Tipo: {LOCATION_TYPE_LABELS[props.tipo] || props.tipo}</div>
-                  {props.nmt && <div>NMT: {props.nmt}</div>}
-                  {props.idPunto && <div>ID: {props.idPunto}</div>}
-                  {props.distrito && <div>Distrito: {props.distrito}</div>}
-                </div>
-              )}
-            />
-          )}
+          <MapaUnificado
+            altura="600px"
+            paramsPorCapa={paramsPorCapa}
+          />
         </CardContent>
       </Card>
 
@@ -282,7 +277,7 @@ function PaginaUbicaciones() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <RouteIcon className="h-5 w-5" />
+              <RouteIcon className="size-5" />
               Rutas de {LOCATION_TYPE_LABELS[filtros.tipo] || 'Transporte'}
             </CardTitle>
             <CardDescription>
@@ -331,7 +326,7 @@ function PaginaUbicaciones() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Gauge className="h-5 w-5" />
+              <Gauge className="size-5" />
               Puntos de Medicion - {LOCATION_TYPE_LABELS[filtros.tipo] || 'Medicion'}
             </CardTitle>
             <CardDescription>
@@ -414,7 +409,7 @@ function PaginaUbicaciones() {
                       <TableRow key={location._id}>
                         <TableCell>
                           <Badge variant={variantesBadgePorTipo[location.tipo] || 'default'}>
-                            <Icon className="h-3 w-3 mr-1" />
+                            <Icon className="size-3 mr-1" />
                             {LOCATION_TYPE_LABELS[location.tipo] || location.tipo}
                           </Badge>
                         </TableCell>

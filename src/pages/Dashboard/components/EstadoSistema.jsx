@@ -18,13 +18,13 @@ function TarjetaServicio({ servicio }) {
   const Icono = servicio.icono;
   return (
     <div className="flex items-center gap-4 p-4 rounded-xl bg-card/50 border border-border/60">
-      <div className={`w-10 h-10 rounded-lg bg-${servicio.color}-500/10 flex items-center justify-center`}>
-        <Icono className={`w-5 h-5 text-${servicio.color}-400`} aria-hidden="true" />
+      <div className={`size-10 rounded-lg bg-${servicio.color}-500/10 flex items-center justify-center`}>
+        <Icono className={`size-5 text-${servicio.color}-400`} aria-hidden="true" />
       </div>
       <div className="flex-1">
         <p className="text-sm font-medium text-foreground">{servicio.etiqueta}</p>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+          <span className="size-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
           <span className="text-xs text-emerald-400">{servicio.estado}</span>
         </div>
       </div>
@@ -37,8 +37,8 @@ export function EstadoSistema() {
     <Card>
       <CardHeader className="pb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Activity className="w-5 h-5 text-primary" aria-hidden="true" />
+          <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Activity className="size-5 text-primary" aria-hidden="true" />
           </div>
           <div>
             <CardTitle>Estado del Sistema</CardTitle>
@@ -53,8 +53,8 @@ export function EstadoSistema() {
           ))}
 
           <div className="flex items-center gap-4 p-4 rounded-xl bg-card/50 border border-border/60">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-primary" aria-hidden="true" />
+            <div className="size-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <TrendingUp className="size-5 text-primary" aria-hidden="true" />
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium text-foreground">Datos {DATE_CONFIG.DATASET_YEAR}</p>

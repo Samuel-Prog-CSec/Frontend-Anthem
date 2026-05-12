@@ -9,7 +9,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider, useAuth } from './context';
+import { AuthProvider, useAuth, FiltroGeoProvider } from './context';
 import { ROUTES } from './constants';
 import { LoadingState, ErrorBoundary } from './components/common';
 
@@ -26,6 +26,14 @@ const PaginaBicicletas = lazy(() => import('./pages/Bicicletas/PaginaBicicletas'
 const PaginaCenso = lazy(() => import('./pages/Censo/PaginaCenso'));
 const PaginaMultas = lazy(() => import('./pages/Multas/PaginaMultas'));
 const PaginaAforoBicicletas = lazy(() => import('./pages/AforoBicicletas/PaginaAforoBicicletas'));
+const PaginaContenedores = lazy(() => import('./pages/Contenedores/PaginaContenedores'));
+const PaginaTrafico = lazy(() => import('./pages/Trafico/PaginaTrafico'));
+const PaginaDistrito = lazy(() => import('./pages/Distrito/PaginaDistrito'));
+const HubCorrelaciones = lazy(() => import('./pages/Correlaciones/HubCorrelaciones'));
+const PaginaAireTrafico = lazy(() => import('./pages/Correlaciones/PaginaAireTrafico'));
+const PaginaMultasAccidentes = lazy(() => import('./pages/Correlaciones/PaginaMultasAccidentes'));
+const PaginaCensoContenedores = lazy(() => import('./pages/Correlaciones/PaginaCensoContenedores'));
+const PaginaRuidoCenso = lazy(() => import('./pages/Correlaciones/PaginaRuidoCenso'));
 const NotFoundPage = lazy(() => import('./pages/NotFound/NotFoundPage'));
 
 // Configuracion de React Query
@@ -202,6 +210,73 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path={ROUTES.CONTENEDORES}
+          element={
+            <ProtectedRoute>
+              <PaginaContenedores />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.TRAFICO}
+          element={
+            <ProtectedRoute>
+              <PaginaTrafico />
+            </ProtectedRoute>
+          }
+        />
+        {/* Vista cross-domain por distrito */}
+        <Route
+          path={ROUTES.DISTRITO}
+          element={
+            <ProtectedRoute>
+              <PaginaDistrito />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Hub BI cross-module */}
+        <Route
+          path={ROUTES.CORRELACIONES}
+          element={
+            <ProtectedRoute>
+              <HubCorrelaciones />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CORRELACION_AIRE_TRAFICO}
+          element={
+            <ProtectedRoute>
+              <PaginaAireTrafico />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CORRELACION_MULTAS_ACCIDENTES}
+          element={
+            <ProtectedRoute>
+              <PaginaMultasAccidentes />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CORRELACION_CENSO_CONTENEDORES}
+          element={
+            <ProtectedRoute>
+              <PaginaCensoContenedores />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CORRELACION_RUIDO_CENSO}
+          element={
+            <ProtectedRoute>
+              <PaginaRuidoCenso />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Pagina 404 */}
         <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
@@ -219,7 +294,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
-          <AppRoutes />
+          <FiltroGeoProvider>
+            <AppRoutes />
+          </FiltroGeoProvider>
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>

@@ -139,6 +139,30 @@ export const CONTAINER_TYPES = {
 };
 
 /**
+ * Etiquetas legibles para tipos de contenedor (UI)
+ * Indexadas por el valor del enum (no la clave) para coincidir con la API.
+ */
+export const CONTAINER_TYPE_LABELS = {
+  ORGANICA: 'Organica',
+  RESTO: 'Resto',
+  ENVASES: 'Envases',
+  VIDRIO: 'Vidrio',
+  'PAPEL-CARTON': 'Papel y carton'
+};
+
+/**
+ * Colores por tipo de contenedor (estandar municipal espanol)
+ * Usado en charts, markers de mapa y badges.
+ */
+export const CONTAINER_TYPE_COLORS = {
+  ORGANICA: '#92400e',       // Marron
+  RESTO: '#475569',          // Gris pizarra
+  ENVASES: '#f59e0b',        // Amarillo
+  VIDRIO: '#10b981',         // Verde
+  'PAPEL-CARTON': '#2563eb'  // Azul
+};
+
+/**
  * Lotes de contenedores válidos
  */
 export const CONTAINER_LOTES = [1, 2, 3];
@@ -222,6 +246,56 @@ export const NOISE_PERIODS = {
   N: { label: 'Nocturno', time: '23:00 - 07:00', limit: 55 },
   T: { label: '24 horas', time: 'Todo el dia', limit: null }
 };
+
+// ========================================
+// TRAFICO
+// ========================================
+
+/**
+ * Tipos de elemento del punto de medida de trafico.
+ * URB = trafico urbano (control semaforico)
+ * M30 = trafico interurbano (vias rapidas)
+ */
+export const TRAFFIC_ELEMENT_TYPES = {
+  URB: 'URB',
+  M30: 'M30'
+};
+
+export const TRAFFIC_ELEMENT_LABELS = {
+  URB: 'Urbano',
+  M30: 'M-30 / Interurbano'
+};
+
+/**
+ * Niveles de congestion derivados en backend.
+ * Sincronizado con CONGESTION_LEVELS del backend.
+ */
+export const CONGESTION_LEVELS = {
+  FLUIDO: 'FLUIDO',
+  DENSO: 'DENSO',
+  CONGESTIONADO: 'CONGESTIONADO',
+  COLAPSADO: 'COLAPSADO'
+};
+
+export const CONGESTION_LEVEL_LABELS = {
+  FLUIDO: 'Fluido',
+  DENSO: 'Denso',
+  CONGESTIONADO: 'Congestionado',
+  COLAPSADO: 'Colapsado'
+};
+
+export const CONGESTION_LEVEL_COLORS = {
+  FLUIDO: '#10b981',         // Verde
+  DENSO: '#f59e0b',          // Amarillo
+  CONGESTIONADO: '#ef4444',  // Rojo
+  COLAPSADO: '#7c2d12'       // Rojo oscuro
+};
+
+/**
+ * Limite duro del rango de fechas en el endpoint /trafico/mapa.
+ * Sincronizado con TRAFICO_MAPA_MAX_DIAS del controlador backend.
+ */
+export const TRAFICO_MAPA_MAX_DIAS = 7;
 
 // ========================================
 // ASIGNACION DE PATINETES
@@ -389,6 +463,19 @@ export const ROUTES = {
   CENSO: '/censo',
   MULTAS: '/multas',
   AFORO_BICICLETAS: '/aforo-bicicletas',
+  CONTENEDORES: '/contenedores',
+  TRAFICO: '/trafico',
+  // Hub BI cross-module
+  CORRELACIONES: '/correlaciones',
+  CORRELACION_AIRE_TRAFICO: '/correlaciones/aire-trafico',
+  CORRELACION_MULTAS_ACCIDENTES: '/correlaciones/multas-accidentes',
+  CORRELACION_CENSO_CONTENEDORES: '/correlaciones/censo-contenedores',
+  CORRELACION_RUIDO_CENSO: '/correlaciones/ruido-censo',
+  // Vista cross-domain por distrito (compone censo + accidentes + patinetes + multas)
+  // Patron React Router: /distritos/:codigo (codigo numerico 1-21)
+  DISTRITO: '/distritos/:codigo',
+  // Helper para construir URLs concretas en runtime (links, navigate)
+  DISTRITO_PATH: (codigo) => `/distritos/${codigo}`,
   LOGIN: '/login',
   REGISTER: '/register',
   NOT_FOUND: '*'

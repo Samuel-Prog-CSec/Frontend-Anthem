@@ -9,7 +9,7 @@
  * - class-variance-authority: https://cva.style/docs
  */
 
-import { forwardRef } from 'react';
+import { forwardRef, memo } from 'react';
 import { cn } from '../../utils';
 import { buttonVariants } from './buttonVariants';
 
@@ -21,7 +21,7 @@ import { buttonVariants } from './buttonVariants';
  * @param {string} [props.size] - Tamano: 'default', 'sm', 'lg', 'icon'
  * @param {boolean} [props.isLoading] - Muestra estado de carga
  */
-const Button = forwardRef(({
+const Button = memo(forwardRef(({
   className,
   variant,
   size,
@@ -41,7 +41,7 @@ const Button = forwardRef(({
       {isLoading ? (
         <>
           <svg
-            className="animate-spin h-4 w-4"
+            className="animate-spin size-4"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -65,7 +65,7 @@ const Button = forwardRef(({
       ) : children}
     </button>
   );
-});
+}));
 
 Button.displayName = 'Button';
 

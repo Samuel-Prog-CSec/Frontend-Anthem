@@ -22,7 +22,11 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('ErrorBoundary captura error:', error, errorInfo);
+    // Solo loguear en desarrollo para mantener limpia la consola en produccion.
+    // En produccion, integrar aqui un servicio de monitorizacion (Sentry, etc.)
+    if (import.meta.env.DEV) {
+      console.error('ErrorBoundary captura error:', error, errorInfo);
+    }
   }
 
   handleReset = () => {
@@ -35,8 +39,8 @@ class ErrorBoundary extends Component {
         <div className="min-h-[400px] flex items-center justify-center p-6">
           <Card className="max-w-md w-full">
             <CardHeader className="text-center">
-              <div className="mx-auto w-12 h-12 rounded-full bg-red-900/30 flex items-center justify-center mb-3">
-                <AlertTriangle className="h-6 w-6 text-red-400" />
+              <div className="mx-auto size-12 rounded-full bg-red-900/30 flex items-center justify-center mb-3">
+                <AlertTriangle className="size-6 text-red-400" />
               </div>
               <CardTitle className="text-lg">Error inesperado</CardTitle>
             </CardHeader>

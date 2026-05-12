@@ -1,20 +1,25 @@
 /**
  * Componente Card
- * 
+ *
  * Contenedor de tarjeta con estilo futurista para el dashboard.
  * Basado en patrones de Shadcn/ui.
- * 
+ *
  * Documentacion de referencia:
  * - Shadcn/ui Card: https://ui.shadcn.com/docs/components/card
+ *
+ * Todos los subcomponentes estan envueltos en `memo` porque suelen recibir
+ * props estables (className, hijos jsx) y se renderizan en cantidad: una
+ * pagina del dashboard puede contener decenas de Card. Sin memo, cualquier
+ * cambio de estado en el padre provoca re-render en cascada.
  */
 
-import { forwardRef } from 'react';
+import { forwardRef, memo } from 'react';
 import { cn } from '../../utils';
 
 /**
  * Contenedor principal de la tarjeta
  */
-const Card = forwardRef(({ className, hover = false, glow = false, ...props }, ref) => (
+const Card = memo(forwardRef(({ className, hover = false, glow = false, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
@@ -26,25 +31,25 @@ const Card = forwardRef(({ className, hover = false, glow = false, ...props }, r
     )}
     {...props}
   />
-));
+)));
 Card.displayName = 'Card';
 
 /**
  * Cabecera de la tarjeta
  */
-const CardHeader = forwardRef(({ className, ...props }, ref) => (
+const CardHeader = memo(forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
     className={cn('flex flex-col gap-2 p-6 pb-4', className)}
     {...props}
   />
-));
+)));
 CardHeader.displayName = 'CardHeader';
 
 /**
  * Titulo de la tarjeta
  */
-const CardTitle = forwardRef(({ className, ...props }, ref) => (
+const CardTitle = memo(forwardRef(({ className, ...props }, ref) => (
   <h3
     ref={ref}
     className={cn(
@@ -53,39 +58,39 @@ const CardTitle = forwardRef(({ className, ...props }, ref) => (
     )}
     {...props}
   />
-));
+)));
 CardTitle.displayName = 'CardTitle';
 
 /**
  * Descripcion de la tarjeta
  */
-const CardDescription = forwardRef(({ className, ...props }, ref) => (
+const CardDescription = memo(forwardRef(({ className, ...props }, ref) => (
   <p
     ref={ref}
     className={cn('text-sm text-muted-foreground leading-relaxed', className)}
     {...props}
   />
-));
+)));
 CardDescription.displayName = 'CardDescription';
 
 /**
  * Contenido principal de la tarjeta
  */
-const CardContent = forwardRef(({ className, ...props }, ref) => (
+const CardContent = memo(forwardRef(({ className, ...props }, ref) => (
   <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />
-));
+)));
 CardContent.displayName = 'CardContent';
 
 /**
  * Pie de la tarjeta
  */
-const CardFooter = forwardRef(({ className, ...props }, ref) => (
+const CardFooter = memo(forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
     className={cn('flex items-center p-6 pt-4', className)}
     {...props}
   />
-));
+)));
 CardFooter.displayName = 'CardFooter';
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent };

@@ -43,8 +43,8 @@ function TarjetaEstadisticaDashboardImpl({ titulo, valor, subtitulo, icono, colo
         colores.glow
       )}
     >
-      <div className={cn('w-14 h-14 rounded-xl flex items-center justify-center mb-4', colores.bg)}>
-        <IconoComponente className={cn('w-7 h-7', colores.icon)} aria-hidden="true" />
+      <div className={cn('size-14 rounded-xl flex items-center justify-center mb-4', colores.bg)}>
+        <IconoComponente className={cn('size-7', colores.icon)} aria-hidden="true" />
       </div>
 
       <div className="mb-1">
@@ -59,7 +59,7 @@ function TarjetaEstadisticaDashboardImpl({ titulo, valor, subtitulo, icono, colo
       <p className="text-sm text-muted-foreground">{subtitulo}</p>
 
       <div className="absolute top-4 right-4 flex items-center gap-1.5">
-        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+        <span className="size-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
         <span className="text-xs text-muted-foreground">Activo</span>
       </div>
     </div>
