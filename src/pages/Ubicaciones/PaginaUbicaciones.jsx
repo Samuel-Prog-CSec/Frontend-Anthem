@@ -219,7 +219,7 @@ function PaginaUbicaciones() {
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <label className="text-sm text-slate-400 mb-1 block">Tipo de Ubicacion</label>
+              <label className="text-sm text-muted-foreground mb-1 block">Tipo de Ubicacion</label>
               <Select
                 value={filtros.tipo}
                 onChange={manejarCambioTipo}
@@ -228,7 +228,7 @@ function PaginaUbicaciones() {
               />
             </div>
             <div className="flex-1">
-              <label className="text-sm text-slate-400 mb-1 block">Buscar por nombre</label>
+              <label className="text-sm text-muted-foreground mb-1 block">Buscar por nombre</label>
               <Input
                 value={filtros.busqueda}
                 onChange={manejarCambioBusqueda}
@@ -303,7 +303,7 @@ function PaginaUbicaciones() {
                       <TableCell className="text-center font-mono">
                         {ruta.paradas > 0 ? formatNumber(ruta.paradas) : '-'}
                       </TableCell>
-                      <TableCell className="text-center font-mono text-slate-400">
+                      <TableCell className="text-center font-mono text-muted-foreground">
                         {ruta.waypoints > 0 ? formatNumber(ruta.waypoints) : '-'}
                       </TableCell>
                     </TableRow>
@@ -349,7 +349,7 @@ function PaginaUbicaciones() {
                   {datosPuntos.map((punto, index) => (
                     <TableRow key={`punto-${index}`}>
                       <TableCell className="font-medium">{punto.nombre}</TableCell>
-                      <TableCell className="text-slate-400 font-mono">{punto.id}</TableCell>
+                      <TableCell className="text-muted-foreground font-mono">{punto.id}</TableCell>
                       <TableCell>{punto.distrito}</TableCell>
                     </TableRow>
                   ))}
@@ -416,13 +416,13 @@ function PaginaUbicaciones() {
                         <TableCell className="font-medium">
                           {location.nombre || '-'}
                         </TableCell>
-                        <TableCell className="hidden md:table-cell text-slate-400">
+                        <TableCell className="hidden md:table-cell text-muted-foreground">
                           {location.nmt || location.id_punto || location._id.slice(-6)}
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
                           {location.distrito || '-'}
                         </TableCell>
-                        <TableCell className="hidden xl:table-cell text-sm text-slate-400">
+                        <TableCell className="hidden xl:table-cell text-sm text-muted-foreground">
                           {location.geometry?.coordinates
                             ? formatCoordinates(location.geometry.coordinates[1], location.geometry.coordinates[0])
                             : '-'

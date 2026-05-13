@@ -79,32 +79,32 @@ const MapaTrafico = memo(function MapaTrafico({
                         Punto {props.puntoMedidaId}
                       </div>
                       {props.nombre && (
-                        <div className="text-xs text-slate-300 mb-1">{props.nombre}</div>
+                        <div className="text-xs text-foreground/80 mb-1">{props.nombre}</div>
                       )}
                       <div className="text-xs">
-                        <span className="text-slate-400">Tipo:</span> {etiquetaTipoElemento(props.tipoElemento)}
+                        <span className="text-muted-foreground">Tipo:</span> {etiquetaTipoElemento(props.tipoElemento)}
                       </div>
                       {props.distrito && (
                         <div className="text-xs">
-                          <span className="text-slate-400">Distrito:</span> {props.distrito}
+                          <span className="text-muted-foreground">Distrito:</span> {props.distrito}
                         </div>
                       )}
                       <div className="text-xs">
-                        <span className="text-slate-400">Intensidad media:</span> {formatNumber(props.intensidadMedia, 0)} v/h
+                        <span className="text-muted-foreground">Intensidad media:</span> {formatNumber(props.intensidadMedia, 0)} v/h
                       </div>
                       {props.velocidadMedia != null && (
                         <div className="text-xs">
-                          <span className="text-slate-400">Velocidad media:</span> {formatNumber(props.velocidadMedia, 1)} km/h
+                          <span className="text-muted-foreground">Velocidad media:</span> {formatNumber(props.velocidadMedia, 1)} km/h
                         </div>
                       )}
                       <div className="text-xs">
-                        <span className="text-slate-400">Ocupacion media:</span> {formatNumber(props.ocupacionMedia, 1)}%
+                        <span className="text-muted-foreground">Ocupacion media:</span> {formatNumber(props.ocupacionMedia, 1)}%
                       </div>
                       <div className="text-xs">
-                        <span className="text-slate-400">Congestion:</span> {formatNumber(props.porcentajeCongestion, 1)}% ({etiquetaCongestion(nivel)})
+                        <span className="text-muted-foreground">Congestion:</span> {formatNumber(props.porcentajeCongestion, 1)}% ({etiquetaCongestion(nivel)})
                       </div>
                       <div className="text-xs">
-                        <span className="text-slate-400">Mediciones:</span> {formatNumber(props.totalMediciones)}
+                        <span className="text-muted-foreground">Mediciones:</span> {formatNumber(props.totalMediciones)}
                       </div>
                     </div>
                   </Popup>
@@ -135,7 +135,7 @@ function LeyendaCongestion() {
       {items.map(item => (
         <span key={item.nivel} className="flex items-center gap-1.5">
           <span
-            className="size-3 rounded-full border border-slate-700"
+            className="size-3 rounded-full border border-border"
             style={{ backgroundColor: item.color }}
             aria-hidden="true"
           />

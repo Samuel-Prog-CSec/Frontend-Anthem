@@ -66,7 +66,7 @@ const TablaPatinetes = memo(function TablaPatinetes({
                 {datos.map(item => (
                   <TableRow
                     key={item._id}
-                    className="cursor-pointer hover:bg-slate-800/50 transition-colors"
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
                     onClick={() => onClickArea(item.distrito?.nombre, item.barrio?.nombre)}
                   >
                     <TableCell className="font-medium text-cyan-400">
@@ -97,7 +97,7 @@ const TablaPatinetes = memo(function TablaPatinetes({
                     <TableCell>
                       {item.analisisDistribucion?.proveedorDominante?.nombre || '-'}
                     </TableCell>
-                    <TableCell className="text-right font-mono text-slate-300">
+                    <TableCell className="text-right font-mono text-foreground/80">
                       {formatNumber(item.analisisDistribucion?.indiceHerfindahl)}
                     </TableCell>
                   </TableRow>

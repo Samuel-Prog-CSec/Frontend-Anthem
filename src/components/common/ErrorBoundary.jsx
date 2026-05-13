@@ -36,16 +36,16 @@ class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-[400px] flex items-center justify-center p-6">
+        <div className="min-h-[400px] flex items-center justify-center p-6" role="alert">
           <Card className="max-w-md w-full">
             <CardHeader className="text-center">
-              <div className="mx-auto size-12 rounded-full bg-red-900/30 flex items-center justify-center mb-3">
-                <AlertTriangle className="size-6 text-red-400" />
+              <div className="mx-auto size-12 rounded-full bg-destructive/20 flex items-center justify-center mb-3">
+                <AlertTriangle className="size-6 text-destructive" aria-hidden="true" />
               </div>
               <CardTitle className="text-lg">Error inesperado</CardTitle>
             </CardHeader>
             <CardContent className="text-center">
-              <p className="text-slate-400 mb-4">
+              <p className="text-muted-foreground mb-4">
                 {this.state.error?.message || 'Ha ocurrido un error al renderizar este componente.'}
               </p>
               <div className="flex gap-3 justify-center">

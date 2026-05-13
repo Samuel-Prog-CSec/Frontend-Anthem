@@ -282,7 +282,7 @@ function PaginaCalidadAire() {
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <label className="text-sm text-slate-400 mb-1 block">Contaminante</label>
+              <label className="text-sm text-muted-foreground mb-1 block">Contaminante</label>
               <Select
                 value={filtros.magnitud}
                 onChange={(e) => manejarCambioFiltro('magnitud', e.target.value)}
@@ -291,7 +291,7 @@ function PaginaCalidadAire() {
               />
             </div>
             <div className="flex-1">
-              <label className="text-sm text-slate-400 mb-1 block">Mes</label>
+              <label className="text-sm text-muted-foreground mb-1 block">Mes</label>
               <Select
                 value={filtros.mes}
                 onChange={(e) => manejarCambioFiltro('mes', e.target.value)}
@@ -334,7 +334,7 @@ function PaginaCalidadAire() {
         </CardHeader>
         <CardContent>
           <div className="mb-4 max-w-sm">
-            <label className="text-sm text-slate-400 mb-1 block">Contaminante para tendencia</label>
+            <label className="text-sm text-muted-foreground mb-1 block">Contaminante para tendencia</label>
             <Select
               value={magnitudTendencia}
               onChange={(e) => setMagnitudTendencia(e.target.value)}
@@ -370,7 +370,7 @@ function PaginaCalidadAire() {
           )}
 
           {!magnitudTendencia && (
-            <p className="text-sm text-slate-500 text-center py-8">
+            <p className="text-sm text-foreground0 text-center py-8">
               Seleccione un contaminante para ver la tendencia
             </p>
           )}
@@ -428,7 +428,7 @@ function PaginaCalidadAire() {
                         <TableCell>
                           {record.estacion || record.puntoMuestreo}
                         </TableCell>
-                        <TableCell className="text-slate-400">
+                        <TableCell className="text-muted-foreground">
                           {AIR_QUALITY_MAGNITUDES[record.magnitud] || `Magnitud ${record.magnitud}`}
                         </TableCell>
                         <TableCell className="text-right font-mono">
@@ -471,8 +471,8 @@ function PaginaCalidadAire() {
                   className="size-3 rounded-full"
                   style={{ backgroundColor: level.color }}
                 />
-                <span className="text-sm text-slate-300">{level.label}</span>
-                <span className="text-xs text-slate-500">({level.range})</span>
+                <span className="text-sm text-foreground/80">{level.label}</span>
+                <span className="text-xs text-foreground0">({level.range})</span>
               </div>
             ))}
           </div>

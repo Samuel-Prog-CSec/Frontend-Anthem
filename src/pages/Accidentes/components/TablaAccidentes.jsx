@@ -113,18 +113,18 @@ const TablaAccidentes = memo(function TablaAccidentes({
                       <TableCell>
                         {formatDate(record.fecha)}
                       </TableCell>
-                      <TableCell className="text-slate-400">
+                      <TableCell className="text-muted-foreground">
                         {record.hora || '-'}
                       </TableCell>
                       <TableCell>
                         <div>
                           <p className="font-medium">{record.ubicacion?.calle || '-'}</p>
                           {record.ubicacion?.numero && (
-                            <p className="text-xs text-slate-500">N. {record.ubicacion.numero}</p>
+                            <p className="text-xs text-foreground0">N. {record.ubicacion.numero}</p>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-slate-300">
+                      <TableCell className="text-foreground/80">
                         {(() => {
                           // Drill-down: si el nombre del distrito coincide con
                           // alguno del catalogo del censo, hacemos clickeable
@@ -146,7 +146,7 @@ const TablaAccidentes = memo(function TablaAccidentes({
                           );
                         })()}
                       </TableCell>
-                      <TableCell className="text-slate-400 text-sm">
+                      <TableCell className="text-muted-foreground text-sm">
                         {record.circunstancias?.tipoAccidente || '-'}
                       </TableCell>
                       <TableCell>
@@ -154,13 +154,13 @@ const TablaAccidentes = memo(function TablaAccidentes({
                           {record.circunstancias?.gravedad || '-'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-slate-400 text-sm">
+                      <TableCell className="text-muted-foreground text-sm">
                         {record.vehiculo?.tipo || '-'}
                       </TableCell>
                       <TableCell>
                         <div>
                           <p className="text-sm">{record.personaAfectada?.tipoPersona || '-'}</p>
-                          <p className="text-xs text-slate-500">{record.personaAfectada?.sexo || ''} {record.personaAfectada?.rangoEdad || ''}</p>
+                          <p className="text-xs text-foreground0">{record.personaAfectada?.sexo || ''} {record.personaAfectada?.rangoEdad || ''}</p>
                         </div>
                       </TableCell>
                       <TableCell>

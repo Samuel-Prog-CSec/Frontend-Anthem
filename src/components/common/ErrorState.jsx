@@ -24,18 +24,21 @@ const ErrorState = memo(function ErrorState({
   className
 }) {
   return (
-    <div className={cn(
-      'flex flex-col items-center justify-center py-12 px-4 text-center',
-      className
-    )}>
-      <div className="rounded-full bg-red-900/30 p-4 mb-4">
-        <AlertCircle className="size-8 text-red-400" />
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center py-12 px-4 text-center',
+        className
+      )}
+      role="alert"
+    >
+      <div className="rounded-full bg-destructive/20 p-4 mb-4">
+        <AlertCircle className="size-8 text-destructive" aria-hidden="true" />
       </div>
-      <h3 className="text-lg font-medium text-white mb-1">{title}</h3>
-      <p className="text-sm text-slate-400 max-w-sm mb-4">{message}</p>
+      <h3 className="text-lg font-medium text-foreground mb-1">{title}</h3>
+      <p className="text-sm text-muted-foreground max-w-sm mb-4">{message}</p>
       {onRetry && (
         <Button variant="outline" onClick={onRetry}>
-          <RefreshCw className="size-4 mr-2" />
+          <RefreshCw className="size-4 mr-2" aria-hidden="true" />
           Reintentar
         </Button>
       )}

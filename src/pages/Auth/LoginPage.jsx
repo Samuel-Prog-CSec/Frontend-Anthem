@@ -50,26 +50,27 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 flex">
+    <main className="min-h-screen bg-gradient-to-br from-background via-background to-cyan-950 flex">
       {/* Panel izquierdo - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+      <header className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         {/* Fondo con patron */}
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/20 to-emerald-600/20" />
-        <div 
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/20 to-emerald-600/20" aria-hidden="true" />
+        <div
           className="absolute inset-0 opacity-10"
+          aria-hidden="true"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2306b6d4' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
           }}
         />
-        
+
         {/* Contenido del branding */}
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
           {/* Logo grande */}
           <div className="mb-12">
             <div className="inline-flex items-center justify-center size-20 rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 shadow-2xl shadow-cyan-500/30 mb-6">
-              <span className="text-white font-bold text-4xl">A</span>
+              <span className="text-white font-bold text-4xl" aria-hidden="true">A</span>
             </div>
-            <h1 className="text-5xl font-bold text-white mb-4">
+            <h1 className="text-5xl font-bold text-foreground mb-4">
               Anthem City
             </h1>
             <p className="text-xl text-cyan-100/80">
@@ -80,63 +81,63 @@ function LoginPage() {
           {/* Features */}
           <div className="space-y-6">
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 size-12 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+              <div className="flex-shrink-0 size-12 rounded-xl bg-cyan-500/20 flex items-center justify-center" aria-hidden="true">
                 <Activity className="size-6 text-cyan-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white mb-1">Monitoreo en Tiempo Real</h3>
-                <p className="text-slate-400">Datos de calidad del aire, ruido y ubicaciones actualizados constantemente.</p>
+                <h2 className="text-lg font-semibold text-foreground mb-1">Monitoreo en Tiempo Real</h2>
+                <p className="text-muted-foreground">Datos de calidad del aire, ruido y ubicaciones actualizados constantemente.</p>
               </div>
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 size-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+              <div className="flex-shrink-0 size-12 rounded-xl bg-emerald-500/20 flex items-center justify-center" aria-hidden="true">
                 <Zap className="size-6 text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white mb-1">Analisis Inteligente</h3>
-                <p className="text-slate-400">Visualizaciones avanzadas para tomar decisiones informadas.</p>
+                <h2 className="text-lg font-semibold text-foreground mb-1">Analisis Inteligente</h2>
+                <p className="text-muted-foreground">Visualizaciones avanzadas para tomar decisiones informadas.</p>
               </div>
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 size-12 rounded-xl bg-violet-500/20 flex items-center justify-center">
+              <div className="flex-shrink-0 size-12 rounded-xl bg-violet-500/20 flex items-center justify-center" aria-hidden="true">
                 <Shield className="size-6 text-violet-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white mb-1">Seguridad Avanzada</h3>
-                <p className="text-slate-400">Autenticacion JWT con los mas altos estandares de seguridad.</p>
+                <h2 className="text-lg font-semibold text-foreground mb-1">Seguridad Avanzada</h2>
+                <p className="text-muted-foreground">Autenticacion JWT con los mas altos estandares de seguridad.</p>
               </div>
             </div>
           </div>
 
           {/* Footer del panel */}
           <div className="mt-12 pt-8 border-t border-cyan-500/20">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted-foreground">
               Sistema de gestion urbana inteligente
             </p>
           </div>
         </div>
 
         {/* Circulos decorativos */}
-        <div className="absolute -top-24 -right-24 size-96 rounded-full bg-cyan-500/10 blur-3xl" />
-        <div className="absolute -bottom-32 -left-32 size-96 rounded-full bg-emerald-500/10 blur-3xl" />
-      </div>
+        <div className="absolute -top-24 -right-24 size-96 rounded-full bg-cyan-500/10 blur-3xl" aria-hidden="true" />
+        <div className="absolute -bottom-32 -left-32 size-96 rounded-full bg-emerald-500/10 blur-3xl" aria-hidden="true" />
+      </header>
 
       {/* Panel derecho - Formulario */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12">
+      <section className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12" aria-label="Formulario de inicio de sesion">
         <div className="w-full max-w-lg">
-          {/* Logo movil */}
+          {/* Logo movil (sin h1 duplicado: el h1 visible en escritorio cuelga del panel izquierdo) */}
           <div className="lg:hidden text-center mb-8">
             <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 shadow-lg shadow-cyan-500/20 mb-4">
-              <span className="text-white font-bold text-3xl">A</span>
+              <span className="text-white font-bold text-3xl" aria-hidden="true">A</span>
             </div>
-            <h1 className="text-2xl font-bold text-white">Anthem City</h1>
-            <p className="text-slate-400 mt-1">Smart Dashboard 2051</p>
+            <p className="text-2xl font-bold text-foreground">Anthem City</p>
+            <p className="text-muted-foreground mt-1">Smart Dashboard 2051</p>
           </div>
 
           {/* Card del formulario */}
-          <Card className="border-slate-700/50 bg-slate-900/80 backdrop-blur-xl shadow-2xl">
+          <Card className="shadow-2xl">
             <CardHeader className="text-center pb-2">
               <CardTitle className="text-2xl">Bienvenido</CardTitle>
               <CardDescription className="text-base">
@@ -156,7 +157,7 @@ function LoginPage() {
 
                 {/* Identifier */}
                 <div className="space-y-3">
-                  <label htmlFor="identifier" className="text-sm font-medium text-slate-300 block">
+                  <label htmlFor="identifier" className="text-sm font-medium text-foreground/80 block">
                     Usuario o Correo
                   </label>
                   <Input
@@ -166,21 +167,17 @@ function LoginPage() {
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     startIcon={Mail}
-                    className="h-12 text-base bg-slate-800/50 border-slate-700 focus:border-cyan-500 focus:ring-cyan-500/20"
+                    className="h-12 text-base"
                     required
                   />
                 </div>
 
-                {/* Password */}
+                {/* Password (sin enlace de "olvidaste contrasena": el flujo de recuperacion
+                    no esta implementado todavia; cuando se anada, restaurar el control) */}
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label htmlFor="password" className="text-sm font-medium text-slate-300">
-                      Contrasena
-                    </label>
-                    <button type="button" className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors">
-                      ¿Olvidaste tu contrasena?
-                    </button>
-                  </div>
+                  <label htmlFor="password" className="text-sm font-medium text-foreground/80 block">
+                    Contrasena
+                  </label>
                   <Input
                     id="password"
                     type="password"
@@ -188,7 +185,7 @@ function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     startIcon={Lock}
-                    className="h-12 text-base bg-slate-800/50 border-slate-700 focus:border-cyan-500 focus:ring-cyan-500/20"
+                    className="h-12 text-base"
                     required
                   />
                 </div>
@@ -206,14 +203,14 @@ function LoginPage() {
 
                 <div className="relative w-full">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-slate-700" />
+                    <div className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center text-xs">
-                    <span className="bg-slate-900 px-4 text-slate-500">o</span>
+                    <span className="bg-card px-4 text-foreground0">o</span>
                   </div>
                 </div>
 
-                <p className="text-sm text-slate-400 text-center">
+                <p className="text-sm text-muted-foreground text-center">
                   ¿No tienes una cuenta?{' '}
                   <Link to={ROUTES.REGISTER} className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors">
                     Crear cuenta
@@ -239,12 +236,12 @@ function LoginPage() {
           </div>
 
           {/* Copyright */}
-          <p className="text-center text-xs text-slate-600 mt-8">
+          <p className="text-center text-xs text-muted-foreground/60 mt-8">
             Anthem City Dashboard 2051. Proyecto Universitario.
           </p>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
 

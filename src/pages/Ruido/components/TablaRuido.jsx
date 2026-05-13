@@ -82,7 +82,7 @@ const TablaRuido = memo(function TablaRuido({
                     <TableCell>
                       <div>
                         <p className="font-medium">{record.nombre || '-'}</p>
-                        <p className="text-xs text-slate-500">NMT {record.nmt}</p>
+                        <p className="text-xs text-foreground0">NMT {record.nmt}</p>
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
@@ -109,7 +109,7 @@ const TablaRuido = memo(function TablaRuido({
                         {record.nivelNocturno != null ? `${formatNumber(record.nivelNocturno, 1)} dB` : '-'}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-center font-mono text-slate-300">
+                    <TableCell className="text-center font-mono text-foreground/80">
                       {record.laeq24 != null ? `${formatNumber(record.laeq24, 1)} dB` : '-'}
                     </TableCell>
                   </TableRow>

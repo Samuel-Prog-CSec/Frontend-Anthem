@@ -44,7 +44,7 @@ const RankingEstacionesRuido = memo(function RankingEstacionesRuido({ datos, car
                   <TableCell>
                     <div>
                       <p className="font-medium text-sm">{estacion.nombre}</p>
-                      <p className="text-xs text-slate-500">NMT {estacion.nmt}</p>
+                      <p className="text-xs text-foreground0">NMT {estacion.nmt}</p>
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
@@ -52,10 +52,10 @@ const RankingEstacionesRuido = memo(function RankingEstacionesRuido({ datos, car
                       {formatNumber(estacion.laeq24, 1)} dB
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-center font-mono text-sm text-slate-300">
+                  <TableCell className="text-center font-mono text-sm text-foreground/80">
                     {formatNumber(estacion.diurno, 1)} dB
                   </TableCell>
-                  <TableCell className="text-center font-mono text-sm text-slate-300">
+                  <TableCell className="text-center font-mono text-sm text-foreground/80">
                     {formatNumber(estacion.nocturno, 1)} dB
                   </TableCell>
                 </TableRow>

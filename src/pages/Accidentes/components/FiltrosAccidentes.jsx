@@ -25,7 +25,7 @@ const FiltrosAccidentes = memo(function FiltrosAccidentes({
       <CardContent>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
-            <label className="text-sm text-slate-400 mb-1 block">Distrito</label>
+            <label className="text-sm text-muted-foreground mb-1 block">Distrito</label>
             <Select
               value={filtros.distrito}
               onChange={(e) => manejarCambioFiltro('distrito', e.target.value)}
@@ -34,7 +34,7 @@ const FiltrosAccidentes = memo(function FiltrosAccidentes({
             />
           </div>
           <div className="flex-1">
-            <label className="text-sm text-slate-400 mb-1 block">Tipo de Accidente</label>
+            <label className="text-sm text-muted-foreground mb-1 block">Tipo de Accidente</label>
             <Select
               value={filtros.tipoAccidente}
               onChange={(e) => manejarCambioFiltro('tipoAccidente', e.target.value)}
@@ -43,7 +43,7 @@ const FiltrosAccidentes = memo(function FiltrosAccidentes({
             />
           </div>
           <div className="flex-1">
-            <label className="text-sm text-slate-400 mb-1 block">Gravedad</label>
+            <label className="text-sm text-muted-foreground mb-1 block">Gravedad</label>
             <Select
               value={filtros.gravedad}
               onChange={(e) => manejarCambioFiltro('gravedad', e.target.value)}
@@ -52,7 +52,7 @@ const FiltrosAccidentes = memo(function FiltrosAccidentes({
             />
           </div>
           <div className="flex-1">
-            <label className="text-sm text-slate-400 mb-1 block">Mes</label>
+            <label className="text-sm text-muted-foreground mb-1 block">Mes</label>
             <Select
               value={filtros.mes}
               onChange={(e) => manejarCambioFiltro('mes', e.target.value)}

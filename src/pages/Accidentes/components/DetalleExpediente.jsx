@@ -50,15 +50,15 @@ const DetalleExpediente = memo(function DetalleExpediente({
         {/* Datos generales del accidente */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div>
-            <p className="text-sm text-slate-400">Fecha</p>
+            <p className="text-sm text-muted-foreground">Fecha</p>
             <p className="font-medium">{formatDate(expediente.fecha)}</p>
           </div>
           <div>
-            <p className="text-sm text-slate-400">Hora</p>
+            <p className="text-sm text-muted-foreground">Hora</p>
             <p className="font-medium">{expediente.hora || '-'}</p>
           </div>
           <div>
-            <p className="text-sm text-slate-400">Ubicacion</p>
+            <p className="text-sm text-muted-foreground">Ubicacion</p>
             <p className="font-medium flex items-center gap-1">
               <MapPin className="size-3" />
               {expediente.ubicacion?.calle || '-'}
@@ -66,24 +66,24 @@ const DetalleExpediente = memo(function DetalleExpediente({
             </p>
           </div>
           <div>
-            <p className="text-sm text-slate-400">Distrito</p>
+            <p className="text-sm text-muted-foreground">Distrito</p>
             <p className="font-medium">{expediente.ubicacion?.nombreDistrito || '-'}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
           <div>
-            <p className="text-sm text-slate-400">Tipo de Accidente</p>
+            <p className="text-sm text-muted-foreground">Tipo de Accidente</p>
             <p className="font-medium">{expediente.circunstancias?.tipoAccidente || '-'}</p>
           </div>
           <div>
-            <p className="text-sm text-slate-400">Gravedad</p>
+            <p className="text-sm text-muted-foreground">Gravedad</p>
             <Badge variant={obtenerVarianteBadgeGravedad(expediente.circunstancias?.gravedad)}>
               {expediente.circunstancias?.gravedad || '-'}
             </Badge>
           </div>
           <div>
-            <p className="text-sm text-slate-400">Vehiculo</p>
+            <p className="text-sm text-muted-foreground">Vehiculo</p>
             <p className="font-medium">{expediente.vehiculo?.tipo || '-'}</p>
           </div>
         </div>
@@ -91,22 +91,22 @@ const DetalleExpediente = memo(function DetalleExpediente({
         {/* Persona afectada */}
         {expediente.personaAfectada && (
           <div>
-            <h4 className="text-sm font-semibold text-slate-300 mb-3">Persona Afectada</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-800/50 rounded-lg p-4">
+            <h4 className="text-sm font-semibold text-foreground/80 mb-3">Persona Afectada</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-muted/50 rounded-lg p-4">
               <div>
-                <p className="text-sm text-slate-400">Tipo</p>
+                <p className="text-sm text-muted-foreground">Tipo</p>
                 <p className="font-medium">{expediente.personaAfectada.tipoPersona || '-'}</p>
               </div>
               <div>
-                <p className="text-sm text-slate-400">Sexo</p>
+                <p className="text-sm text-muted-foreground">Sexo</p>
                 <p className="font-medium">{expediente.personaAfectada.sexo || '-'}</p>
               </div>
               <div>
-                <p className="text-sm text-slate-400">Rango de Edad</p>
+                <p className="text-sm text-muted-foreground">Rango de Edad</p>
                 <p className="font-medium">{expediente.personaAfectada.rangoEdad || '-'}</p>
               </div>
               <div>
-                <p className="text-sm text-slate-400">Alcohol</p>
+                <p className="text-sm text-muted-foreground">Alcohol</p>
                 <Badge variant={obtenerBadgeAlcohol(expediente.personaAfectada.positivaAlcohol).variant}>
                   {obtenerBadgeAlcohol(expediente.personaAfectada.positivaAlcohol).label}
                 </Badge>
@@ -118,7 +118,7 @@ const DetalleExpediente = memo(function DetalleExpediente({
         {/* Personas afectadas (lista si viene como array) */}
         {expediente.personasAfectadas?.length > 0 && (
           <div>
-            <h4 className="text-sm font-semibold text-slate-300 mb-3">
+            <h4 className="text-sm font-semibold text-foreground/80 mb-3">
               Personas Afectadas ({expediente.personasAfectadas.length})
             </h4>
             <Table>

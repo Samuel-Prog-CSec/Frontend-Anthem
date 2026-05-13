@@ -207,7 +207,7 @@ function PaginaBicicletas() {
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <label htmlFor="filtro-mes-bicicletas" className="text-sm text-slate-400 mb-1 block">Mes</label>
+              <label htmlFor="filtro-mes-bicicletas" className="text-sm text-muted-foreground mb-1 block">Mes</label>
               <Select
                 id="filtro-mes-bicicletas"
                 value={filtros.mes}
@@ -270,7 +270,7 @@ function PaginaBicicletas() {
               />
             </div>
             {comparativaSuscripciones.distribucion && (
-              <div className="mt-4 flex items-center gap-4 text-sm text-slate-400">
+              <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
                 <span>Distribucion: Anual {formatNumber(comparativaSuscripciones.distribucion.porcentajeAnual || 0, 1)}%</span>
                 <span>|</span>
                 <span>Ocasional {formatNumber(comparativaSuscripciones.distribucion.porcentajeOcasional || 0, 1)}%</span>

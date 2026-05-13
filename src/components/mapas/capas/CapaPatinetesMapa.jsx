@@ -55,7 +55,7 @@ const CapaPatinetesMapa = memo(function CapaPatinetesMapa({ params }) {
         )}
         {props.topProveedores?.length > 0 && (
           <div className="mt-1">
-            <div className="text-xs text-slate-500">Top proveedores:</div>
+            <div className="text-xs text-foreground0">Top proveedores:</div>
             {props.topProveedores.slice(0, 3).map((p, i) => (
               <div key={i} className="text-xs">{p.nombre}: {formatNumber(p.cantidad)}</div>
             ))}

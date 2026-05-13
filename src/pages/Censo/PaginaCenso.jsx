@@ -320,26 +320,26 @@ function PaginaCenso() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-3 rounded-lg bg-slate-800/50">
-                <p className="text-sm text-slate-400">Poblacion</p>
+              <div className="text-center p-3 rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground">Poblacion</p>
                 <p className="text-lg font-semibold text-white">{formatNumber(detalleDistritoData.poblacionTotal)}</p>
               </div>
-              <div className="text-center p-3 rounded-lg bg-slate-800/50">
-                <p className="text-sm text-slate-400">% Extranjeros</p>
+              <div className="text-center p-3 rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground">% Extranjeros</p>
                 <p className="text-lg font-semibold text-white">{formatearPorcentaje(detalleDistritoData.porcentajeExtranjeros)}</p>
               </div>
-              <div className="text-center p-3 rounded-lg bg-slate-800/50">
-                <p className="text-sm text-slate-400">% Productiva</p>
+              <div className="text-center p-3 rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground">% Productiva</p>
                 <p className="text-lg font-semibold text-white">{formatearPorcentaje(detalleDistritoData.porcentajeProductiva)}</p>
               </div>
-              <div className="text-center p-3 rounded-lg bg-slate-800/50">
-                <p className="text-sm text-slate-400">% Tercera Edad</p>
+              <div className="text-center p-3 rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground">% Tercera Edad</p>
                 <p className="text-lg font-semibold text-white">{formatearPorcentaje(detalleDistritoData.porcentajeTerceraEdad)}</p>
               </div>
             </div>
             {detalleDistritoData.barrios && detalleDistritoData.barrios.length > 0 && (
               <div className="mt-4">
-                <h4 className="text-sm font-medium text-slate-300 mb-2">Desglose por barrios</h4>
+                <h4 className="text-sm font-medium text-foreground/80 mb-2">Desglose por barrios</h4>
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
@@ -412,7 +412,7 @@ function PaginaCenso() {
                       return (
                         <TableRow
                           key={registro._id || index}
-                          className="cursor-pointer hover:bg-slate-800/60"
+                          className="cursor-pointer hover:bg-muted/60"
                           onClick={() => manejarClickDistrito(codigoDistrito)}
                         >
                           <TableCell className="font-medium">

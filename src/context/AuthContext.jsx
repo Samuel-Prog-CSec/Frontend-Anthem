@@ -6,7 +6,7 @@
  * para que este archivo solo exporte componentes (react-refresh / HMR).
  */
 
-import { createContext, useState, useEffect, useCallback, useRef } from 'react';
+import { createContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { login as apiLogin, logout as apiLogout, restoreSession } from '../api/authService';
 
 const AuthContext = createContext(null);
@@ -69,13 +69,13 @@ export function AuthProvider({ children }) {
     setIsAuthenticated(false);
   }, []);
 
-  const value = {
-    user,
-    isLoading,
-    isAuthenticated,
-    login,
-    logout
-  };
+  // useMemo evita que `value` se cree como objeto nuevo en cada render del
+  // Provider, lo cual forzaria a TODOS los consumidores `useContext(AuthContext)`
+  // a re-renderizar aunque ninguna de sus dependencias hubiera cambiado.
+  const value = useMemo(
+    () => ({ user, isLoading, isAuthenticated, login, logout }),
+    [user, isLoading, isAuthenticated, login, logout]
+  );
 
   return (
     <AuthContext.Provider value={value}>

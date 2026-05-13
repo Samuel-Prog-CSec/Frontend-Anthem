@@ -25,7 +25,7 @@ const FiltrosPatinetes = memo(function FiltrosPatinetes({
       <CardContent>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
-            <label className="text-sm text-slate-400 mb-1 block">Distrito</label>
+            <label className="text-sm text-muted-foreground mb-1 block">Distrito</label>
             <Select
               value={filtros.distrito}
               onChange={(e) => manejarCambioFiltro('distrito', e.target.value)}
@@ -34,7 +34,7 @@ const FiltrosPatinetes = memo(function FiltrosPatinetes({
             />
           </div>
           <div className="flex-1">
-            <label className="text-sm text-slate-400 mb-1 block">Densidad</label>
+            <label className="text-sm text-muted-foreground mb-1 block">Densidad</label>
             <Select
               value={filtros.densidad}
               onChange={(e) => manejarCambioFiltro('densidad', e.target.value)}
@@ -43,7 +43,7 @@ const FiltrosPatinetes = memo(function FiltrosPatinetes({
             />
           </div>
           <div className="flex-1">
-            <label className="text-sm text-slate-400 mb-1 block">Tipo de Zona</label>
+            <label className="text-sm text-muted-foreground mb-1 block">Tipo de Zona</label>
             <Select
               value={filtros.tipoZona}
               onChange={(e) => manejarCambioFiltro('tipoZona', e.target.value)}

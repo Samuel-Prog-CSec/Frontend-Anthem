@@ -31,17 +31,17 @@ const IndicadorCumplimiento = memo(function IndicadorCumplimiento({ datos, carga
             {datos.estaciones.map((estacion, index) => (
               <div
                 key={`compliance-${estacion.nmt}-${index}`}
-                className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700/50"
+                className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border/50"
               >
                 <div className="flex-1">
                   <p className="font-medium text-sm text-white">{estacion.nombre}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-foreground0">
                     Diurno: {formatNumber(estacion.promedioDiurno, 1)} dB | Nocturno: {formatNumber(estacion.promedioNocturno, 1)} dB
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   {estacion.excedencias > 0 && (
-                    <span className="text-xs text-slate-400">{estacion.excedencias} excedencias</span>
+                    <span className="text-xs text-muted-foreground">{estacion.excedencias} excedencias</span>
                   )}
                   <Badge variant={estacion.cumple ? 'success' : 'destructive'}>
                     {estacion.cumple ? 'Cumple' : 'No cumple'}
@@ -52,14 +52,14 @@ const IndicadorCumplimiento = memo(function IndicadorCumplimiento({ datos, carga
           </div>
         ) : datos.resumen ? (
           <div className="flex flex-col gap-3">
-            <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
-              <p className="text-sm text-slate-300">
+            <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
+              <p className="text-sm text-foreground/80">
                 {datos.resumen.totalEstaciones != null && (
                   <span>Estaciones analizadas: <strong className="text-white">{datos.resumen.totalEstaciones}</strong></span>
                 )}
               </p>
               {datos.resumen.porcentajeCumplimiento != null && (
-                <p className="text-sm text-slate-300 mt-2">
+                <p className="text-sm text-foreground/80 mt-2">
                   Cumplimiento: <Badge variant={datos.resumen.porcentajeCumplimiento >= 80 ? 'success' : 'destructive'}>
                     {formatNumber(datos.resumen.porcentajeCumplimiento, 1)}%
                   </Badge>

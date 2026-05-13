@@ -25,21 +25,21 @@ const MapaContenedores = memo(function MapaContenedores({
         {etiquetaTipoContenedor(props.tipoContenedor)}
       </div>
       {props.direccion && (
-        <div className="text-xs text-slate-300 mb-1">{props.direccion}</div>
+        <div className="text-xs text-foreground/80 mb-1">{props.direccion}</div>
       )}
       <div className="text-xs">
-        <span className="text-slate-400">Distrito:</span> {props.distrito}
+        <span className="text-muted-foreground">Distrito:</span> {props.distrito}
       </div>
       {props.barrio && props.barrio !== 'NO_ESPECIFICADO' && (
         <div className="text-xs">
-          <span className="text-slate-400">Barrio:</span> {props.barrio}
+          <span className="text-muted-foreground">Barrio:</span> {props.barrio}
         </div>
       )}
       <div className="text-xs">
-        <span className="text-slate-400">Cantidad:</span> {formatNumber(props.cantidad)}
+        <span className="text-muted-foreground">Cantidad:</span> {formatNumber(props.cantidad)}
       </div>
       <div className="text-xs">
-        <span className="text-slate-400">Lote:</span> {props.lote}
+        <span className="text-muted-foreground">Lote:</span> {props.lote}
       </div>
     </div>
   ), []);

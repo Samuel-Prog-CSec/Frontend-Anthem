@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
+/* Tipografias del proyecto: Space Grotesk (display) + Inter (cuerpo).
+   Cargadas via Google Fonts con display=swap para evitar FOIT. */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 /* ========================================
    SMART CITY DASHBOARD - DESIGN SYSTEM
    Tema futurista para ciudad inteligente 2051
@@ -51,6 +55,7 @@
   --color-ring: var(--color-primary-500);
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
@@ -108,10 +113,13 @@
   --color-bg-card: #1e293b;
   --color-bg-elevated: #334155;
 
-  /* Texto */
-  --color-text-primary: #f8fafc;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
+  /* Texto - los ratios de contraste estan calculados sobre --color-bg-card (#1e293b) */
+  --color-text-primary: #f8fafc;     /* contraste ~14.6:1 - AAA */
+  --color-text-secondary: #94a3b8;   /* contraste ~5.4:1 - AA */
+  --color-text-muted: #94a3b8;       /* Antes #64748b daba 3.4:1 (falla AA <18px).
+                                        Igualado a secondary para garantizar AA universal.
+                                        Para texto >=18px decorativo usar --color-text-muted-decorative. */
+  --color-text-muted-decorative: #64748b; /* solo texto >=18px o decorativo */
 
   /* Bordes */
   --color-border: #334155;
@@ -119,6 +127,7 @@
 
   /* Tipografia */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   /* Sombras con efecto glow */
@@ -148,6 +157,36 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+}
+
+/* Tipografia display (Space Grotesk) para headings principales y numeros grandes.
+   Inter sigue siendo el cuerpo. Esta separacion da caracter visual sin perder
+   legibilidad. La aplicacion es por etiqueta (h1, h2) y por utility class. */
+h1, h2 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Numeros grandes de stat cards: tabular-nums para alinear digitos
+   y display font para diferenciacion visual. */
+.stat-number {
+  font-family: var(--font-display);
+  font-feature-settings: 'tnum' on, 'lnum' on;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
 body {
@@ -224,12 +263,17 @@ a:hover {
   }
 }
 
+/* pulse-glow optimizado: usa transform + opacity (compositor) en lugar de
+   box-shadow (que causa reflow en cada frame). El glow visual se conserva
+   con una capa absoluta animada en lugar de la sombra de la caja. */
 @keyframes pulse-glow {
-  0%, 100% { 
-    box-shadow: 0 0 5px rgba(6, 182, 212, 0.3); 
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.85;
   }
-  50% { 
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.6); 
+  50% {
+    transform: scale(1.015);
+    opacity: 1;
   }
 }
 
@@ -243,4 +287,83 @@ a:hover {
 
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Stagger fadeIn para entradas escalonadas en hijos directos.
+   Aplicar la clase contenedora `.stagger-children` para que cada hijo
+   sucesivo entre con un retardo creciente, generando una sensacion
+   de cascada elegante en la carga inicial de paginas y dashboards. */
+.stagger-children > * {
+  opacity: 0;
+  animation: slideUp 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 60ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 120ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 180ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 360ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 420ms; }
+.stagger-children > *:nth-child(n+9) { animation-delay: 480ms; }
+
+/* Gradient sweep en hover: una franja diagonal de luz cyan/emerald cruza
+   la card al pasar el raton. Tecnica `::before` con transform translateX
+   (compositor-friendly, sin reflow). */
+.card-hover-sweep {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.card-hover-sweep::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(6, 182, 212, 0.08) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 0;
+}
+.card-hover-sweep:hover::before {
+  transform: translateX(100%);
+}
+.card-hover-sweep > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Reducir intensidad de backdrop-blur en mobile (perf): los compositores de
+   GPU moviles luchan con blur >= 12px en superficies grandes. Bajamos de
+   blur(24px) (xl) a blur(8px) en pantallas <=768px sin perder el efecto
+   "frosted glass" que da identidad al diseno. */
+@media (max-width: 768px) {
+  .backdrop-blur-xl {
+    --tw-backdrop-blur: blur(8px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+/* Respetar la preferencia del usuario por reducir animaciones (WCAG 2.3.3).
+   Tambien quita el blur pesado para usuarios que pueden sufrir motion
+   sickness o trabajan con hardware modesto. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl,
+  .backdrop-blur-3xl {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
 }

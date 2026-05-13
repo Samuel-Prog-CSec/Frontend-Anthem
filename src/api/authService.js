@@ -85,11 +85,8 @@ export async function restoreSession() {
   }
 }
 
-/**
- * Obtiene el perfil del usuario autenticado
- * @returns {Promise<Object>} Datos del perfil
- */
-export async function getProfile() {
-  const response = await apiClient.get('/auth/profile');
-  return response.data.data;
-}
+// Nota: la funcion getProfile fue eliminada porque apuntaba a un endpoint
+// inexistente (`/auth/profile`). El flujo actual usa `restoreSession()` via
+// `POST /auth/refresh` para recuperar usuario y token al cargar la app.
+// Si en el futuro se necesita obtener el perfil explicitamente, usar el
+// endpoint `GET /auth/me` que SI existe en el backend.

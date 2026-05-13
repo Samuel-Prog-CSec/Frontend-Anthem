@@ -69,23 +69,23 @@ const DetalleAreaPatinetes = memo(function DetalleAreaPatinetes({
         {/* Estadisticas del area */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div>
-            <p className="text-sm text-slate-400">Total Patinetes</p>
+            <p className="text-sm text-muted-foreground">Total Patinetes</p>
             <p className="text-xl font-bold">{formatNumber(area.estadisticas?.totalPatinetes)}</p>
           </div>
           <div>
-            <p className="text-sm text-slate-400">Proveedores Activos</p>
+            <p className="text-sm text-muted-foreground">Proveedores Activos</p>
             <p className="text-xl font-bold">
               {area.estadisticas?.proveedoresActivos || 0}/{area.estadisticas?.totalProveedores || 0}
             </p>
           </div>
           <div>
-            <p className="text-sm text-slate-400">Densidad</p>
+            <p className="text-sm text-muted-foreground">Densidad</p>
             <Badge variant={obtenerVarianteBadgeDensidad(area.estadisticas?.densidadPatinetes)}>
               {area.estadisticas?.densidadPatinetes || '-'}
             </Badge>
           </div>
           <div>
-            <p className="text-sm text-slate-400">Tipo de Zona</p>
+            <p className="text-sm text-muted-foreground">Tipo de Zona</p>
             <p className="font-medium">
               {area.clasificacionArea?.tipoZona?.replace(/_/g, ' ') || '-'}
             </p>
@@ -96,20 +96,20 @@ const DetalleAreaPatinetes = memo(function DetalleAreaPatinetes({
         {area.clasificacionArea && (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
             <div>
-              <p className="text-sm text-slate-400">Demanda Estimada</p>
+              <p className="text-sm text-muted-foreground">Demanda Estimada</p>
               <Badge variant={obtenerVarianteBadgeDemanda(area.clasificacionArea.demandaEstimada)}>
                 {area.clasificacionArea.demandaEstimada || '-'}
               </Badge>
             </div>
             {area.analisisDistribucion?.proveedorDominante && (
               <div>
-                <p className="text-sm text-slate-400">Proveedor Dominante</p>
+                <p className="text-sm text-muted-foreground">Proveedor Dominante</p>
                 <p className="font-medium">{area.analisisDistribucion.proveedorDominante.nombre || '-'}</p>
               </div>
             )}
             {area.analisisDistribucion?.indiceHerfindahl != null && (
               <div>
-                <p className="text-sm text-slate-400">Indice Herfindahl (HHI)</p>
+                <p className="text-sm text-muted-foreground">Indice Herfindahl (HHI)</p>
                 <p className="font-mono font-medium">{formatNumber(area.analisisDistribucion.indiceHerfindahl)}</p>
               </div>
             )}
@@ -119,7 +119,7 @@ const DetalleAreaPatinetes = memo(function DetalleAreaPatinetes({
         {/* Proveedores en el area */}
         {area.proveedores?.length > 0 && (
           <div>
-            <h4 className="text-sm font-semibold text-slate-300 mb-3">
+            <h4 className="text-sm font-semibold text-foreground/80 mb-3">
               Proveedores en el Area ({area.proveedores.length})
             </h4>
             <Table>

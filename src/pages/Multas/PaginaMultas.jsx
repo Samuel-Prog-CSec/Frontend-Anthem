@@ -215,10 +215,10 @@ function PaginaMultas() {
 
       {/* Metrica cruzada per capita */}
       {multasPerCapita && (
-        <Card className="mb-6 border-cyan-500/20 bg-gradient-to-r from-cyan-950/30 to-slate-900/50">
+        <Card className="mb-6 border-cyan-500/20 bg-gradient-to-r from-cyan-950/30 to-card/50">
           <CardContent className="py-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-400">Multas por cada 1.000 habitantes (datos del censo)</span>
+              <span className="text-sm text-muted-foreground">Multas por cada 1.000 habitantes (datos del censo)</span>
               <span className="text-lg font-semibold text-cyan-400">{multasPerCapita}</span>
             </div>
           </CardContent>
@@ -316,43 +316,43 @@ function PaginaMultas() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              <div className="p-3 rounded-lg bg-slate-800/50">
-                <p className="text-sm text-slate-400">Importe boletin</p>
+              <div className="p-3 rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground">Importe boletin</p>
                 <p className="text-lg font-semibold text-white">{formatearImporte(detalleResult.data.importeBoletín)}</p>
               </div>
-              <div className="p-3 rounded-lg bg-slate-800/50">
-                <p className="text-sm text-slate-400">Importe final</p>
+              <div className="p-3 rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground">Importe final</p>
                 <p className="text-lg font-semibold text-white">{formatearImporte(detalleResult.data.importeFinal)}</p>
               </div>
-              <div className="p-3 rounded-lg bg-slate-800/50">
-                <p className="text-sm text-slate-400">Puntos</p>
+              <div className="p-3 rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground">Puntos</p>
                 <p className="text-lg font-semibold text-white">{detalleResult.data.puntosDetraídos || 0}</p>
               </div>
-              <div className="p-3 rounded-lg bg-slate-800/50">
-                <p className="text-sm text-slate-400">Calificacion</p>
+              <div className="p-3 rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground">Calificacion</p>
                 <Badge variant={obtenerVarianteBadgeCalificacion(detalleResult.data.calificacion)}>
                   {ETIQUETAS_CALIFICACION_MULTA[detalleResult.data.calificacion] || detalleResult.data.calificacion}
                 </Badge>
               </div>
             </div>
             {detalleResult.data.descripcionInfraccion && (
-              <div className="p-3 rounded-lg bg-slate-800/50 mb-4">
-                <p className="text-sm text-slate-400 mb-1">Descripcion de la infraccion</p>
+              <div className="p-3 rounded-lg bg-muted/50 mb-4">
+                <p className="text-sm text-muted-foreground mb-1">Descripcion de la infraccion</p>
                 <p className="text-sm text-white">{detalleResult.data.descripcionInfraccion}</p>
               </div>
             )}
             {detalleResult.data.datosVelocidad?.velocidadLimite && (
               <div className="grid grid-cols-3 gap-4">
                 <div className="p-3 rounded-lg bg-red-950/30 border border-red-500/20">
-                  <p className="text-sm text-slate-400">Vel. limite</p>
+                  <p className="text-sm text-muted-foreground">Vel. limite</p>
                   <p className="text-lg font-semibold text-white">{detalleResult.data.datosVelocidad.velocidadLimite} km/h</p>
                 </div>
                 <div className="p-3 rounded-lg bg-red-950/30 border border-red-500/20">
-                  <p className="text-sm text-slate-400">Vel. circulacion</p>
+                  <p className="text-sm text-muted-foreground">Vel. circulacion</p>
                   <p className="text-lg font-semibold text-red-400">{detalleResult.data.datosVelocidad.velocidadCirculacion} km/h</p>
                 </div>
                 <div className="p-3 rounded-lg bg-red-950/30 border border-red-500/20">
-                  <p className="text-sm text-slate-400">Exceso</p>
+                  <p className="text-sm text-muted-foreground">Exceso</p>
                   <p className="text-lg font-semibold text-red-400">+{detalleResult.data.datosVelocidad.exceso} km/h</p>
                 </div>
               </div>
@@ -402,7 +402,7 @@ function PaginaMultas() {
                     {datos.map((multa, index) => (
                       <TableRow
                         key={multa._id || index}
-                        className="cursor-pointer hover:bg-slate-800/60"
+                        className="cursor-pointer hover:bg-muted/60"
                         onClick={() => manejarClickMulta(multa._id)}
                       >
                         <TableCell>{formatDate(multa.fecha)}</TableCell>

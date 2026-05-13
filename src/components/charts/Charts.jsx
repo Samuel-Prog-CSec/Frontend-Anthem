@@ -70,8 +70,8 @@ const CustomTooltip = memo(function CustomTooltip({ active, payload, label }) {
   if (!active || !payload) return null;
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 shadow-lg">
-      <p className="text-sm font-medium text-white mb-2">{label}</p>
+    <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
+      <p className="text-sm font-medium text-foreground mb-2">{label}</p>
       {payload.map((entry, index) => (
         <p key={index} className="text-sm" style={{ color: entry.color }}>
           {entry.name}: {entry.value}
@@ -117,7 +117,7 @@ const LineChartCard = memo(function LineChartCard({ data, xKey, lines, title, he
             <Tooltip content={<CustomTooltip />} />
             <Legend
               wrapperStyle={{ paddingTop: '1rem' }}
-              formatter={(value) => <span className="text-slate-300">{value}</span>}
+              formatter={(value) => <span className="text-muted-foreground">{value}</span>}
             />
             {referenceLines.map((ref, index) => (
               <ReferenceLine
@@ -183,7 +183,7 @@ const BarChartCard = memo(function BarChartCard({ data, xKey, bars, title, heigh
             <Tooltip content={<CustomTooltip />} />
             <Legend
               wrapperStyle={{ paddingTop: '1rem' }}
-              formatter={(value) => <span className="text-slate-300">{value}</span>}
+              formatter={(value) => <span className="text-muted-foreground">{value}</span>}
             />
             {referenceLines.map((ref, index) => (
               <ReferenceLine

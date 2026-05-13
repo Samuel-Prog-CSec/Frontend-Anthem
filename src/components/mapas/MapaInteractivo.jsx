@@ -72,7 +72,7 @@ export function MapaInteractivo({
   return (
     <div
       className={cn(
-        'relative w-full overflow-hidden rounded-lg border border-slate-700/50 shadow-lg',
+        'relative w-full overflow-hidden rounded-lg border border-border/50 shadow-lg',
         className
       )}
       style={{ height: altura }}

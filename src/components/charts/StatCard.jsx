@@ -46,17 +46,17 @@ function StatCard({
   }
   const trendColors = {
     up: 'text-emerald-400',
-    down: 'text-red-400',
-    neutral: 'text-slate-400'
+    down: 'text-destructive',
+    neutral: 'text-muted-foreground'
   };
 
   return (
     <Card className={cn('p-6', className)}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-slate-400">{title}</p>
-          <p className="mt-2 text-3xl font-bold text-white">{value}</p>
-          
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="mt-2 text-3xl font-bold text-foreground">{value}</p>
+
           {(subtitle || trendValue) && (
             <div className="mt-2 flex items-center gap-2">
               {trendValue && (
@@ -67,15 +67,15 @@ function StatCard({
                 </span>
               )}
               {subtitle && (
-                <span className="text-sm text-slate-500">{subtitle}</span>
+                <span className="text-sm text-muted-foreground">{subtitle}</span>
               )}
             </div>
           )}
         </div>
-        
+
         {Icon && (
-          <div className="rounded-lg bg-cyan-600/10 p-3">
-            <Icon className="size-6 text-cyan-400" />
+          <div className="rounded-lg bg-primary/10 p-3">
+            <Icon className="size-6 text-primary" aria-hidden="true" />
           </div>
         )}
       </div>

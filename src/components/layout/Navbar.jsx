@@ -1,15 +1,16 @@
 /**
  * Componente Navbar
  *
- * Barra de navegacion superior del dashboard. En mobile despliega un drawer
- * con backdrop oscuro; se cierra automaticamente al cambiar de ruta para no
- * dejar el menu abierto cuando el usuario navega.
+ * Barra de navegacion superior del dashboard. En mobile despliega un Sheet
+ * (basado en Radix UI Dialog) con focus trap, ESC handling y bloqueo de
+ * scroll automaticos. La logica manual previa (useEffect para body overflow,
+ * useEffect para ESC, backdrop button) queda absorbida por el primitive.
  */
 
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User, LogOut, MapPin, Wind, Volume2, LayoutDashboard, AlertTriangle, Zap, Bike, Users, FileWarning, Activity, Recycle, TrafficCone, Filter, Sparkles } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { Button } from '../common';
+import { useState } from 'react';
+import { Button, Sheet, SheetContent, SheetTitle } from '../common';
 import { useAuth, useFiltroGeo } from '../../context';
 import { ROUTES } from '../../constants';
 import { cn } from '../../utils';
@@ -30,8 +31,6 @@ const navigationItems = [
   { path: ROUTES.CORRELACIONES, label: 'Analisis BI', icon: Sparkles }
 ];
 
-const MOBILE_MENU_ID = 'navbar-mobile-menu';
-
 /**
  * Chip que muestra el filtro geografico global activo (BI cross-project).
  * Se renderiza solo cuando hay filtro y permite limpiarlo de un click.
@@ -42,7 +41,7 @@ function ChipFiltroGeo() {
 
   return (
     <div
-      className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs font-medium text-cyan-300"
+      className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-xs font-medium text-primary"
       title="Filtro geografico activo en todo el dashboard"
     >
       <Filter className="size-3.5" aria-hidden="true" />
@@ -54,7 +53,7 @@ function ChipFiltroGeo() {
         type="button"
         onClick={limpiarFiltro}
         aria-label="Limpiar filtro geografico"
-        className="ml-1 hover:text-white transition-colors rounded-full hover:bg-cyan-500/20 p-0.5"
+        className="ml-1 hover:text-foreground transition-colors rounded-full hover:bg-primary/20 p-0.5"
       >
         <X className="size-3" aria-hidden="true" />
       </button>
@@ -67,30 +66,6 @@ function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
   const location = useLocation();
 
-  // El cierre del menu mobile al navegar lo gestionan los onClick de los Links
-  // del drawer, no useEffect. Asi evitamos setState dentro de effect (que React
-  // Compiler senala como posible cascading render)
-
-  // Bloquear scroll del body cuando el menu mobile esta abierto
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = '';
-      };
-    }
-  }, [isMobileMenuOpen]);
-
-  // Cerrar con Escape
-  useEffect(() => {
-    if (!isMobileMenuOpen) {return;}
-    const handler = (e) => {
-      if (e.key === 'Escape') {setIsMobileMenuOpen(false);}
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [isMobileMenuOpen]);
-
   const handleLogout = async () => {
     try {
       await logout();
@@ -98,6 +73,8 @@ function Navbar() {
       window.location.href = '/login';
     }
   };
+
+  const cerrarMenu = () => setIsMobileMenuOpen(false);
 
   return (
     <>
@@ -179,7 +156,6 @@ function Navbar() {
                 onClick={() => setIsMobileMenuOpen((prev) => !prev)}
                 aria-label={isMobileMenuOpen ? 'Cerrar menu de navegacion' : 'Abrir menu de navegacion'}
                 aria-expanded={isMobileMenuOpen}
-                aria-controls={MOBILE_MENU_ID}
               >
                 {isMobileMenuOpen ? (
                   <X className="size-5" aria-hidden="true" />
@@ -192,29 +168,15 @@ function Navbar() {
         </div>
       </nav>
 
-      {/* Backdrop oscuro mobile - cerrar al click */}
-      {isMobileMenuOpen && (
-        <button
-          type="button"
-          aria-label="Cerrar menu de navegacion"
-          className="md:hidden fixed inset-0 z-40 bg-background/80 backdrop-blur-sm animate-fade-in"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-
-      {/* Drawer mobile (sheet pattern) */}
-      <div
-        id={MOBILE_MENU_ID}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Menu de navegacion"
-        className={cn(
-          'md:hidden fixed top-16 left-0 right-0 z-40 transition-transform duration-300 ease-out',
-          isMobileMenuOpen ? 'translate-y-0' : '-translate-y-[120%] pointer-events-none'
-        )}
-      >
-        <div className="mx-4 mt-2 mb-4 bg-card/95 backdrop-blur-xl rounded-2xl border border-border/60 shadow-2xl">
-          <div className="flex flex-col gap-1 p-2 max-h-[calc(100vh-6rem)] overflow-y-auto">
+      {/* Sheet (slide-down) para menu de navegacion mobile.
+          Radix gestiona focus trap, ESC handling, aria-modal y bloqueo de scroll. */}
+      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+        <SheetContent
+          side="top"
+          className="md:hidden mt-16 max-h-[calc(100vh-4rem)] overflow-y-auto rounded-b-2xl"
+        >
+          <SheetTitle className="sr-only">Menu de navegacion</SheetTitle>
+          <nav aria-label="Navegacion principal mobile" className="flex flex-col gap-1 p-2">
             {navigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -223,7 +185,7 @@ function Navbar() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={cerrarMenu}
                   aria-current={isActive ? 'page' : undefined}
                   className={cn(
                     'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all',
@@ -249,7 +211,10 @@ function Navbar() {
                 </div>
                 <button
                   type="button"
-                  onClick={handleLogout}
+                  onClick={() => {
+                    cerrarMenu();
+                    handleLogout();
+                  }}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
                 >
                   <LogOut className="size-5" aria-hidden="true" />
@@ -257,9 +222,9 @@ function Navbar() {
                 </button>
               </>
             )}
-          </div>
-        </div>
-      </div>
+          </nav>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }

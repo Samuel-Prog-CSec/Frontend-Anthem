@@ -250,10 +250,10 @@ function PaginaAforoBicicletas() {
 
       {/* Metrica cruzada per capita */}
       {bicicletasPerCapita && (
-        <Card className="mb-6 border-emerald-500/20 bg-gradient-to-r from-emerald-950/30 to-slate-900/50">
+        <Card className="mb-6 border-emerald-500/20 bg-gradient-to-r from-emerald-950/30 to-card/50">
           <CardContent className="py-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-400">Bicicletas contadas por cada 1.000 habitantes (datos del censo)</span>
+              <span className="text-sm text-muted-foreground">Bicicletas contadas por cada 1.000 habitantes (datos del censo)</span>
               <span className="text-lg font-semibold text-emerald-400">{bicicletasPerCapita}</span>
             </div>
           </CardContent>
@@ -348,26 +348,26 @@ function PaginaAforoBicicletas() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-3 rounded-lg bg-slate-800/50">
-                <p className="text-sm text-slate-400">Total Bicicletas</p>
+              <div className="text-center p-3 rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground">Total Bicicletas</p>
                 <p className="text-lg font-semibold text-white">
                   {formatNumber(detalleEstacion.data.summary?.totalBicicletas || detalleEstacion.data.data?.totalBicicletas || 0)}
                 </p>
               </div>
-              <div className="text-center p-3 rounded-lg bg-slate-800/50">
-                <p className="text-sm text-slate-400">Mediciones</p>
+              <div className="text-center p-3 rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground">Mediciones</p>
                 <p className="text-lg font-semibold text-white">
                   {formatNumber(detalleEstacion.data.summary?.totalMediciones || 0)}
                 </p>
               </div>
-              <div className="text-center p-3 rounded-lg bg-slate-800/50">
-                <p className="text-sm text-slate-400">Distrito</p>
+              <div className="text-center p-3 rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground">Distrito</p>
                 <p className="text-lg font-semibold text-white">
                   {detalleEstacion.data.summary?.distrito || '-'}
                 </p>
               </div>
-              <div className="text-center p-3 rounded-lg bg-slate-800/50">
-                <p className="text-sm text-slate-400">Nombre Vial</p>
+              <div className="text-center p-3 rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground">Nombre Vial</p>
                 <p className="text-lg font-semibold text-white">
                   {detalleEstacion.data.summary?.nombreVial || '-'}
                 </p>
@@ -417,7 +417,7 @@ function PaginaAforoBicicletas() {
                     {datos.map((registro, index) => (
                       <TableRow
                         key={registro._id || index}
-                        className="cursor-pointer hover:bg-slate-800/60"
+                        className="cursor-pointer hover:bg-muted/60"
                         onClick={() => manejarClickEstacion(registro.identificador)}
                       >
                         <TableCell>{formatDate(registro.fecha)}</TableCell>
