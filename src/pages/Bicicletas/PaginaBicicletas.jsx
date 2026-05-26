@@ -61,8 +61,11 @@ function PaginaBicicletas() {
 
   const { data: statsResult } = useBicicletasEstadisticas(statsParams);
   const { data: trendsResult } = useBicicletasTendencias({ year: DATE_CONFIG.DATASET_YEAR });
-  const { data: mayorUsoResult } = useBicicletasMayorUso();
-  const { data: suscripcionesResult } = useBicicletasSuscripciones();
+  // mayor-uso y comparativa-suscripciones aceptan filtro mes para reflejar
+  // el periodo activo. Sin propagacion el panel mostraba siempre los mismos
+  // numeros aunque se cambiase el selector de mes.
+  const { data: mayorUsoResult } = useBicicletasMayorUso(statsParams);
+  const { data: suscripcionesResult } = useBicicletasSuscripciones(statsParams);
 
   const datos = useMemo(() => availabilityResult?.data || [], [availabilityResult?.data]);
   // El endpoint /bicicletas/estadisticas envuelve los totales en

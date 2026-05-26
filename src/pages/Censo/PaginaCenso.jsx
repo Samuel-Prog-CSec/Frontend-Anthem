@@ -72,10 +72,17 @@ function PaginaCenso() {
 
   const datosGraficoEdad = useMemo(() => {
     if (!dashboard?.distribucionEdad) return [];
-    return dashboard.distribucionEdad.map(g => ({
-      name: ETIQUETAS_GRUPOS_EDAD[g.grupoEdad] || g.grupoEdad || g._id,
-      value: g.totalPoblacion || g.total || g.count || 0
-    }));
+    // Backend devuelve items `{_id: 'ADULTO_JOVEN', poblacionTotal: 7436645}`.
+    // Antes el componente leia `g.totalPoblacion` (con sufijo invertido) y
+    // siempre obtenia 0 → grafico vacio en negro.
+    return dashboard.distribucionEdad.map(g => {
+      const key = g.grupoEdad || g._id;
+      const total = g.poblacionTotal ?? g.totalPoblacion ?? g.total ?? g.count ?? 0;
+      return {
+        name: ETIQUETAS_GRUPOS_EDAD[key] || key || 'Sin clasificar',
+        value: total
+      };
+    });
   }, [dashboard]);
 
   const opcionesDistrito = useMemo(() => {

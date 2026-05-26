@@ -36,10 +36,25 @@ export async function obtenerEstadisticasCalidadAire(params = {}, { signal } = {
 }
 
 /**
+ * Defaults geograficos del dataset Smart City Anthem 2051.
+ * El dataset cubre exclusivamente Madrid capital, por lo que provincia=28
+ * y municipio=79 son constantes salvo que el dataset se ample en el futuro.
+ * El backend exige los 3 parametros (provincia, municipio, magnitud) para
+ * activar la agregacion eficiente con indice compuesto.
+ */
+const PROVINCIA_MADRID = 28;
+const MUNICIPIO_MADRID = 79;
+
+/**
  * Obtiene tendencias de calidad del aire
  */
 export async function obtenerTendenciasCalidadAire(params = {}, { signal } = {}) {
-  const response = await apiClient.get('/calidad-aire/tendencias', { params, signal });
+  const queryParams = {
+    provincia: PROVINCIA_MADRID,
+    municipio: MUNICIPIO_MADRID,
+    ...params
+  };
+  const response = await apiClient.get('/calidad-aire/tendencias', { params: queryParams, signal });
   return response.data;
 }
 

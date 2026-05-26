@@ -63,7 +63,10 @@ function PaginaAforoBicicletas() {
   const { data: estacionesResult } = useAforoEstaciones({ ...queryParams, limit: 10 });
   const { data: detalleEstacion, isLoading: detalleLoading } = useAforoEstacion(estacionSeleccionada);
   const { data: resumenCenso } = useCensoResumenDistritos({ año: DATE_CONFIG.DATASET_YEAR });
-  const { data: featureCollectionMapa, isLoading: cargandoMapa } = useMapaAforo();
+  // Propagar filtros al mapa para que las estaciones cambien al filtrar
+  // por distrito o periodo. Sin esto, el mapa muestra siempre todas las
+  // estaciones aunque el resto de la pagina se filtre.
+  const { data: featureCollectionMapa, isLoading: cargandoMapa } = useMapaAforo(queryParams);
 
   const datos = useMemo(() => aforoResult?.data || [], [aforoResult?.data]);
   const paginacion = aforoResult?.pagination || null;

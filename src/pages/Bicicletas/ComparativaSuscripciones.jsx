@@ -3,6 +3,13 @@
  *
  * Card con la comparativa entre suscripciones anuales y ocasionales:
  * dos StatCards + linea inferior con la distribucion porcentual.
+ *
+ * El backend devuelve `data.comparacion` con campos planos:
+ *   { totalUsosAnual, totalUsosOcasional,
+ *     promedioUsosAnual, promedioUsosOcasional,
+ *     porcentajeAnual, porcentajeOcasional, periodo }
+ * Antes el componente buscaba sub-objetos `anual.totalUsos` y
+ * `ocasional.totalUsos` que no existen, por eso siempre mostraba 0.
  */
 
 import { Users, UserCheck } from 'lucide-react';
@@ -13,11 +20,17 @@ import { StatCard } from '../../components/charts';
 import { formatNumber } from '../../utils';
 
 function ComparativaSuscripciones({ comparativa }) {
-  if (!comparativa?.comparativa) return null;
+  // Tolerar shape historico anidado (`comparativa.anual.totalUsos`) y el
+  // plano actual del backend (`comparacion.totalUsosAnual`).
+  const comp = comparativa?.comparacion || comparativa?.comparativa || null;
+  if (!comp) return null;
 
-  const anual = comparativa.comparativa.anual || {};
-  const ocasional = comparativa.comparativa.ocasional || {};
-  const distribucion = comparativa.distribucion;
+  const totalAnual = comp.totalUsosAnual ?? comp.anual?.totalUsos ?? 0;
+  const totalOcasional = comp.totalUsosOcasional ?? comp.ocasional?.totalUsos ?? 0;
+  const promedioAnual = comp.promedioUsosAnual ?? comp.anual?.promedioDiario ?? 0;
+  const promedioOcasional = comp.promedioUsosOcasional ?? comp.ocasional?.promedioDiario ?? 0;
+  const porcentajeAnual = comp.porcentajeAnual ?? comparativa?.distribucion?.porcentajeAnual ?? 0;
+  const porcentajeOcasional = comp.porcentajeOcasional ?? comparativa?.distribucion?.porcentajeOcasional ?? 0;
 
   return (
     <Card className="mb-6">
@@ -32,28 +45,28 @@ function ComparativaSuscripciones({ comparativa }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <StatCard
             title="Suscriptores anuales"
-            value={formatNumber(anual.totalUsos || 0)}
-            subtitle={`Promedio diario: ${formatNumber(anual.promedioDiario || 0, 1)}`}
+            value={formatNumber(totalAnual)}
+            subtitle={`Promedio diario: ${formatNumber(promedioAnual, 1)}`}
             icon={UserCheck}
             accent="cyan"
           />
           <StatCard
             title="Usuarios ocasionales"
-            value={formatNumber(ocasional.totalUsos || 0)}
-            subtitle={`Promedio diario: ${formatNumber(ocasional.promedioDiario || 0, 1)}`}
+            value={formatNumber(totalOcasional)}
+            subtitle={`Promedio diario: ${formatNumber(promedioOcasional, 1)}`}
             icon={Users}
             accent="emerald"
           />
         </div>
 
-        {distribucion && (
+        {(porcentajeAnual > 0 || porcentajeOcasional > 0) && (
           <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
             <span>
-              Distribucion: Anual {formatNumber(distribucion.porcentajeAnual || 0, 1)}%
+              Distribucion: Anual {formatNumber(porcentajeAnual, 1)}%
             </span>
             <span aria-hidden="true">|</span>
             <span>
-              Ocasional {formatNumber(distribucion.porcentajeOcasional || 0, 1)}%
+              Ocasional {formatNumber(porcentajeOcasional, 1)}%
             </span>
           </div>
         )}

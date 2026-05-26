@@ -1,0 +1,23 @@
+# Anthem City Dashboard 2051
+
+> Plataforma cerrada de operaciones para una Smart City simulada en 2051.
+> Proyecto universitario MERN (MongoDB, Express, React, Node).
+
+Anthem // CTC es una consola de monitorizacion urbana que integra 14
+fuentes de datos sensoriales: calidad del aire, ruido ambiental, censo
+demografico, accidentalidad vial, multas, contenedores de residuos,
+trafico, micromovilidad y aforos peatonal y ciclista.
+
+El acceso requiere autenticacion. La aplicacion no esta destinada a
+indexacion publica.
+
+## Tecnologia
+
+- Backend: Node 22 + Express 5 + Mongoose 9 + MongoDB 8
+- Frontend: React 19 + Vite 7 + Tailwind v4 + Leaflet + Recharts
+- Autenticacion: JWT (HS256) con jti, dos secretos y rotacion de refresh
+  token en cookie httpOnly
+
+## Optional
+
+- [Documentacion del dataset](/docs) - Origen, escala y politicas

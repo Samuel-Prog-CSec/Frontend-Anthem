@@ -34,8 +34,20 @@ function PaginaMultasAccidentes() {
   const cargando = cargandoAccidentes || cargandoMultas;
 
   const filas = useMemo(() => {
-    const accs = accidentesResult?.data || [];
-    const multas = rankingMultas?.data?.ranking || rankingMultas?.data || [];
+    // Tolerar varias formas del backend:
+    //  - accidentesResult.data.comparativa (shape real actual)
+    //  - accidentesResult.data (array directo, retrocompat)
+    //  - accidentesResult (objeto sin envoltorio)
+    const accsRaw = accidentesResult?.data?.comparativa
+      || accidentesResult?.data
+      || accidentesResult
+      || [];
+    const accs = Array.isArray(accsRaw) ? accsRaw : [];
+    const multasRaw = rankingMultas?.data?.ranking
+      || rankingMultas?.data?.lugares
+      || rankingMultas?.data
+      || [];
+    const multas = Array.isArray(multasRaw) ? multasRaw : [];
 
     // Indexar accidentes por distrito (uppercase) -> total
     const indexAcc = new Map();
@@ -70,8 +82,13 @@ function PaginaMultasAccidentes() {
   }, [accidentesResult, rankingMultas]);
 
   const filasTop = useMemo(() => {
+    // Solo mostramos filas con cruce real (ambos datos > 0). Antes el OR
+    // incluia filas con muchas multas y "SIN ACCIDENTES" cuando el ranking
+    // de multas devuelve calles especificas (P. SM.CABEZA_N115...) que no
+    // matchean con la agregacion por distrito de accidentes. Resultado:
+    // todas las filas mostraban ratio infinito sin lectura util.
     return [...filas]
-      .filter(f => f.accidentes > 0 || f.multas > 0)
+      .filter(f => f.accidentes > 0 && f.multas > 0)
       .sort((a, b) => (b.accidentes + b.multas) - (a.accidentes + a.multas))
       .slice(0, 20);
   }, [filas]);

@@ -53,9 +53,26 @@ function PaginaMultas() {
     return params;
   }, [paginaActual, filtros]);
 
+  // Parametros de filtro aplicables tambien a dashboard y ranking (sin
+  // paginacion). Antes dashboard/ranking ignoraban los filtros y los KPIs
+  // + grafico de calificacion no cambiaban al filtrar.
+  const filtroAggParams = useMemo(() => {
+    const params = { periodo: 'year' };
+    if (filtros.calificacion) params.calificacion = filtros.calificacion;
+    if (filtros.denunciante) params.denunciante = filtros.denunciante;
+    if (filtros.tieneDescuento) params.tieneDescuento = filtros.tieneDescuento;
+    if (filtros.mes) {
+      const fecha = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes) - 1, 1);
+      params.startDate = fecha.toISOString();
+      const fechaFin = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes), 0);
+      params.endDate = fechaFin.toISOString();
+    }
+    return params;
+  }, [filtros]);
+
   const { data: multasResult, isLoading, error, refetch } = useMultas(queryParams);
-  const { data: dashboardResult } = useMultasDashboard({ periodo: 'year' });
-  const { data: rankingResult } = useMultasRanking({ limit: 10 });
+  const { data: dashboardResult } = useMultasDashboard(filtroAggParams);
+  const { data: rankingResult } = useMultasRanking({ limit: 10, ...filtroAggParams });
   const { data: detalleResult, isLoading: detalleLoading } = useMultaDetalle(multaSeleccionada);
   const { data: resumenCenso } = useCensoResumenDistritos({ año: DATE_CONFIG.DATASET_YEAR });
 

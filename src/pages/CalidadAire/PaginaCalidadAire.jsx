@@ -158,15 +158,38 @@ function PaginaCalidadAire() {
   }, [data]);
 
   const datosTendencia = useMemo(() => {
-    const trendData = tendenciasApi?.data?.data || tendenciasApi?.data || [];
+    // Shape real backend: `data.tendenciaDiaria` (array) con items
+    // `{_id: {fecha}, valorPromedio, valorMaximo, valorMinimo}`. Mantengo
+    // fallbacks legacy por si cambia el endpoint en el futuro.
+    const trendData = tendenciasApi?.data?.tendenciaDiaria
+      || tendenciasApi?.data?.data
+      || (Array.isArray(tendenciasApi?.data) ? tendenciasApi.data : [])
+      || [];
     if (!Array.isArray(trendData) || trendData.length === 0) return [];
 
-    return trendData.slice(0, 30).map(d => ({
-      periodo: d.periodo || d.fecha || d.month || d._id || '-',
-      promedio: d.promedio != null ? Number(d.promedio.toFixed(2)) : (d.avgValue != null ? Number(d.avgValue.toFixed(2)) : 0),
-      maximo: d.maximo != null ? Number(d.maximo.toFixed(2)) : (d.maxValue != null ? Number(d.maxValue.toFixed(2)) : 0),
-      minimo: d.minimo != null ? Number(d.minimo.toFixed(2)) : (d.minValue != null ? Number(d.minValue.toFixed(2)) : 0)
-    }));
+    const formatearFecha = (f) => {
+      if (!f) return '-';
+      try {
+        const d = new Date(f);
+        if (Number.isNaN(d.getTime())) return String(f);
+        return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+      } catch {
+        return String(f);
+      }
+    };
+
+    return trendData.slice(0, 30).map(d => {
+      const promedio = d.valorPromedio ?? d.promedio ?? d.avgValue ?? 0;
+      const maximo = d.valorMaximo ?? d.maximo ?? d.maxValue ?? 0;
+      const minimo = d.valorMinimo ?? d.minimo ?? d.minValue ?? 0;
+      const fechaRaw = d._id?.fecha || d.fecha || d.periodo || d.month;
+      return {
+        periodo: formatearFecha(fechaRaw),
+        promedio: Number(Number(promedio).toFixed(2)),
+        maximo: Number(Number(maximo).toFixed(2)),
+        minimo: Number(Number(minimo).toFixed(2))
+      };
+    });
   }, [tendenciasApi]);
 
   return (
