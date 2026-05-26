@@ -102,6 +102,11 @@ const LineChartCard = memo(function LineChartCard({ data, xKey, lines, title, he
         </CardHeader>
       )}
       <CardContent>
+        <div
+          role="img"
+          aria-label={title ? `Grafico: ${title}` : 'Grafico de datos'}
+          style={{ width: '100%', height }}
+        >
         <ResponsiveContainer width="100%" height={height}>
           <RechartsLineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -143,6 +148,7 @@ const LineChartCard = memo(function LineChartCard({ data, xKey, lines, title, he
             ))}
           </RechartsLineChart>
         </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );
@@ -168,6 +174,11 @@ const BarChartCard = memo(function BarChartCard({ data, xKey, bars, title, heigh
         </CardHeader>
       )}
       <CardContent>
+        <div
+          role="img"
+          aria-label={title ? `Grafico: ${title}` : 'Grafico de datos'}
+          style={{ width: '100%', height }}
+        >
         <ResponsiveContainer width="100%" height={height}>
           <RechartsBarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -206,6 +217,7 @@ const BarChartCard = memo(function BarChartCard({ data, xKey, bars, title, heigh
             ))}
           </RechartsBarChart>
         </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );
@@ -231,6 +243,11 @@ const PieChartCard = memo(function PieChartCard({ data, title, height = 300, don
         </CardHeader>
       )}
       <CardContent>
+        <div
+          role="img"
+          aria-label={title ? `Grafico: ${title}` : 'Grafico de datos'}
+          style={{ width: '100%', height }}
+        >
         <ResponsiveContainer width="100%" height={height}>
           <RechartsPieChart>
             <Pie
@@ -254,6 +271,7 @@ const PieChartCard = memo(function PieChartCard({ data, title, height = 300, don
             <Tooltip content={<CustomTooltip />} />
           </RechartsPieChart>
         </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );

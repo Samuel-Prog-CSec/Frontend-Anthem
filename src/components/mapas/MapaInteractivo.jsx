@@ -9,10 +9,43 @@
  * neutral: https://www.openstreetmap.org/copyright
  */
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { cn } from '../../utils';
+
+/**
+ * Etiquetas accesibles para los controles nativos de Leaflet.
+ * Los botones zoom-in/zoom-out se renderizan via Leaflet (no React) y NO
+ * llevan `aria-label`. Lighthouse penaliza con `button-name` y JAWS/NVDA
+ * los anuncian como "boton sin nombre". Reemplazamos por etiquetas en
+ * espanol que reflejan la accion. La attribution y popups si los maneja
+ * Leaflet correctamente, no requieren intervencion.
+ */
+function aplicarA11yLeaflet(mapRoot) {
+  if (!mapRoot) return;
+  // Zoom controls
+  const zoomIn = mapRoot.querySelector('.leaflet-control-zoom-in');
+  const zoomOut = mapRoot.querySelector('.leaflet-control-zoom-out');
+  if (zoomIn) {
+    zoomIn.setAttribute('aria-label', 'Acercar el mapa');
+    zoomIn.setAttribute('title', 'Acercar el mapa');
+  }
+  if (zoomOut) {
+    zoomOut.setAttribute('aria-label', 'Alejar el mapa');
+    zoomOut.setAttribute('title', 'Alejar el mapa');
+  }
+  // Clusters generados por leaflet.markercluster: el div .marker-cluster
+  // recibe role="button" pero sin aria-label. Le ponemos uno generico.
+  mapRoot.querySelectorAll('.marker-cluster').forEach((cluster) => {
+    if (!cluster.hasAttribute('aria-label')) {
+      const count = cluster.querySelector('div span')?.textContent?.trim() || '';
+      cluster.setAttribute('aria-label', count
+        ? `Grupo de ${count} elementos. Pulsa para ampliar.`
+        : 'Grupo de elementos del mapa. Pulsa para ampliar.');
+    }
+  });
+}
 
 // Fix del icono por defecto de Leaflet en bundlers (Vite/Webpack)
 // Los iconos se rompen si no se resetea el path interno.
@@ -76,13 +109,31 @@ export function MapaInteractivo({
   overlay,
   children
 }) {
+  const contenedorRef = useRef(null);
+
+  // Aplicar etiquetas a11y a los controles de Leaflet cuando se monta el
+  // mapa y cada vez que cambian los hijos (los clusters pueden recrearse
+  // al filtrar). MutationObserver es la forma fiable porque Leaflet
+  // recrea los DOM nodes fuera del control de React.
+  useEffect(() => {
+    const root = contenedorRef.current;
+    if (!root) return undefined;
+    aplicarA11yLeaflet(root);
+    const observer = new MutationObserver(() => aplicarA11yLeaflet(root));
+    observer.observe(root, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div
+      ref={contenedorRef}
       className={cn(
         'relative w-full overflow-hidden rounded-sm border border-[var(--border-hairline)]',
         className
       )}
       style={{ height: altura }}
+      role="region"
+      aria-label="Mapa interactivo"
     >
       <MapContainer
         center={centro}

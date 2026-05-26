@@ -67,6 +67,37 @@ mapa + Recharts bajan notablemente porque las librerias de terceros
 1. `public/robots.txt` (disallow general, proyecto cerrado)
 2. `public/llms.txt` (descripcion del sistema y stack)
 
+## Audit en modo navigation sobre build de produccion
+
+Tras aplicar fixes de a11y Leaflet, contraste mejorado, role="img" en charts
+y meta tags llms/robots, ejecutamos `vite preview --port 4173` y volvimos
+a auditar en modo `navigation`:
+
+### /dashboard (produccion)
+
+| Categoria | Snapshot (dev) | Navigation (build) | Delta |
+|-----------|----------------|---------------------|-------|
+| Accessibility | 95 | **100** | +5 |
+| Best Practices | 100 | 81 | -19 |
+| SEO | 80 | 63 | -17 |
+| Agentic Browsing | 50 | **100** | +50 |
+
+### /accidentes (produccion)
+
+| Categoria | Snapshot (dev) | Navigation (build) | Delta |
+|-----------|----------------|---------------------|-------|
+| Accessibility | 84 | **88** | +4 |
+| Best Practices | 83 | 81 | -2 |
+| SEO | 67 | 58 | -9 |
+| Agentic Browsing | 0 | **67** | +67 |
+
+**Lectura**: A11y y Agentic Browsing suben dramaticamente (los fixes de
+aria-label en Leaflet zoom/cluster + role="img" en charts funcionan).
+Best Practices y SEO bajan porque en mode navigation Lighthouse evalua
+mas categorias y la app aun no expone meta-tags Open Graph, manifest
+PWA, ni structured data. Si el proyecto se publica online se pueden
+anadir.
+
 ## Pendientes para futura iteracion
 
 1. **Lighthouse en mode `navigation`** (no snapshot): mide LCP, CLS,

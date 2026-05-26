@@ -93,9 +93,9 @@
 
   /* === TINTA (texto) === */
   --ink-text: #e8e8e3;              /* primario, contraste ~13:1 sobre ink */
-  --ink-secondary: #9aa0a6;         /* secundario, contraste ~5.5:1 (AA) */
-  --ink-tertiary: #6a6f76;          /* metadata, timestamps, labels */
-  --ink-muted: #4a4e54;             /* placeholder, disabled */
+  --ink-secondary: #b8bcc2;         /* secundario, contraste ~7.4:1 (AAA) */
+  --ink-tertiary: #8c9197;          /* metadata, timestamps, labels: ~4.6:1 (AA grande) */
+  --ink-muted: #5a5e64;             /* placeholder, disabled */
 
   /* === BORDES (hairlines) === */
   --border-hairline: rgba(232, 232, 227, 0.08);  /* standard, casi invisible */
