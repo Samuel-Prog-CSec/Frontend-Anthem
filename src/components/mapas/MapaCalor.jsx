@@ -8,6 +8,7 @@ import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet.heat';
 import { MapaInteractivo } from './MapaInteractivo';
+import { MapaEmptyOverlay } from './MapaEmptyOverlay';
 
 /**
  * @typedef {Object} CapaCalorProps
@@ -54,7 +55,10 @@ export function MapaCalor({
   bbox,
   altura,
   radius = 25,
-  blur = 15
+  blur = 15,
+  onLimpiarFiltros,
+  tituloVacio = 'Sin densidad para los filtros aplicados',
+  descripcionVacio
 }) {
   const features = featureCollection?.features || [];
   const autoBbox = bbox || featureCollection?.bbox || null;
@@ -70,8 +74,25 @@ export function MapaCalor({
     })
     .filter(Boolean);
 
+  // featureCollection presente pero sin puntos validos: mostramos overlay.
+  // Si featureCollection es undefined/null (todavia cargando), no overlay.
+  const sinDatos = featureCollection && puntos.length === 0;
+  const overlay = sinDatos ? (
+    <MapaEmptyOverlay
+      titulo={tituloVacio}
+      descripcion={descripcionVacio}
+      onLimpiar={onLimpiarFiltros}
+    />
+  ) : null;
+
   return (
-    <MapaInteractivo centro={centro} zoom={zoom} bbox={autoBbox} altura={altura}>
+    <MapaInteractivo
+      centro={centro}
+      zoom={zoom}
+      bbox={autoBbox}
+      altura={altura}
+      overlay={overlay}
+    >
       <CapaCalor puntos={puntos} radius={radius} blur={blur} />
     </MapaInteractivo>
   );

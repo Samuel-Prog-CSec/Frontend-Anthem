@@ -172,8 +172,8 @@ function PaginaCalidadAire() {
   return (
     <PageLayout
       eyebrow="Ambiente / Calidad del aire"
-      title="Calidad del aire"
-      description={`Monitoreo de contaminantes atmosfericos en Anthem City ${DATE_CONFIG.DATASET_YEAR}.`}
+      title="El aire que respira la ciudad"
+      description={`Concentraciones diarias de NO2, PM10, ozono y otros once contaminantes registrados por la malla atmosferica durante ${DATE_CONFIG.DATASET_YEAR}.`}
       actions={
         <Button variant="outline" onClick={refrescar}>
           <RefreshCw className="size-4 mr-2" aria-hidden="true" />

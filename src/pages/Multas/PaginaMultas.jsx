@@ -141,8 +141,8 @@ function PaginaMultas() {
   return (
     <PageLayout
       eyebrow="Movilidad / Multas"
-      title="Multas de trafico"
-      description={`Infracciones de trafico registradas en Anthem City ${DATE_CONFIG.DATASET_YEAR}.`}
+      title="Disuasion circulatoria"
+      description={`1.36 millones de boletines con calificacion, importe, descuento aplicado y puntos detraidos durante ${DATE_CONFIG.DATASET_YEAR}.`}
     >
       <EstadisticasMultas
         totalMultas={totalMultas}

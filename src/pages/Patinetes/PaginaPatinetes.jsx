@@ -205,8 +205,9 @@ function PaginaPatinetes() {
 
   return (
     <PageLayout
-      title="Asignacion de Patinetes"
-      description={`Distribucion y asignacion de patinetes por distrito - ${DATE_CONFIG.DATASET_YEAR}`}
+      eyebrow="Movilidad / Micromovilidad"
+      title="Flota de micromovilidad"
+      description={`3.186 patinetes desplegados por ocho proveedores en 128 areas de la ciudad. Densidad, dominancia HHI y zonas de concentracion en ${DATE_CONFIG.DATASET_YEAR}.`}
       actions={
         <Button variant="outline" onClick={() => refetch()}>
           <RefreshCw className="size-4 mr-2" />

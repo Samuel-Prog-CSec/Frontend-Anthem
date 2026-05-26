@@ -133,8 +133,8 @@ function PaginaCenso() {
   return (
     <PageLayout
       eyebrow="Demografia / Censo"
-      title="Censo demografico"
-      description={`Poblacion por distritos, barrios y grupos de edad - Anthem City ${DATE_CONFIG.DATASET_YEAR}.`}
+      title="Pulso demografico"
+      description={`1.81 millones de registros con edad, sexo, nacionalidad y seccion censal. Piramides poblacionales y analisis por barrio para ${DATE_CONFIG.DATASET_YEAR}.`}
     >
       <EstadisticasCenso
         poblacionTotal={resumen.poblacionTotal || 0}

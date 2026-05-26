@@ -230,8 +230,9 @@ function PaginaAccidentes() {
 
   return (
     <PageLayout
-      title="Accidentalidad"
-      description={`Datos de accidentes de trafico - ${DATE_CONFIG.DATASET_YEAR}`}
+      eyebrow="Seguridad vial / Accidentes"
+      title="Cicatrices de la malla vial"
+      description={`Expedientes georreferenciados con gravedad, tipo de vehiculo y persona afectada. 32.421 personas registradas en ${DATE_CONFIG.DATASET_YEAR}.`}
       actions={
         <Button variant="outline" onClick={() => refetch()}>
           <RefreshCw className="size-4 mr-2" />

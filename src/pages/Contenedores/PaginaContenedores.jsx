@@ -223,8 +223,9 @@ function PaginaContenedores() {
 
   return (
     <PageLayout
-      title="Contenedores de residuos"
-      description={`Distribucion y cobertura de contenedores en la ciudad - ${DATE_CONFIG.DATASET_YEAR}`}
+      eyebrow="Servicios urbanos / Residuos"
+      title="Capilaridad de residuos"
+      description={`35.369 contenedores georreferenciados con tipo de residuo, lote y cobertura por distrito. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`}
       actions={
         <Button variant="outline" onClick={() => refetchListado()}>
           <RefreshCw className="size-4 mr-2" aria-hidden="true" />

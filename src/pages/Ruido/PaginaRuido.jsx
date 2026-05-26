@@ -78,16 +78,25 @@ function PaginaRuido() {
   const data = useMemo(() => noiseData?.data || [], [noiseData?.data]);
   const pagination = noiseData?.pagination || {};
 
-  // Tendencias mensuales para el grafico
+  // Tendencias mensuales para el grafico.
+  // El backend devuelve `data.data` array con campos `promedioNivel`,
+  // `maximoNivel`, `minimoNivel` y `periodo: {año, mes}`. Antes el codigo
+  // leia `d.promedio/maximo/minimo` (sin sufijo) y siempre obtenia 0,
+  // dejando el grafico vacio aunque el endpoint respondiera 200.
   const datosTendencia = useMemo(() => {
     const trendData = tendenciasApi?.data?.data || tendenciasApi?.data || [];
     if (!Array.isArray(trendData) || trendData.length === 0) return [];
-    return trendData.map(d => ({
-      periodo: d.periodo?.mes ? MESES_CORTOS[d.periodo.mes - 1] : (d._id?.mes ? MESES_CORTOS[d._id.mes - 1] : '-'),
-      promedio: d.promedio != null ? Number(d.promedio.toFixed(1)) : 0,
-      maximo: d.maximo != null ? Number(d.maximo.toFixed(1)) : 0,
-      minimo: d.minimo != null ? Number(d.minimo.toFixed(1)) : 0
-    }));
+    return trendData.map(d => {
+      const promedio = d.promedioNivel ?? d.promedio ?? 0;
+      const maximo = d.maximoNivel ?? d.maximo ?? 0;
+      const minimo = d.minimoNivel ?? d.minimo ?? 0;
+      return {
+        periodo: d.periodo?.mes ? MESES_CORTOS[d.periodo.mes - 1] : (d._id?.mes ? MESES_CORTOS[d._id.mes - 1] : '-'),
+        promedio: Number(Number(promedio).toFixed(1)),
+        maximo: Number(Number(maximo).toFixed(1)),
+        minimo: Number(Number(minimo).toFixed(1))
+      };
+    });
   }, [tendenciasApi]);
 
   // Handlers estables
@@ -150,9 +159,16 @@ function PaginaRuido() {
     })).reverse();
   }, [data]);
 
-  // Ranking de estaciones (extraccion robusta de campos posibles)
+  // Ranking de estaciones.
+  // El backend devuelve `data.ranking` (array) + `data.configuracion` +
+  // `data.interpretacion`. Antes se buscaba `data.data` que no existe y
+  // el componente mostraba "Sin datos de ranking" aunque la API respondia
+  // 200 con todas las estaciones ordenadas.
   const datosRanking = useMemo(() => {
-    const rankData = rankingApi?.data?.data || rankingApi?.data || [];
+    const rankData = rankingApi?.data?.ranking
+      || rankingApi?.data?.data
+      || (Array.isArray(rankingApi?.data) ? rankingApi.data : [])
+      || [];
     if (!Array.isArray(rankData)) return [];
     return rankData.slice(0, 10).map(r => ({
       nombre: r.nombre || r._id?.nombre || `Estacion ${r.nmt || r._id?.nmt || '-'}`,
@@ -163,33 +179,50 @@ function PaginaRuido() {
     }));
   }, [rankingApi]);
 
-  // Cumplimiento normativo (extraccion robusta de campos posibles)
+  // Cumplimiento normativo.
+  // El backend devuelve estructura anidada:
+  //   data: {
+  //     umbralNormativo, tipoZona, periodo,
+  //     analisisPorZona: {
+  //       estaciones: [{ nmt, nombre, totalMediciones, promedioGeneralLaeq24,
+  //                      cumplimiento: { diurno: {cumple, incumple, porcentaje, promedio, maximo} } }],
+  //       resumen: { totalEstaciones, cumplimientoPromedioGlobal, periodo, limites }
+  //     }
+  //   }
+  // Antes el codigo leia `data.data` (no existe) y normalizaba a un shape
+  // plano `{cumple, excedencias, promedioDiurno}` que no coincidia con
+  // ninguno de los campos reales.
   const datosCumplimiento = useMemo(() => {
-    const compData = cumplimientoApi?.data?.data || cumplimientoApi?.data || [];
-    if (!Array.isArray(compData)) {
-      // Puede venir como objeto unico con resumen
-      if (compData && typeof compData === 'object') {
-        return { resumen: compData, estaciones: [] };
-      }
+    const analisis = cumplimientoApi?.data?.analisisPorZona;
+    if (!analisis) {
       return { resumen: null, estaciones: [] };
     }
+    const estacionesRaw = Array.isArray(analisis.estaciones) ? analisis.estaciones : [];
     return {
-      resumen: null,
-      estaciones: compData.slice(0, 10).map(c => ({
-        nombre: c.nombre || c._id?.nombre || `Estacion ${c.nmt || c._id?.nmt || '-'}`,
-        nmt: c.nmt || c._id?.nmt || '-',
-        cumple: c.cumple ?? c.compliant ?? c.cumplimiento ?? false,
-        promedioDiurno: c.promedioDiurno || c.avgDiurno || 0,
-        promedioNocturno: c.promedioNocturno || c.avgNocturno || 0,
-        excedencias: c.excedencias || c.violations || c.totalExcedencias || 0
-      }))
+      resumen: analisis.resumen || null,
+      estaciones: estacionesRaw.slice(0, 10).map(c => {
+        const diurno = c.cumplimiento?.diurno || {};
+        const totalMed = c.totalMediciones || (diurno.cumple || 0) + (diurno.incumple || 0);
+        const porcentaje = diurno.porcentaje ?? 0;
+        return {
+          nombre: c.nombre || `Estacion ${c.nmt || '-'}`,
+          nmt: c.nmt || '-',
+          cumple: porcentaje >= 100,
+          porcentajeCumplimiento: porcentaje,
+          promedioDiurno: diurno.promedio || 0,
+          promedioGeneral: c.promedioGeneralLaeq24 || 0,
+          excedencias: diurno.incumple || 0,
+          totalMediciones: totalMed
+        };
+      })
     };
   }, [cumplimientoApi]);
 
   return (
     <PageLayout
-      title="Contaminacion Acustica"
-      description={`Monitoreo de ruido ambiental - ${DATE_CONFIG.DATASET_YEAR}`}
+      eyebrow="Ambiente / Ruido ambiental"
+      title="El sonido de la ciudad"
+      description={`Treinta estaciones acusticas reportan niveles diurno, vespertino y nocturno frente al limite normativo europeo. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`}
       actions={
         <Button variant="outline" onClick={() => refetch()}>
           <RefreshCw className="size-4 mr-2" />

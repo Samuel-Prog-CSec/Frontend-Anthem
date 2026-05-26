@@ -160,8 +160,9 @@ function PaginaAforoPeatones() {
 
   return (
     <PageLayout
-      title="Aforo de Peatones"
-      description="Conteo horario de trafico peatonal por estacion - Anthem City 2051"
+      eyebrow="Movilidad / Aforo de peatones"
+      title="Pisada urbana"
+      description="Recuento de peatones por estaciones de aforo. Patrones horarios, comparativa entre puntos y distribucion temporal en 2051."
     >
       <EstadisticasAforoPeatones
         totalMediciones={totalMediciones}

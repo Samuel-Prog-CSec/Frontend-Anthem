@@ -53,11 +53,17 @@ function AjustarBbox({ bbox }) {
  * @property {string} [className] - Clases adicionales para el contenedor
  * @property {string} [altura] - Altura CSS (default: 500px)
  * @property {boolean} [scrollWheelZoom] - Habilitar zoom con rueda
+ * @property {React.ReactNode} [overlay] - Contenido absoluto sobre el mapa (ej. MapaEmptyOverlay)
  * @property {React.ReactNode} children - Capas del mapa (marcadores, GeoJSON, etc.)
  */
 
 /**
  * Wrapper base de mapa para el dashboard Smart City.
+ *
+ * Alineado con la direccion "Civic Operations Console": borde hairline,
+ * radius pequeno, sin sombra. El overlay opcional se monta como hermano
+ * del MapContainer para no interferir con las capas de Leaflet.
+ *
  * @param {MapaInteractivoProps} props
  */
 export function MapaInteractivo({
@@ -67,12 +73,13 @@ export function MapaInteractivo({
   className,
   altura = '500px',
   scrollWheelZoom = true,
+  overlay,
   children
 }) {
   return (
     <div
       className={cn(
-        'relative w-full overflow-hidden rounded-lg border border-border/50 shadow-lg',
+        'relative w-full overflow-hidden rounded-sm border border-[var(--border-hairline)]',
         className
       )}
       style={{ height: altura }}
@@ -90,6 +97,7 @@ export function MapaInteractivo({
         {bbox && <AjustarBbox bbox={bbox} />}
         {children}
       </MapContainer>
+      {overlay}
     </div>
   );
 }

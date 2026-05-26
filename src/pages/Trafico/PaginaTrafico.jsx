@@ -118,8 +118,9 @@ function PaginaTrafico() {
 
   return (
     <PageLayout
-      title="Trafico"
-      description={`Analisis de mediciones de trafico (intensidad, ocupacion, congestion) - ${DATE_CONFIG.DATASET_YEAR}`}
+      eyebrow="Movilidad / Trafico"
+      title="Latido de la malla vial"
+      description={`Intensidad, ocupacion y nivel de congestion por punto de medicion. Selecciona un rango de fechas para activar el analisis sobre ${DATE_CONFIG.DATASET_YEAR}.`}
     >
       <BarraFiltrosTrafico
         filtrosActivos={borrador}

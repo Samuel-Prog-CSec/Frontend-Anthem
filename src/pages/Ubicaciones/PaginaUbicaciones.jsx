@@ -99,8 +99,8 @@ function PaginaUbicaciones() {
   return (
     <PageLayout
       eyebrow="Infraestructura / Ubicaciones"
-      title="Ubicaciones"
-      description="Puntos de interes y estaciones de monitoreo de la ciudad."
+      title="Anatomia de la malla sensorizada"
+      description="82.362 estaciones acusticas, puntos de medicion de trafico y rutas de transporte georreferenciados sobre Madrid."
       actions={
         <Button variant="outline" onClick={refrescar}>
           <RefreshCw className="size-4 mr-2" aria-hidden="true" />

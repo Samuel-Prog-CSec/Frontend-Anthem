@@ -27,45 +27,40 @@ const IndicadorCumplimiento = memo(function IndicadorCumplimiento({ datos, carga
         {cargando ? (
           <ChartSkeleton height={300} />
         ) : datos.estaciones.length > 0 ? (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
+            {datos.resumen && (
+              <div className="p-3 mb-1 border border-[var(--border-hairline)] bg-[var(--surface-inset)] flex items-center justify-between">
+                <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                  Cumplimiento global ({datos.resumen.totalEstaciones} estaciones)
+                </span>
+                <Badge variant={datos.resumen.cumplimientoPromedioGlobal >= 80 ? 'success' : datos.resumen.cumplimientoPromedioGlobal >= 50 ? 'warning' : 'destructive'}>
+                  {formatNumber(datos.resumen.cumplimientoPromedioGlobal, 1)} %
+                </Badge>
+              </div>
+            )}
             {datos.estaciones.map((estacion, index) => (
               <div
                 key={`compliance-${estacion.nmt}-${index}`}
-                className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border/50"
+                className="flex items-center justify-between p-3 border border-[var(--border-hairline)]"
               >
-                <div className="flex-1">
-                  <p className="font-medium text-sm text-white">{estacion.nombre}</p>
-                  <p className="text-xs text-foreground0">
-                    Diurno: {formatNumber(estacion.promedioDiurno, 1)} dB | Nocturno: {formatNumber(estacion.promedioNocturno, 1)} dB
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm text-foreground truncate">{estacion.nombre}</p>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground mt-0.5">
+                    NMT {estacion.nmt} / LAeq24 {formatNumber(estacion.promedioGeneral, 1)} dB / diurno medio {formatNumber(estacion.promedioDiurno, 1)} dB
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 ml-3">
                   {estacion.excedencias > 0 && (
-                    <span className="text-xs text-muted-foreground">{estacion.excedencias} excedencias</span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--caution)]">
+                      {estacion.excedencias} / {estacion.totalMediciones} excede
+                    </span>
                   )}
-                  <Badge variant={estacion.cumple ? 'success' : 'destructive'}>
-                    {estacion.cumple ? 'Cumple' : 'No cumple'}
+                  <Badge variant={estacion.cumple ? 'success' : estacion.porcentajeCumplimiento >= 50 ? 'warning' : 'destructive'}>
+                    {formatNumber(estacion.porcentajeCumplimiento, 0)} %
                   </Badge>
                 </div>
               </div>
             ))}
-          </div>
-        ) : datos.resumen ? (
-          <div className="flex flex-col gap-3">
-            <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
-              <p className="text-sm text-foreground/80">
-                {datos.resumen.totalEstaciones != null && (
-                  <span>Estaciones analizadas: <strong className="text-white">{datos.resumen.totalEstaciones}</strong></span>
-                )}
-              </p>
-              {datos.resumen.porcentajeCumplimiento != null && (
-                <p className="text-sm text-foreground/80 mt-2">
-                  Cumplimiento: <Badge variant={datos.resumen.porcentajeCumplimiento >= 80 ? 'success' : 'destructive'}>
-                    {formatNumber(datos.resumen.porcentajeCumplimiento, 1)}%
-                  </Badge>
-                </p>
-              )}
-            </div>
           </div>
         ) : (
           <EmptyState

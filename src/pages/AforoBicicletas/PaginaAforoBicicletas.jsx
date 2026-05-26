@@ -157,8 +157,8 @@ function PaginaAforoBicicletas() {
   return (
     <PageLayout
       eyebrow="Movilidad / Aforo de bicicletas"
-      title="Aforo de bicicletas"
-      description={`Conteo horario de trafico ciclista por estacion - Anthem City ${DATE_CONFIG.DATASET_YEAR}.`}
+      title="Trafico ciclista por estacion"
+      description={`293.496 mediciones horarias de bicicletas en circulacion, agregadas por estacion fija con franja temporal. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`}
     >
       <EstadisticasAforoBicicletas
         totalMediciones={totalMediciones}

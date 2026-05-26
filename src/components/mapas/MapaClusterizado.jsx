@@ -7,6 +7,7 @@
 import { Marker, Popup } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { MapaInteractivo } from './MapaInteractivo';
+import { MapaEmptyOverlay } from './MapaEmptyOverlay';
 
 /**
  * @typedef {Object} MapaClusterizadoProps
@@ -16,6 +17,9 @@ import { MapaInteractivo } from './MapaInteractivo';
  * @property {number} [zoom]
  * @property {Array<number>} [bbox]
  * @property {string} [altura]
+ * @property {() => void} [onLimpiarFiltros] - Callback opcional para el overlay vacio
+ * @property {string} [tituloVacio] - Mensaje cuando no hay features
+ * @property {string} [descripcionVacio] - Texto auxiliar del overlay
  */
 
 export function MapaClusterizado({
@@ -24,13 +28,31 @@ export function MapaClusterizado({
   centro,
   zoom,
   bbox,
-  altura
+  altura,
+  onLimpiarFiltros,
+  tituloVacio,
+  descripcionVacio
 }) {
   const features = featureCollection?.features || [];
   const autoBbox = bbox || featureCollection?.bbox || null;
+  const sinDatos = featureCollection && features.length === 0;
+
+  const overlay = sinDatos ? (
+    <MapaEmptyOverlay
+      titulo={tituloVacio}
+      descripcion={descripcionVacio}
+      onLimpiar={onLimpiarFiltros}
+    />
+  ) : null;
 
   return (
-    <MapaInteractivo centro={centro} zoom={zoom} bbox={autoBbox} altura={altura}>
+    <MapaInteractivo
+      centro={centro}
+      zoom={zoom}
+      bbox={autoBbox}
+      altura={altura}
+      overlay={overlay}
+    >
       <MarkerClusterGroup chunkedLoading>
         {features.map((feature, idx) => {
           const geom = feature.geometry;

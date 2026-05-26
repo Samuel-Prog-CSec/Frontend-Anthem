@@ -142,8 +142,8 @@ function PaginaBicicletas() {
   return (
     <PageLayout
       eyebrow="Movilidad / Bicicletas"
-      title="Bicicletas"
-      description={`Disponibilidad y uso del servicio de bicicletas - Anthem City ${DATE_CONFIG.DATASET_YEAR}.`}
+      title="Flota ciclista en circulacion"
+      description={`Disponibilidad diaria, suscripciones anuales frente a uso ocasional y tendencias mensuales del servicio en ${DATE_CONFIG.DATASET_YEAR}.`}
       actions={
         <Button variant="outline" onClick={refrescar}>
           <RefreshCw className="size-4 mr-2" aria-hidden="true" />
