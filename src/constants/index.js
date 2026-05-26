@@ -334,13 +334,25 @@ export const CHART_LIMITS = {
   MAX_ITEMS: 10 // Maximo de puntos de datos en graficos de resumen
 };
 
+/**
+ * Paleta de colores compartida para graficos y visualizaciones.
+ *
+ * Coordinada con los tokens shadcn/Tailwind v4 del index.css para que
+ * los graficos respiren la misma identidad visual que el resto de la
+ * interfaz. Si se anaden nuevos colores aqui, mantener el mismo orden
+ * (primary -> muted) y documentar su uso semantico.
+ */
 export const CHART_COLORS = {
-  primary: '#06b6d4',    // Cyan
-  secondary: '#10b981',  // Green
-  tertiary: '#8b5cf6',   // Purple
-  quaternary: '#f59e0b', // Amber
-  danger: '#ef4444',     // Red
-  muted: '#64748b'       // Gray
+  primary: '#06b6d4',    // Cyan      - serie principal / metrica destacada
+  secondary: '#10b981',  // Emerald   - serie secundaria / valor positivo
+  tertiary: '#8b5cf6',   // Violeta   - serie terciaria / categoria adicional
+  quaternary: '#f59e0b', // Amber     - serie cuaternaria / advertencia leve
+  danger: '#ef4444',     // Rojo      - alerta / excedido / valor maximo
+  muted: '#64748b',      // Gris azul - serie auxiliar / baseline
+  accent: '#a855f7',     // Magenta   - resaltado especial / metrica social
+  warning: '#f97316',    // Naranja   - intermedio entre amber y danger
+  contrast: '#0f172a',   // Slate 950 - texto/lineas sobre fondo claro
+  deep: '#7c2d12'        // Marron oscuro - severidad maxima (trafico colapsado)
 };
 
 // ========================================
@@ -381,6 +393,52 @@ export const UI_MESSAGES = {
 // ========================================
 // AFORO BICICLETAS - FRANJAS HORARIAS
 // ========================================
+
+// ========================================
+// MADRID - DISTRITOS (codigos 1-21)
+// ========================================
+
+/**
+ * Mapping codigo distrito -> nombre. Los importadores guardan el codigo
+ * numerico (1-21) en `distrito` para puntos de trafico, accidentes, etc.
+ * Esta tabla sirve para mostrar el nombre legible en la UI.
+ *
+ * Fuente: Ayuntamiento de Madrid, codificacion oficial de distritos.
+ */
+export const DISTRITOS_MADRID = {
+  1: 'Centro',
+  2: 'Arganzuela',
+  3: 'Retiro',
+  4: 'Salamanca',
+  5: 'Chamartin',
+  6: 'Tetuan',
+  7: 'Chamberi',
+  8: 'Fuencarral-El Pardo',
+  9: 'Moncloa-Aravaca',
+  10: 'Latina',
+  11: 'Carabanchel',
+  12: 'Usera',
+  13: 'Puente de Vallecas',
+  14: 'Moratalaz',
+  15: 'Ciudad Lineal',
+  16: 'Hortaleza',
+  17: 'Villaverde',
+  18: 'Villa de Vallecas',
+  19: 'Vicalvaro',
+  20: 'San Blas-Canillejas',
+  21: 'Barajas'
+};
+
+/**
+ * Helper: devuelve "Codigo - Nombre" para un codigo de distrito numerico,
+ * o el valor crudo si no esta en la tabla. Tolera string/number.
+ */
+export const nombreDistrito = (codigo) => {
+  if (codigo === null || codigo === undefined || codigo === '') {return '-';}
+  const clave = typeof codigo === 'string' ? parseInt(codigo, 10) : codigo;
+  const nombre = DISTRITOS_MADRID[clave];
+  return nombre || String(codigo);
+};
 
 export const FRANJAS_HORARIAS = {
   MADRUGADA: 'MADRUGADA',
@@ -463,6 +521,7 @@ export const ROUTES = {
   CENSO: '/censo',
   MULTAS: '/multas',
   AFORO_BICICLETAS: '/aforo-bicicletas',
+  AFORO_PEATONES: '/aforo-peatones',
   CONTENEDORES: '/contenedores',
   TRAFICO: '/trafico',
   // Hub BI cross-module

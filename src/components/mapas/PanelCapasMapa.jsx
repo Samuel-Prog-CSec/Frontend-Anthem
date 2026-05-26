@@ -15,7 +15,7 @@
 
 import { memo } from 'react';
 import { Layers, Check } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../common';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '../common';
 import { cn } from '../../utils';
 import { CAPAS_DISPONIBLES } from './configCapas';
 
@@ -42,22 +42,24 @@ const PanelCapasMapa = memo(function PanelCapasMapa({
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         <div className="flex items-center gap-2 mb-2">
-          <button
-            type="button"
+          <Button
+            variant="outline"
+            size="sm"
             onClick={onActivarTodas}
-            className="text-xs px-2 py-1 rounded-md border border-border/60 hover:bg-muted/40 transition-colors"
             aria-label="Activar todas las capas"
+            className="text-xs"
           >
             Activar todas
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={onOcultarTodas}
-            className="text-xs px-2 py-1 rounded-md border border-border/60 hover:bg-muted/40 transition-colors"
             aria-label="Ocultar todas las capas"
+            className="text-xs"
           >
             Ocultar todas
-          </button>
+          </Button>
         </div>
 
         <ul className="flex flex-col gap-1.5" role="list">

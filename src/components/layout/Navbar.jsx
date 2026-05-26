@@ -1,14 +1,30 @@
 /**
  * Componente Navbar
  *
- * Barra de navegacion superior del dashboard. En mobile despliega un Sheet
- * (basado en Radix UI Dialog) con focus trap, ESC handling y bloqueo de
- * scroll automaticos. La logica manual previa (useEffect para body overflow,
- * useEffect para ESC, backdrop button) queda absorbida por el primitive.
+ * Barra de navegacion superior. Diseño basado en 3 columnas con grid:
+ *
+ *   [ Logo (left) ] [ Nav icons (center) ] [ Auth + filter (right) ]
+ *
+ * Cada columna se autoabsorbe (min-w-0) para no empujar a las otras y
+ * evitar el bug previo donde 14 items con label desbordaban el viewport
+ * y se superponian al logo (x=348 < x=298 del primer item) y al boton de
+ * cerrar sesion (x=1520 ~ x=1558 de BI).
+ *
+ * Reglas firmes:
+ *   - La navegacion central es SIEMPRE icon-only en desktop (md+). El
+ *     label se expone via `aria-label` y `title` (tooltip nativo). Es la
+ *     unica forma estable de meter 14 items sin chocar.
+ *   - El indicador de pagina activa es un punto cyan bajo el icono, no un
+ *     underline largo (mas robusto frente a anchuras variables del item).
+ *   - En mobile, el Sheet (Radix Dialog) sigue mostrando labels completos.
  */
 
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User, LogOut, MapPin, Wind, Volume2, LayoutDashboard, AlertTriangle, Zap, Bike, Users, FileWarning, Activity, Recycle, TrafficCone, Filter, Sparkles } from 'lucide-react';
+import {
+  Menu, X, User, LogOut, MapPin, Wind, Volume2, LayoutDashboard,
+  AlertTriangle, Zap, Bike, Users, FileWarning, Activity, Footprints,
+  Recycle, TrafficCone, Filter, Sparkles
+} from 'lucide-react';
 import { useState } from 'react';
 import { Button, Sheet, SheetContent, SheetTitle } from '../common';
 import { useAuth, useFiltroGeo } from '../../context';
@@ -18,22 +34,22 @@ import { cn } from '../../utils';
 const navigationItems = [
   { path: ROUTES.DASHBOARD, label: 'Dashboard', icon: LayoutDashboard },
   { path: ROUTES.UBICACIONES, label: 'Ubicaciones', icon: MapPin },
-  { path: ROUTES.CALIDAD_AIRE, label: 'Calidad del Aire', icon: Wind },
-  { path: ROUTES.RUIDO, label: 'Ruido', icon: Volume2 },
+  { path: ROUTES.CALIDAD_AIRE, label: 'Calidad del aire', icon: Wind },
+  { path: ROUTES.RUIDO, label: 'Ruido ambiental', icon: Volume2 },
   { path: ROUTES.ACCIDENTES, label: 'Accidentes', icon: AlertTriangle },
   { path: ROUTES.PATINETES, label: 'Patinetes', icon: Zap },
   { path: ROUTES.BICICLETAS, label: 'Bicicletas', icon: Bike },
   { path: ROUTES.CENSO, label: 'Censo', icon: Users },
   { path: ROUTES.MULTAS, label: 'Multas', icon: FileWarning },
-  { path: ROUTES.AFORO_BICICLETAS, label: 'Aforo Bicis', icon: Activity },
+  { path: ROUTES.AFORO_BICICLETAS, label: 'Aforo de bicicletas', icon: Activity },
+  { path: ROUTES.AFORO_PEATONES, label: 'Aforo de peatones', icon: Footprints },
   { path: ROUTES.CONTENEDORES, label: 'Contenedores', icon: Recycle },
   { path: ROUTES.TRAFICO, label: 'Trafico', icon: TrafficCone },
   { path: ROUTES.CORRELACIONES, label: 'Analisis BI', icon: Sparkles }
 ];
 
 /**
- * Chip que muestra el filtro geografico global activo (BI cross-project).
- * Se renderiza solo cuando hay filtro y permite limpiarlo de un click.
+ * Chip de filtro geografico global. Solo se renderiza si hay filtro activo.
  */
 function ChipFiltroGeo() {
   const { distrito, barrio, tieneFiltro, limpiarFiltro } = useFiltroGeo();
@@ -41,11 +57,11 @@ function ChipFiltroGeo() {
 
   return (
     <div
-      className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-xs font-medium text-primary"
+      className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs font-medium text-cyan-300"
       title="Filtro geografico activo en todo el dashboard"
     >
-      <Filter className="size-3.5" aria-hidden="true" />
-      <span className="max-w-[180px] truncate">
+      <Filter className="size-3" aria-hidden="true" />
+      <span className="max-w-[120px] truncate">
         {distrito}
         {barrio ? ` / ${barrio}` : ''}
       </span>
@@ -53,9 +69,9 @@ function ChipFiltroGeo() {
         type="button"
         onClick={limpiarFiltro}
         aria-label="Limpiar filtro geografico"
-        className="ml-1 hover:text-foreground transition-colors rounded-full hover:bg-primary/20 p-0.5"
+        className="ml-0.5 hover:text-foreground transition-colors rounded-full hover:bg-cyan-500/20 p-0.5"
       >
-        <X className="size-3" aria-hidden="true" />
+        <X className="size-2.5" aria-hidden="true" />
       </button>
     </div>
   );
@@ -78,56 +94,91 @@ function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50">
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-xl border-b border-border/60" />
+      <nav
+        className="fixed top-0 left-0 right-0 z-50"
+        aria-label="Navegacion principal"
+      >
+        <div className="absolute inset-0 bg-background/85 backdrop-blur-xl border-b border-border/60" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link to={ROUTES.DASHBOARD} className="flex items-center gap-3 group">
-              <div className="size-10 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 transition-transform group-hover:scale-105">
-                <span className="text-white font-bold text-xl">A</span>
-              </div>
-              <div className="hidden sm:block">
-                <h1 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">Anthem City</h1>
-                <p className="text-xs text-muted-foreground">Smart Dashboard</p>
-              </div>
+          {/* Grid 3 columnas evita el problema de flex-1 con contenido
+              que desborda: cada columna ocupa solo lo que necesita y la
+              central scrollea horizontalmente si fuese necesario. */}
+          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 h-16">
+
+            {/* Columna 1: Logo */}
+            <Link
+              to={ROUTES.DASHBOARD}
+              className="flex items-center gap-2 group shrink-0"
+              aria-label="Ir al dashboard de Anthem City"
+            >
+              <span
+                className="size-2 rounded-full bg-cyan-400 group-hover:bg-cyan-300 transition-colors shrink-0"
+                aria-hidden="true"
+              />
+              <span className="font-display text-base font-bold text-foreground tracking-tight">
+                Anthem
+              </span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hidden lg:inline">
+                /city
+              </span>
             </Link>
 
-            <div className="hidden md:flex items-center">
-              <div className="flex items-center bg-card/50 rounded-2xl p-1.5 border border-border/60">
+            {/* Columna 2: Navegacion central icon-only.
+                min-w-0 permite que el contenedor se encoja por debajo del
+                ancho natural de sus hijos; overflow-x-auto lo hace
+                scrolleable si las 14 iconos no cupiesen.
+                scrollbar-thin via CSS escondemos la barra fea. */}
+            <div className="hidden md:flex justify-center min-w-0">
+              <ul className="flex items-center gap-0.5 overflow-x-auto no-scrollbar">
                 {navigationItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = location.pathname === item.path;
 
                   return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      aria-current={isActive ? 'page' : undefined}
-                      className={cn(
-                        'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200',
-                        isActive
-                          ? 'bg-gradient-to-r from-cyan-600/80 to-emerald-600/80 text-white shadow-lg shadow-cyan-500/20'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                      )}
-                    >
-                      <Icon className="size-4" aria-hidden="true" />
-                      <span>{item.label}</span>
-                    </Link>
+                    <li key={item.path} className="shrink-0">
+                      <Link
+                        to={item.path}
+                        aria-current={isActive ? 'page' : undefined}
+                        aria-label={item.label}
+                        title={item.label}
+                        className={cn(
+                          'relative flex items-center justify-center size-9 rounded-md transition-colors',
+                          isActive
+                            ? 'text-cyan-300 bg-cyan-500/10'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-card/60'
+                        )}
+                      >
+                        <Icon className="size-4" aria-hidden="true" />
+                        {isActive && (
+                          <span
+                            className="absolute -bottom-1 left-1/2 -translate-x-1/2 size-1 rounded-full bg-cyan-400"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </Link>
+                    </li>
                   );
                 })}
-              </div>
+              </ul>
             </div>
 
-            <div className="flex items-center gap-3">
+            {/* Columna 3: chip filtro + usuario + logout (desktop) o burger (mobile) */}
+            <div className="flex items-center gap-2 shrink-0 justify-self-end">
               {isAuthenticated && <ChipFiltroGeo />}
+
               {isAuthenticated ? (
-                <div className="hidden sm:flex items-center gap-3">
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card/50 border border-border/60">
-                    <div className="size-7 rounded-lg bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
-                      <User className="size-4 text-white" aria-hidden="true" />
+                <div className="hidden sm:flex items-center gap-1.5">
+                  <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-card/50 border border-border/60">
+                    <div
+                      className="size-5 rounded bg-cyan-500/15 flex items-center justify-center shrink-0"
+                      aria-hidden="true"
+                    >
+                      <User className="size-3 text-cyan-400" />
                     </div>
-                    <span className="text-sm font-medium text-foreground">{user?.username || 'Usuario'}</span>
+                    <span className="text-xs font-medium text-foreground truncate max-w-[100px]">
+                      {user?.username || 'Usuario'}
+                    </span>
                   </div>
 
                   <Button
@@ -136,7 +187,7 @@ function Navbar() {
                     onClick={handleLogout}
                     title="Cerrar sesion"
                     aria-label="Cerrar sesion"
-                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    className="size-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                   >
                     <LogOut className="size-4" aria-hidden="true" />
                   </Button>
@@ -144,7 +195,7 @@ function Navbar() {
               ) : (
                 <Link to={ROUTES.LOGIN}>
                   <Button variant="primary" size="sm">
-                    Iniciar Sesion
+                    Iniciar sesion
                   </Button>
                 </Link>
               )}
@@ -152,7 +203,7 @@ function Navbar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className="md:hidden size-9"
                 onClick={() => setIsMobileMenuOpen((prev) => !prev)}
                 aria-label={isMobileMenuOpen ? 'Cerrar menu de navegacion' : 'Abrir menu de navegacion'}
                 aria-expanded={isMobileMenuOpen}
@@ -168,15 +219,15 @@ function Navbar() {
         </div>
       </nav>
 
-      {/* Sheet (slide-down) para menu de navegacion mobile.
-          Radix gestiona focus trap, ESC handling, aria-modal y bloqueo de scroll. */}
+      {/* Sheet (slide-down) mobile. Radix gestiona focus trap, ESC, aria-modal,
+          y bloqueo de scroll del body. */}
       <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
         <SheetContent
           side="top"
           className="md:hidden mt-16 max-h-[calc(100vh-4rem)] overflow-y-auto rounded-b-2xl"
         >
           <SheetTitle className="sr-only">Menu de navegacion</SheetTitle>
-          <nav aria-label="Navegacion principal mobile" className="flex flex-col gap-1 p-2">
+          <nav aria-label="Navegacion principal mobile" className="flex flex-col gap-0.5 p-2">
             {navigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -188,10 +239,10 @@ function Navbar() {
                   onClick={cerrarMenu}
                   aria-current={isActive ? 'page' : undefined}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all',
+                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-gradient-to-r from-cyan-600/80 to-emerald-600/80 text-white'
-                      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                      ? 'bg-cyan-500/10 text-cyan-300 border-l-2 border-cyan-400'
+                      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground border-l-2 border-transparent'
                   )}
                 >
                   <Icon className="size-5" aria-hidden="true" />
@@ -204,8 +255,8 @@ function Navbar() {
               <>
                 <div className="h-px bg-border/60 my-2" />
                 <div className="flex items-center gap-3 px-4 py-2">
-                  <div className="size-8 rounded-lg bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
-                    <User className="size-4 text-white" aria-hidden="true" />
+                  <div className="size-8 rounded-md bg-cyan-500/15 flex items-center justify-center">
+                    <User className="size-4 text-cyan-400" aria-hidden="true" />
                   </div>
                   <span className="text-sm font-medium text-foreground">{user?.username || 'Usuario'}</span>
                 </div>
@@ -215,10 +266,11 @@ function Navbar() {
                     cerrarMenu();
                     handleLogout();
                   }}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                  aria-label="Cerrar sesion"
                 >
                   <LogOut className="size-5" aria-hidden="true" />
-                  Cerrar Sesion
+                  Cerrar sesion
                 </button>
               </>
             )}

@@ -22,10 +22,32 @@ export function normalizarRespuestaLista(response, dataKey = 'data') {
 
   const inner = envelope.data;
 
+  // Estrategia de busqueda del array de registros:
+  //   1) inner[dataKey]    - si el llamador especifico la clave (mejor caso)
+  //   2) inner.data        - convencion mas comun en este backend
+  //   3) inner             - si la propia inner es ya un array plano
+  //   4) inner[<primera>]  - fallback: primera propiedad que sea array
+  //      (asignaciones, registros, estaciones, etc.). Evita el bug donde
+  //      el endpoint cambia el nombre del array y el normalizer devuelve
+  //      [] silenciosamente provocando "datos en 0" en la UI.
+  let data;
+  if (Array.isArray(inner?.[dataKey])) {
+    data = inner[dataKey];
+  } else if (Array.isArray(inner?.data)) {
+    data = inner.data;
+  } else if (Array.isArray(inner)) {
+    data = inner;
+  } else {
+    const primerArray = inner && typeof inner === 'object'
+      ? Object.values(inner).find(v => Array.isArray(v))
+      : null;
+    data = primerArray || [];
+  }
+
   return {
     success: envelope.success,
     message: envelope.message,
-    data: inner[dataKey] || inner.data || [],
+    data,
     pagination: inner.pagination || null,
     filters: inner.filters || null
   };

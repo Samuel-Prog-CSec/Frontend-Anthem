@@ -1,9 +1,16 @@
 /**
  * Pagina de Dashboard
  *
- * Vista principal del dashboard de Smart City. Compone secciones independientes
- * (BannerCabecera, estadisticas, accesos rapidos, estado del sistema). La carga
- * de metricas vive en useEstadisticasDashboard: 3 requests paralelas con AbortController.
+ * Vista principal del dashboard de Smart City. Refactor anti AI-slop:
+ *
+ *   - Header con eyebrow editorial (via PageLayout).
+ *   - Hero data-first (BannerCabecera) en vez del banner "bienvenida + gradient".
+ *   - Stats con grid 12 columnas que da pesos visuales asimetricos.
+ *   - Modulos numerados (01-09) para anclar la idea de catalogo en lugar
+ *     de "tiles" identicos.
+ *
+ * La logica sigue delegada en useEstadisticasDashboard (3 requests
+ * paralelas con AbortController).
  */
 
 import {
@@ -21,15 +28,15 @@ import {
 } from './components';
 
 const MODULOS_ACCESO_RAPIDO = [
-  { titulo: 'Ubicaciones', descripcion: 'Estaciones de medicion, rutas de transporte y zonas de interes', icono: MapPin, color: 'cyan', ruta: ROUTES.UBICACIONES },
-  { titulo: 'Calidad del Aire', descripcion: 'Niveles de contaminantes (NO2, O3, PM10) y tendencias', icono: Wind, color: 'emerald', ruta: ROUTES.CALIDAD_AIRE },
-  { titulo: 'Ruido Ambiental', descripcion: 'Niveles de ruido por zona y periodo (diurno, vespertino, nocturno)', icono: Volume2, color: 'purple', ruta: ROUTES.RUIDO },
-  { titulo: 'Accidentes', descripcion: 'Datos de accidentalidad por distrito, tipo y gravedad', icono: AlertTriangle, color: 'amber', ruta: ROUTES.ACCIDENTES },
-  { titulo: 'Patinetes', descripcion: 'Asignacion de patinetes por distrito, proveedor y densidad', icono: Zap, color: 'rose', ruta: ROUTES.PATINETES },
-  { titulo: 'Bicicletas', descripcion: 'Disponibilidad de bicicletas, usos diarios y suscripciones', icono: Bike, color: 'sky', ruta: ROUTES.BICICLETAS },
-  { titulo: 'Censo', descripcion: 'Datos demograficos por distrito, barrio y grupo de edad', icono: Users, color: 'cyan', ruta: ROUTES.CENSO },
-  { titulo: 'Multas', descripcion: 'Infracciones de trafico, importes, calificaciones y ubicaciones', icono: FileWarning, color: 'amber', ruta: ROUTES.MULTAS },
-  { titulo: 'Aforo Bicicletas', descripcion: 'Conteo horario de trafico ciclista por estacion', icono: Activity, color: 'emerald', ruta: ROUTES.AFORO_BICICLETAS }
+  { codigo: '01', titulo: 'Ubicaciones', descripcion: 'Estaciones de medicion, rutas de transporte y zonas de interes', icono: MapPin, color: 'cyan', ruta: ROUTES.UBICACIONES },
+  { codigo: '02', titulo: 'Calidad del Aire', descripcion: 'Niveles de contaminantes (NO2, O3, PM10) y tendencias', icono: Wind, color: 'emerald', ruta: ROUTES.CALIDAD_AIRE },
+  { codigo: '03', titulo: 'Ruido Ambiental', descripcion: 'Niveles de ruido por zona y periodo (diurno, vespertino, nocturno)', icono: Volume2, color: 'purple', ruta: ROUTES.RUIDO },
+  { codigo: '04', titulo: 'Accidentes', descripcion: 'Datos de accidentalidad por distrito, tipo y gravedad', icono: AlertTriangle, color: 'amber', ruta: ROUTES.ACCIDENTES },
+  { codigo: '05', titulo: 'Patinetes', descripcion: 'Asignacion de patinetes por distrito, proveedor y densidad', icono: Zap, color: 'rose', ruta: ROUTES.PATINETES },
+  { codigo: '06', titulo: 'Bicicletas', descripcion: 'Disponibilidad de bicicletas, usos diarios y suscripciones', icono: Bike, color: 'sky', ruta: ROUTES.BICICLETAS },
+  { codigo: '07', titulo: 'Censo', descripcion: 'Datos demograficos por distrito, barrio y grupo de edad', icono: Users, color: 'cyan', ruta: ROUTES.CENSO },
+  { codigo: '08', titulo: 'Multas', descripcion: 'Infracciones de trafico, importes, calificaciones y ubicaciones', icono: FileWarning, color: 'amber', ruta: ROUTES.MULTAS },
+  { codigo: '09', titulo: 'Aforo Bicicletas', descripcion: 'Conteo horario de trafico ciclista por estacion', icono: Activity, color: 'emerald', ruta: ROUTES.AFORO_BICICLETAS }
 ];
 
 function DashboardPage() {
@@ -37,22 +44,25 @@ function DashboardPage() {
 
   return (
     <PageLayout
-      title="Dashboard"
-      description={`Sistema de monitoreo urbano - Anthem City ${DATE_CONFIG.DATASET_YEAR}`}
+      eyebrow="Dashboard / Vista general"
+      title="Centro de control"
+      description={`Indicadores agregados de la Smart City Anthem ${DATE_CONFIG.DATASET_YEAR}. Cada modulo enlaza con su vista detallada con filtros, mapas y series temporales.`}
     >
       <BannerCabecera />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      {/* Stats: grid 3 columnas en md, mantiene pesos pero las cards ya
+          tienen tratamiento individual (acento lateral, no gradient + glow). */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-14">
         <TarjetaEstadisticaDashboard
-          titulo="Ubicaciones"
+          titulo="Ubicaciones registradas"
           valor={estadisticas.ubicaciones.total.toLocaleString()}
-          subtitulo="Puntos de interes registrados"
+          subtitulo="Puntos de interes y medicion"
           icono={MapPin}
           color="cyan"
           cargando={estadisticas.ubicaciones.cargando}
         />
         <TarjetaEstadisticaDashboard
-          titulo="Mediciones de Aire"
+          titulo="Mediciones de aire"
           valor={estadisticas.calidadAire.total.toLocaleString()}
           subtitulo="Registros de calidad ambiental"
           icono={Wind}
@@ -60,7 +70,7 @@ function DashboardPage() {
           cargando={estadisticas.calidadAire.cargando}
         />
         <TarjetaEstadisticaDashboard
-          titulo="Mediciones de Ruido"
+          titulo="Mediciones de ruido"
           valor={estadisticas.ruido.total.toLocaleString()}
           subtitulo="Registros de nivel acustico"
           icono={Volume2}
@@ -69,20 +79,27 @@ function DashboardPage() {
         />
       </div>
 
-      <div className="mb-10">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-bold text-foreground">Modulos del Sistema</h2>
-            <p className="text-sm text-muted-foreground">Accede a las diferentes secciones del dashboard</p>
-          </div>
+      {/* Modulos: header editorial con eyebrow + titulo + descriptor */}
+      <section className="mb-14" aria-labelledby="dashboard-modulos-titulo">
+        <div className="mb-8">
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted-foreground mb-2">
+            Catalogo / 9 modulos
+          </p>
+          <h2 id="dashboard-modulos-titulo" className="font-display text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+            Modulos del sistema
+          </h2>
+          <p className="text-sm text-muted-foreground mt-2 max-w-xl">
+            Cada modulo expone sus propios filtros, agregados y visualizaciones.
+            Los datos provienen del mismo modelo unificado.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {MODULOS_ACCESO_RAPIDO.map((modulo) => (
             <TarjetaAccesoRapido key={modulo.ruta} {...modulo} />
           ))}
         </div>
-      </div>
+      </section>
 
       <EstadoSistema />
     </PageLayout>

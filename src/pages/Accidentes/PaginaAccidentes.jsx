@@ -34,7 +34,10 @@ import {
 
 const FILTROS_INICIALES = { distrito: '', tipoAccidente: '', gravedad: '', mes: '' };
 const PARAMS_HEATMAP_FIJOS = { limite: 300, precision: 100 };
-const LIMITE_MAPA = 3000;
+// El validator del backend (MAP_LIMITS.DEFAULT_MAX) cappea /accidentes/mapa
+// a 1000 registros por seguridad (cada feature carga geometria + props).
+// Si esto cambia en el backend, sincronizar aqui.
+const LIMITE_MAPA = 1000;
 
 function PaginaAccidentes() {
   const [filtros, setFiltros] = useState(FILTROS_INICIALES);
@@ -100,7 +103,15 @@ function PaginaAccidentes() {
 
   // Extraer datos de las respuestas (estabilizar referencias para useMemo)
   const datos = useMemo(() => accidentesResult?.data || [], [accidentesResult?.data]);
-  const datosDistritos = useMemo(() => distritosResult?.data || [], [distritosResult?.data]);
+  // Acepta array plano o envuelto (data.estadisticas / data.data) para
+  // tolerar cambios de shape del endpoint /accidentes/distritos.
+  const datosDistritos = useMemo(() => {
+    const raw = distritosResult?.data;
+    if (Array.isArray(raw)) return raw;
+    if (Array.isArray(raw?.estadisticas)) return raw.estadisticas;
+    if (Array.isArray(raw?.data)) return raw.data;
+    return [];
+  }, [distritosResult?.data]);
   const estadisticasGenerales = statsResult?.data || null;
   const error = mainError?.message || null;
 

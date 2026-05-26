@@ -79,11 +79,31 @@ function PaginaPatinetes() {
     isLoading: cargandoArea
   } = usePatinetesDetallesArea(areaQuery?.distrito, areaQuery?.barrio);
 
-  // Extraer datos de las respuestas (estabilizar referencias para useMemo)
+  // Extraer datos de las respuestas (estabilizar referencias para useMemo).
+  // Los endpoints pueden devolver `data` como array plano o envuelto en
+  // distintas claves segun la version del controller. Helper local para
+  // tolerar ambos shapes y no romper los .map() de abajo.
   const datos = useMemo(() => assignmentsResult?.data || [], [assignmentsResult?.data]);
-  const estadisticasDistritos = useMemo(() => statsResult?.data || [], [statsResult?.data]);
-  const datosMercado = useMemo(() => mercadoResult?.data || [], [mercadoResult?.data]);
-  const zonasConcentracion = useMemo(() => zonasResult?.data || [], [zonasResult?.data]);
+  const estadisticasDistritos = useMemo(() => {
+    const raw = statsResult?.data;
+    if (Array.isArray(raw)) return raw;
+    if (Array.isArray(raw?.estadisticas)) return raw.estadisticas;
+    if (Array.isArray(raw?.districtStatistics)) return raw.districtStatistics;
+    if (Array.isArray(raw?.data)) return raw.data;
+    return [];
+  }, [statsResult?.data]);
+  const datosMercado = useMemo(() => {
+    const raw = mercadoResult?.data;
+    if (Array.isArray(raw)) return raw;
+    if (Array.isArray(raw?.data)) return raw.data;
+    return [];
+  }, [mercadoResult?.data]);
+  const zonasConcentracion = useMemo(() => {
+    const raw = zonasResult?.data;
+    if (Array.isArray(raw)) return raw;
+    if (Array.isArray(raw?.data)) return raw.data;
+    return [];
+  }, [zonasResult?.data]);
   const areaSeleccionada = areaQuery ? (areaResult?.data || null) : null;
   const error = mainError?.message || null;
 

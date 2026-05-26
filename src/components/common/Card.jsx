@@ -23,9 +23,12 @@ const Card = memo(forwardRef(({ className, hover = false, glow = false, ...props
   <div
     ref={ref}
     className={cn(
-      'rounded-2xl border border-border/60 bg-card/60 text-card-foreground backdrop-blur-xl shadow-xl',
-      'transition-all duration-300',
-      hover && 'hover:border-border hover:bg-card/80 hover:shadow-2xl hover:-translate-y-0.5',
+      // Anti AI-slop: rounded-xl en lugar de 2xl (menos "marshmallow"),
+      // shadow sutil en lugar de shadow-xl agresivo, sin translate-y en
+      // hover por defecto (la accion solo ocurre cuando hover=true).
+      'rounded-xl border border-border/60 bg-card/60 text-card-foreground backdrop-blur-sm shadow-sm',
+      'transition-colors duration-200',
+      hover && 'hover:border-border hover:bg-card/80',
       glow && 'hover:shadow-primary/10',
       className
     )}
@@ -47,18 +50,33 @@ const CardHeader = memo(forwardRef(({ className, ...props }, ref) => (
 CardHeader.displayName = 'CardHeader';
 
 /**
- * Titulo de la tarjeta
+ * Titulo de la tarjeta.
+ *
+ * Por defecto se renderiza como `<h3>` para preservar el comportamiento
+ * historico, pero acepta `as="h2"` (u otro nivel) cuando el CardTitle
+ * funciona como heading principal de una pagina. Esto evita saltos en
+ * la jerarquia de encabezados (h1 -> h3) que rompen accesibilidad
+ * (WCAG 1.3.1 - estructura semantica).
+ *
+ * @example
+ *   <CardTitle as="h2">Aforo de peatones</CardTitle>
  */
-const CardTitle = memo(forwardRef(({ className, ...props }, ref) => (
-  <h3
-    ref={ref}
-    className={cn(
-      'text-xl font-bold leading-tight tracking-tight text-foreground',
-      className
-    )}
-    {...props}
-  />
-)));
+const CardTitle = memo(forwardRef(({ as = 'h3', className, ...props }, ref) => {
+  // ESLint con JSX no siempre detecta el uso de una variable destructurada
+  // como tag dinamico (`<Component .../>`). Asignar a una variable local con
+  // mayuscula sortea la regla sin necesidad de disable-comment.
+  const Heading = as;
+  return (
+    <Heading
+      ref={ref}
+      className={cn(
+        'font-display text-lg font-bold leading-tight tracking-tight text-foreground',
+        className
+      )}
+      {...props}
+    />
+  );
+}));
 CardTitle.displayName = 'CardTitle';
 
 /**

@@ -20,6 +20,10 @@ import { MapaInteractivo } from './MapaInteractivo';
 function CapaCalor({ puntos, radius = 25, blur = 15, maxZoom = 17 }) {
   const map = useMap();
   useEffect(() => {
+    // Si no hay puntos no creamos layer y devolvemos undefined: la layer
+    // de la iteracion anterior (si existia) ya fue limpiada por React al
+    // ejecutar su cleanup antes de re-correr el effect, asi que el mapa
+    // queda en el estado correcto sin trabajo extra aqui.
     if (!puntos || puntos.length === 0) {return undefined;}
     const layer = L.heatLayer(puntos, { radius, blur, maxZoom });
     layer.addTo(map);

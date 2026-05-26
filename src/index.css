@@ -156,7 +156,11 @@ html {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth quitado. En Chrome combinaba mal con re-renders
+     de React Query: cada llegada de datos durante un scroll en curso hacia
+     que el browser interpolase la posicion y el usuario percibia
+     "los elementos bajan en vez del viewport". El smooth scroll de anclas
+     se gestiona caso por caso con scrollIntoView({behavior:'smooth'}). */
 }
 
 /* Tipografia display (Space Grotesk) para headings principales y numeros grandes.
@@ -289,23 +293,25 @@ a:hover {
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
-/* Stagger fadeIn para entradas escalonadas en hijos directos.
-   Aplicar la clase contenedora `.stagger-children` para que cada hijo
-   sucesivo entre con un retardo creciente, generando una sensacion
-   de cascada elegante en la carga inicial de paginas y dashboards. */
+/* `.stagger-children` queda como no-op para garantizar estabilidad visual.
+ *
+ * Historico: aplicaba `opacity: 0` + `slideUp 450ms forwards` a TODOS los
+ * hijos del contenedor. Eso provocaba un bug visual reportado en QA:
+ * cuando React re-renderizaba (al filtrar, paginar, recibir datos async,
+ * etc.) los hijos volvian a entrar desde `opacity: 0 + translateY(10px)`,
+ * dando la sensacion de "los elementos bajan y se ve el fondo en negro".
+ * Tambien se confundia con un fallo de scroll porque la primera pulsacion
+ * de la rueda coincidia con un nuevo render → re-entrada animada → el
+ * usuario percibia que la pagina no scrolleaba.
+ *
+ * Solucion conservadora: los elementos aparecen estables, sin animacion
+ * de entrada. La sensacion "premium" se aporta con un fade-in suave a
+ * nivel de pagina (clase `.animate-fade-in`, que se aplica una vez en
+ * mount al contenedor PageLayout). */
 .stagger-children > * {
-  opacity: 0;
-  animation: slideUp 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 1;
+  transform: none;
 }
-.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
-.stagger-children > *:nth-child(2) { animation-delay: 60ms; }
-.stagger-children > *:nth-child(3) { animation-delay: 120ms; }
-.stagger-children > *:nth-child(4) { animation-delay: 180ms; }
-.stagger-children > *:nth-child(5) { animation-delay: 240ms; }
-.stagger-children > *:nth-child(6) { animation-delay: 300ms; }
-.stagger-children > *:nth-child(7) { animation-delay: 360ms; }
-.stagger-children > *:nth-child(8) { animation-delay: 420ms; }
-.stagger-children > *:nth-child(n+9) { animation-delay: 480ms; }
 
 /* Gradient sweep en hover: una franja diagonal de luz cyan/emerald cruza
    la card al pasar el raton. Tecnica `::before` con transform translateX
@@ -336,6 +342,17 @@ a:hover {
 .card-hover-sweep > * {
   position: relative;
   z-index: 1;
+}
+
+/* Utility no-scrollbar: esconde scrollbars (horizontal o vertical) sin
+   perder funcionalidad. Util en la nav central que puede llegar a
+   scrollear horizontalmente con muchos items. */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* Reducir intensidad de backdrop-blur en mobile (perf): los compositores de

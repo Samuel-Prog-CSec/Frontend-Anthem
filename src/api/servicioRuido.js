@@ -58,8 +58,12 @@ export async function obtenerListaEstacionesRuido({ signal } = {}) {
     // Fallback: extraer de los datos principales
   }
 
+  // El validator de /ruido cappea `limit` a 100 (PAGINATION.MAX_LIMIT).
+  // Antes pediamos 200 y el endpoint devolvia 400. Si se necesitan mas
+  // estaciones, consumir el endpoint dedicado de estaciones en lugar de
+  // listar mediciones crudas.
   const response = await apiClient.get('/ruido', {
-    params: { limit: 200 },
+    params: { limit: 100 },
     signal
   });
 

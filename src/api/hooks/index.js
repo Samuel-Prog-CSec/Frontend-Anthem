@@ -14,6 +14,15 @@ export { useDistritoPorNombre } from './useDistritoPorNombre';
 export { useMultas, useMultaDetalle, useMultasEstadisticas, useMultasRanking, useMultasTemporal, useMultasDashboard } from './useMultas';
 export { useAforoBicicletas, useAforoEstacion, useAforoEstadisticas, useAforoDistribucionHoraria, useAforoEstaciones, useAforoTendencias } from './useAforoBicicletas';
 export {
+  useAforoPeatones,
+  useAforoPeatonesEstacion,
+  useAforoPeatonesEstadisticas,
+  useAforoPeatonesDistribucionHoraria,
+  useAforoPeatonesEstaciones,
+  useAforoPeatonesTendencias,
+  useMapaAforoPeatones
+} from './useAforoPeatones';
+export {
   useContenedores,
   useContenedoresEstadisticas,
   useContenedoresPorDistrito,

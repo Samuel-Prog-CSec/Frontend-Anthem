@@ -26,6 +26,7 @@ const PaginaBicicletas = lazy(() => import('./pages/Bicicletas/PaginaBicicletas'
 const PaginaCenso = lazy(() => import('./pages/Censo/PaginaCenso'));
 const PaginaMultas = lazy(() => import('./pages/Multas/PaginaMultas'));
 const PaginaAforoBicicletas = lazy(() => import('./pages/AforoBicicletas/PaginaAforoBicicletas'));
+const PaginaAforoPeatones = lazy(() => import('./pages/AforoPeatones/PaginaAforoPeatones'));
 const PaginaContenedores = lazy(() => import('./pages/Contenedores/PaginaContenedores'));
 const PaginaTrafico = lazy(() => import('./pages/Trafico/PaginaTrafico'));
 const PaginaDistrito = lazy(() => import('./pages/Distrito/PaginaDistrito'));
@@ -207,6 +208,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PaginaAforoBicicletas />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.AFORO_PEATONES}
+          element={
+            <ProtectedRoute>
+              <PaginaAforoPeatones />
             </ProtectedRoute>
           }
         />

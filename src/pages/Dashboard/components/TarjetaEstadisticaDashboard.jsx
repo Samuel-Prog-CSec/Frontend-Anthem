@@ -1,8 +1,18 @@
 /**
  * Componente TarjetaEstadisticaDashboard
  *
- * Tarjeta de metrica destacada para el dashboard con icono coloreado,
- * indicador de actividad y skeleton de carga integrado.
+ * Tarjeta de metrica con tratamiento "data-first": cifra dominante en
+ * font-display + tabular-nums, etiqueta minuscula como apoyo, icono
+ * subordinado al valor (no al reves).
+ *
+ * Cambios anti AI-slop respecto a la version previa:
+ *   - Se elimina el chip "Activo" pulse verde (era decoracion sin estado real).
+ *   - Se elimina el hover scale 1.02 sistematico (que se acumulaba en cada
+ *     card del dashboard generando una pagina que "respira" demasiado).
+ *   - El icono pasa de un cuadrado grande arriba a una marca lateral fina
+ *     que actua como acento, no como protagonista.
+ *   - Cada variante de color usa un accent diferente (no solo el iconos)
+ *     -- linea izquierda, valor con tinta sutil del color.
  */
 
 import { memo } from 'react';
@@ -10,22 +20,24 @@ import { cn } from '../../../utils';
 
 const VARIANTES_COLOR = {
   cyan: {
-    bg: 'bg-cyan-500/10',
-    border: 'border-cyan-500/30',
-    icon: 'text-cyan-400',
-    glow: 'shadow-cyan-500/10'
+    accent: 'bg-cyan-500',
+    iconBg: 'bg-cyan-500/10',
+    iconColor: 'text-cyan-400'
   },
   emerald: {
-    bg: 'bg-emerald-500/10',
-    border: 'border-emerald-500/30',
-    icon: 'text-emerald-400',
-    glow: 'shadow-emerald-500/10'
+    accent: 'bg-emerald-500',
+    iconBg: 'bg-emerald-500/10',
+    iconColor: 'text-emerald-400'
   },
   purple: {
-    bg: 'bg-purple-500/10',
-    border: 'border-purple-500/30',
-    icon: 'text-purple-400',
-    glow: 'shadow-purple-500/10'
+    accent: 'bg-violet-500',
+    iconBg: 'bg-violet-500/10',
+    iconColor: 'text-violet-400'
+  },
+  amber: {
+    accent: 'bg-amber-500',
+    iconBg: 'bg-amber-500/10',
+    iconColor: 'text-amber-400'
   }
 };
 
@@ -34,33 +46,30 @@ function TarjetaEstadisticaDashboardImpl({ titulo, valor, subtitulo, icono, colo
   const IconoComponente = icono;
 
   return (
-    <div
-      className={cn(
-        'relative group p-6 rounded-2xl border transition-all duration-300',
-        'bg-card/40 backdrop-blur-xl',
-        colores.border,
-        'hover:scale-[1.02] hover:shadow-xl',
-        colores.glow
-      )}
-    >
-      <div className={cn('size-14 rounded-xl flex items-center justify-center mb-4', colores.bg)}>
-        <IconoComponente className={cn('size-7', colores.icon)} aria-hidden="true" />
-      </div>
+    <div className="relative group h-full rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm transition-colors duration-300 hover:border-border hover:bg-card/60">
+      {/* Acento vertical izquierdo (1px) que da color sin saturar el card */}
+      <div className={cn('absolute left-0 top-6 bottom-6 w-px', colores.accent)} aria-hidden="true" />
 
-      <div className="mb-1">
-        {cargando ? (
-          <div className="h-10 w-24 bg-muted/50 animate-pulse rounded-lg" aria-label="Cargando" />
-        ) : (
-          <span className="text-4xl font-bold text-foreground tracking-tight">{valor}</span>
-        )}
-      </div>
+      <div className="p-6 pl-7">
+        <div className="flex items-start justify-between gap-4 mb-6">
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground leading-snug">
+            {titulo}
+          </p>
+          <div className={cn('shrink-0 size-9 rounded-lg flex items-center justify-center', colores.iconBg)}>
+            <IconoComponente className={cn('size-4', colores.iconColor)} aria-hidden="true" />
+          </div>
+        </div>
 
-      <h3 className="text-lg font-semibold text-foreground">{titulo}</h3>
-      <p className="text-sm text-muted-foreground">{subtitulo}</p>
-
-      <div className="absolute top-4 right-4 flex items-center gap-1.5">
-        <span className="size-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
-        <span className="text-xs text-muted-foreground">Activo</span>
+        <div className="space-y-2">
+          {cargando ? (
+            <div className="h-12 w-32 bg-muted/40 animate-pulse rounded-md" aria-label="Cargando" />
+          ) : (
+            <p className="stat-number text-4xl lg:text-5xl text-foreground leading-none">
+              {valor}
+            </p>
+          )}
+          <p className="text-sm text-muted-foreground leading-snug">{subtitulo}</p>
+        </div>
       </div>
     </div>
   );

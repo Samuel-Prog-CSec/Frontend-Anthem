@@ -1,91 +1,100 @@
 /**
  * Componente TarjetaAccesoRapido
  *
- * Tarjeta clickable con enlace a un modulo del dashboard.
- * Color seleccionable via variante prop, con animacion en hover.
+ * Tarjeta de acceso a un modulo del dashboard. Refactor anti AI-slop:
+ *
+ *   - Se elimina el `hover:-translate-y-1` (genericamente aplicado por la
+ *     version anterior a TODOS los modulos). El movimiento sistematico
+ *     denota plantilla.
+ *   - El icono pasa de "cuadrado grande con gradient + chevron a la derecha"
+ *     a un acento esquinero contenido, dejando el peso al titulo.
+ *   - El borde inferior se ilumina en hover en lugar de la silueta entera
+ *     (interaccion mas intencional, menos circo).
+ *   - Cada modulo expone una etiqueta de categoria pequena (modulo numerico)
+ *     que rompe la simetria absoluta.
  */
 
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { cn } from '../../../utils';
 
 const VARIANTES_COLOR = {
   cyan: {
-    iconBg: 'bg-gradient-to-br from-cyan-500/20 to-cyan-600/10',
-    iconColor: 'text-cyan-400',
-    hoverBorder: 'group-hover:border-cyan-500/50',
-    arrow: 'group-hover:text-cyan-400'
+    accentBg: 'bg-cyan-500/10',
+    accentIcon: 'text-cyan-400',
+    underline: 'group-hover:via-cyan-400'
   },
   emerald: {
-    iconBg: 'bg-gradient-to-br from-emerald-500/20 to-emerald-600/10',
-    iconColor: 'text-emerald-400',
-    hoverBorder: 'group-hover:border-emerald-500/50',
-    arrow: 'group-hover:text-emerald-400'
+    accentBg: 'bg-emerald-500/10',
+    accentIcon: 'text-emerald-400',
+    underline: 'group-hover:via-emerald-400'
   },
   purple: {
-    iconBg: 'bg-gradient-to-br from-purple-500/20 to-purple-600/10',
-    iconColor: 'text-purple-400',
-    hoverBorder: 'group-hover:border-purple-500/50',
-    arrow: 'group-hover:text-purple-400'
+    accentBg: 'bg-violet-500/10',
+    accentIcon: 'text-violet-400',
+    underline: 'group-hover:via-violet-400'
   },
   amber: {
-    iconBg: 'bg-gradient-to-br from-amber-500/20 to-amber-600/10',
-    iconColor: 'text-amber-400',
-    hoverBorder: 'group-hover:border-amber-500/50',
-    arrow: 'group-hover:text-amber-400'
+    accentBg: 'bg-amber-500/10',
+    accentIcon: 'text-amber-400',
+    underline: 'group-hover:via-amber-400'
   },
   rose: {
-    iconBg: 'bg-gradient-to-br from-rose-500/20 to-rose-600/10',
-    iconColor: 'text-rose-400',
-    hoverBorder: 'group-hover:border-rose-500/50',
-    arrow: 'group-hover:text-rose-400'
+    accentBg: 'bg-rose-500/10',
+    accentIcon: 'text-rose-400',
+    underline: 'group-hover:via-rose-400'
   },
   sky: {
-    iconBg: 'bg-gradient-to-br from-sky-500/20 to-sky-600/10',
-    iconColor: 'text-sky-400',
-    hoverBorder: 'group-hover:border-sky-500/50',
-    arrow: 'group-hover:text-sky-400'
+    accentBg: 'bg-sky-500/10',
+    accentIcon: 'text-sky-400',
+    underline: 'group-hover:via-sky-400'
   }
 };
 
-function TarjetaAccesoRapidoImpl({ titulo, descripcion, icono, color, ruta }) {
+function TarjetaAccesoRapidoImpl({ titulo, descripcion, icono, color, ruta, codigo }) {
   const colores = VARIANTES_COLOR[color] ?? VARIANTES_COLOR.cyan;
   const IconoComponente = icono;
 
   return (
-    <Link to={ruta} className="block group" aria-label={`Ir a ${titulo}`}>
-      <div
-        className={cn(
-          'relative h-full p-6 rounded-2xl border border-border/60 bg-card/40 backdrop-blur-xl',
-          'transition-all duration-300',
-          'hover:bg-card/60 hover:shadow-xl hover:-translate-y-1',
-          colores.hoverBorder
-        )}
-      >
-        <div className="flex items-start justify-between mb-4">
-          <div className={cn('size-14 rounded-xl flex items-center justify-center', colores.iconBg)}>
-            <IconoComponente className={cn('size-7', colores.iconColor)} aria-hidden="true" />
+    <Link
+      to={ruta}
+      className="relative group block h-full rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm overflow-hidden transition-colors hover:border-border hover:bg-card/70"
+      aria-label={`Ir a ${titulo}`}
+    >
+      <div className="p-6">
+        <div className="flex items-start justify-between gap-4 mb-5">
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            {codigo}
+          </span>
+          <div className={cn('shrink-0 size-10 rounded-lg flex items-center justify-center', colores.accentBg)}>
+            <IconoComponente className={cn('size-5', colores.accentIcon)} aria-hidden="true" />
           </div>
-          <ChevronRight
-            className={cn(
-              'size-5 text-muted-foreground transition-all duration-300',
-              'group-hover:translate-x-1',
-              colores.arrow
-            )}
-            aria-hidden="true"
-          />
         </div>
 
-        <h3 className="text-lg font-bold text-foreground mb-2">{titulo}</h3>
-        <p className="text-sm text-muted-foreground leading-relaxed">{descripcion}</p>
+        <h3 className="font-display text-xl text-foreground font-bold mb-2 leading-snug">
+          {titulo}
+        </h3>
 
-        <div className="mt-4 pt-4 border-t border-border/60 opacity-0 group-hover:opacity-100 transition-opacity">
-          <span className={cn('text-sm font-medium', colores.iconColor)}>
-            Explorar datos
-          </span>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+          {descripcion}
+        </p>
+
+        <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+          <span>Abrir modulo</span>
+          <ArrowUpRight className="size-3.5 transition-transform group-hover:-translate-y-px group-hover:translate-x-px" aria-hidden="true" />
         </div>
       </div>
+
+      {/* Hairline inferior con tinta de la variante en hover.
+          Reemplaza al hover:translate-y-1 + shadow generico. */}
+      <div
+        className={cn(
+          'absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent transition-colors',
+          colores.underline
+        )}
+        aria-hidden="true"
+      />
     </Link>
   );
 }

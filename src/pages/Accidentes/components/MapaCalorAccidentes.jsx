@@ -18,7 +18,8 @@ function extraerIntensidad(props) {
 const MapaCalorAccidentes = memo(function MapaCalorAccidentes({
   cargandoMapa,
   featureCollectionMapa,
-  limite = 3000
+  // Sincronizado con MAP_LIMITS.DEFAULT_MAX del backend.
+  limite = 1000
 }) {
   return (
     <Card className="mb-6">

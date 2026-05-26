@@ -16,7 +16,10 @@ export async function obtenerAsignaciones(params = {}, { signal } = {}) {
   };
 
   const response = await apiClient.get('/patinetes', { params: queryParams, signal });
-  return normalizarRespuestaLista(response);
+  // El endpoint /patinetes envuelve la lista en `data.asignaciones`, no en
+  // `data.data`. Sin este dataKey el normalizer no encontraba el array y
+  // todas las stats de PaginaPatinetes salian a 0.
+  return normalizarRespuestaLista(response, 'asignaciones');
 }
 
 export async function obtenerEstadisticasDistritos(params = {}, { signal } = {}) {
