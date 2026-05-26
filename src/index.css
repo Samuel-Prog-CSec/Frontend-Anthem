@@ -1,151 +1,178 @@
 /* PostCSS exige que TODOS los @import vayan antes de cualquier otra regla
-   (excepto @charset/@layer vacio). Por eso las fuentes van primero. */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+   (excepto @charset/@layer vacio). Por eso las fuentes van primero.
+
+   Tipografias del proyecto "Civic Operations Console":
+   - Instrument Serif (italic 400): display, headlines, valores hero.
+     Editorial, distintivo, evoca senaletica de ciudad/cartografia.
+   - Geist (400/500/600): sans UI, body, navegacion. Geometrico moderno
+     sin sentirse generico.
+   - Geist Mono / JetBrains Mono: datos, IDs, timestamps, eyebrows.
+     Caracter tecnico de telemetria. */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
-/* ========================================
-   SMART CITY DASHBOARD - DESIGN SYSTEM
-   Tema futurista para ciudad inteligente 2051
-   ========================================
+/* =====================================================================
+   CIVIC OPERATIONS CONSOLE - Smart City Anthem 2051
+   ---------------------------------------------------------------------
+   Sistema de diseno inspirado en consolas de operacion ciudadana reales:
+   paneles de control de trafico, terminales de telemetria, planos
+   tecnicos. Lejos del "AI slop" generico (gradientes morados, glows
+   neon, cards con backdrop-blur por defecto, stats grandes con icono).
 
-   Tokens shadcn/ui mapeados al tema oscuro propio. Esto habilita utilities como
-   bg-primary, text-foreground, border-border, bg-muted, text-muted-foreground...
-   sin perder los tokens de dominio (--color-air-good, --color-noise-low, etc.).
-   Se exponen via @theme inline (Tailwind v4) para que el motor genere las
-   clases utility correspondientes.
-   ======================================== */
+   Principios:
+   - Borders-only depth: jerarquia con hairlines en lugar de sombras.
+   - Paleta restringida: ink (asfalto), paper (modo claro), signal
+     (acento amarillo de senaletica vial), semantica desaturada.
+   - Tipografia editorial-tecnica: serif para hero, sans geometrico
+     para body, mono para datos.
+   - Spacing y radius pequenos: tecnico, no marshmallow.
+   ===================================================================== */
+
+/* @theme inline expone tokens a las utilities de Tailwind v4 y a los
+   primitives shadcn (bg-primary, text-foreground, border-border, etc.). */
 @theme inline {
-  --color-background: var(--color-bg-primary);
-  --color-foreground: var(--color-text-primary);
+  --color-background: var(--ink);
+  --color-foreground: var(--ink-text);
 
-  --color-card: var(--color-bg-card);
-  --color-card-foreground: var(--color-text-primary);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--ink-text);
 
-  --color-popover: var(--color-bg-card);
-  --color-popover-foreground: var(--color-text-primary);
+  --color-popover: var(--surface-raised);
+  --color-popover-foreground: var(--ink-text);
 
-  --color-primary: var(--color-primary-500);
-  --color-primary-foreground: #ffffff;
+  /* Primary = signal (uso muy parsimonioso, solo CTAs y estado activo) */
+  --color-primary: var(--signal);
+  --color-primary-foreground: var(--ink);
 
-  --color-secondary: var(--color-bg-tertiary);
-  --color-secondary-foreground: var(--color-text-primary);
+  --color-secondary: var(--surface-raised);
+  --color-secondary-foreground: var(--ink-text);
 
-  --color-muted: var(--color-bg-tertiary);
-  --color-muted-foreground: var(--color-text-secondary);
+  --color-muted: var(--surface-inset);
+  --color-muted-foreground: var(--ink-secondary);
 
-  --color-accent: var(--color-accent-500);
-  --color-accent-foreground: #ffffff;
+  --color-accent: var(--signal-dim);
+  --color-accent-foreground: var(--ink);
 
-  --color-destructive: var(--color-error);
-  --color-destructive-foreground: #ffffff;
+  --color-destructive: var(--alert);
+  --color-destructive-foreground: var(--ink-text);
 
-  --color-success: var(--color-accent-500);
-  --color-success-foreground: #ffffff;
+  --color-success: var(--ok);
+  --color-success-foreground: var(--ink);
 
-  --color-warning: #f59e0b;
-  --color-warning-foreground: #0a0a0f;
+  --color-warning: var(--caution);
+  --color-warning-foreground: var(--ink);
 
-  --color-info: #3b82f6;
-  --color-info-foreground: #ffffff;
+  --color-info: var(--info);
+  --color-info-foreground: var(--ink-text);
 
-  --color-border: #334155;
-  --color-input: var(--color-bg-secondary);
-  --color-ring: var(--color-primary-500);
+  --color-border: var(--border-hairline);
+  --color-input: var(--surface-inset);
+  --color-ring: var(--signal);
 
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-sans: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Instrument Serif', 'Times New Roman', Georgia, serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', 'SF Mono', monospace;
+
+  /* Radios pequeños, técnicos. Sin "marshmallow" */
+  --radius-sm: 2px;
+  --radius: 4px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
 }
 
-/* CSS Variables - Tema oscuro por defecto */
 :root {
-  /* Colores primarios - Tonos tecnologicos */
-  --color-primary-50: #ecfeff;
-  --color-primary-100: #cffafe;
-  --color-primary-200: #a5f3fc;
-  --color-primary-300: #67e8f9;
-  --color-primary-400: #22d3ee;
-  --color-primary-500: #06b6d4;
-  --color-primary-600: #0891b2;
-  --color-primary-700: #0e7490;
-  --color-primary-800: #155e75;
-  --color-primary-900: #164e63;
-  --color-primary-950: #083344;
+  /* === SUPERFICIES (asfalto / hormigon) === */
+  --ink: #0b0d10;                  /* asfalto profundo, casi negro pero no */
+  --ink-deep: #06080a;              /* nivel mas bajo, pie de pagina */
+  --surface: #14161a;               /* hormigon claro, paneles base */
+  --surface-raised: #1a1d22;        /* paneles elevados, dropdowns */
+  --surface-inset: #0f1115;         /* inputs, areas de entrada */
+  --surface-hover: #1f2227;         /* hover de superficie */
 
-  /* Colores de acento - Verde tecnologico */
-  --color-accent-50: #ecfdf5;
-  --color-accent-100: #d1fae5;
-  --color-accent-200: #a7f3d0;
-  --color-accent-300: #6ee7b7;
-  --color-accent-400: #34d399;
-  --color-accent-500: #10b981;
-  --color-accent-600: #059669;
-  --color-accent-700: #047857;
-  --color-accent-800: #065f46;
-  --color-accent-900: #064e3b;
+  /* === TINTA (texto) === */
+  --ink-text: #e8e8e3;              /* primario, contraste ~13:1 sobre ink */
+  --ink-secondary: #9aa0a6;         /* secundario, contraste ~5.5:1 (AA) */
+  --ink-tertiary: #6a6f76;          /* metadata, timestamps, labels */
+  --ink-muted: #4a4e54;             /* placeholder, disabled */
 
-  /* Colores de estado */
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
+  /* === BORDES (hairlines) === */
+  --border-hairline: rgba(232, 232, 227, 0.08);  /* standard, casi invisible */
+  --border-soft: rgba(232, 232, 227, 0.05);       /* separacion ligera */
+  --border-emphasis: rgba(232, 232, 227, 0.16);   /* focus, hover de panel */
+  --border-strong: rgba(232, 232, 227, 0.24);     /* maxima emfasis */
 
-  /* Colores de calidad del aire */
-  --color-air-good: #10b981;
-  --color-air-moderate: #f59e0b;
-  --color-air-unhealthy-sensitive: #f97316;
-  --color-air-unhealthy: #ef4444;
-  --color-air-very-unhealthy: #a855f7;
-  --color-air-hazardous: #7f1d1d;
+  /* === SIGNAL (acento amarillo: senaletica vial) === */
+  --signal: #d4ed3a;                 /* amarillo highway/Hi-Vis */
+  --signal-dim: #a8be2c;             /* version atenuada */
+  --signal-bright: #e5fc4c;          /* hover */
 
-  /* Colores de ruido */
-  --color-noise-low: #10b981;
-  --color-noise-moderate: #84cc16;
-  --color-noise-high: #f59e0b;
-  --color-noise-very-high: #ef4444;
+  /* === SEMANTICOS (desaturados, no neon) === */
+  --ok: #3aa771;                     /* verde verificacion */
+  --caution: #d4a14d;                /* ambar warning */
+  --alert: #d44d3a;                  /* rojo alerta */
+  --info: #5a8fd4;                   /* azul telemetria */
 
-  /* Fondos oscuros */
-  --color-bg-primary: #0a0a0f;
-  --color-bg-secondary: #111827;
-  --color-bg-tertiary: #1f2937;
-  --color-bg-card: #1e293b;
-  --color-bg-elevated: #334155;
+  /* === DOMINIO: calidad del aire (mantenido por compatibilidad) === */
+  --color-air-good: #3aa771;
+  --color-air-moderate: #d4a14d;
+  --color-air-unhealthy-sensitive: #d47a3a;
+  --color-air-unhealthy: #d44d3a;
+  --color-air-very-unhealthy: #a44dd4;
+  --color-air-hazardous: #7a2424;
 
-  /* Texto - los ratios de contraste estan calculados sobre --color-bg-card (#1e293b) */
-  --color-text-primary: #f8fafc;     /* contraste ~14.6:1 - AAA */
-  --color-text-secondary: #94a3b8;   /* contraste ~5.4:1 - AA */
-  --color-text-muted: #94a3b8;       /* Antes #64748b daba 3.4:1 (falla AA <18px).
-                                        Igualado a secondary para garantizar AA universal.
-                                        Para texto >=18px decorativo usar --color-text-muted-decorative. */
-  --color-text-muted-decorative: #64748b; /* solo texto >=18px o decorativo */
+  /* === DOMINIO: ruido === */
+  --color-noise-low: #3aa771;
+  --color-noise-moderate: #aabe3a;
+  --color-noise-high: #d4a14d;
+  --color-noise-very-high: #d44d3a;
 
-  /* Bordes */
-  --color-border: #334155;
-  --color-border-hover: #475569;
+  /* === MOTION === */
+  --transition-fast: 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Tipografia */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  /* Compat: tokens antiguos mapeados a los nuevos para no romper componentes
+     legacy que los usen directamente. */
+  --color-primary-50: #f7fbd0;
+  --color-primary-100: #eef7a0;
+  --color-primary-200: #e5f47a;
+  --color-primary-300: #ddf25b;
+  --color-primary-400: #d6ee4a;
+  --color-primary-500: var(--signal);
+  --color-primary-600: var(--signal-dim);
+  --color-primary-700: #899a23;
+  --color-primary-800: #6c781a;
+  --color-primary-900: #4a5311;
+  --color-primary-950: #2a300a;
 
-  /* Sombras con efecto glow */
-  --shadow-glow-primary: 0 0 20px rgba(6, 182, 212, 0.15);
-  --shadow-glow-accent: 0 0 20px rgba(16, 185, 129, 0.15);
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+  --color-accent-50: #d9f5e8;
+  --color-accent-500: var(--ok);
+  --color-accent-600: #2e885a;
 
-  /* Transiciones */
-  --transition-fast: 150ms ease;
-  --transition-normal: 300ms ease;
+  --color-success: var(--ok);
+  --color-warning: var(--caution);
+  --color-error: var(--alert);
+  --color-info: var(--info);
 
-  /* Border radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  --color-bg-primary: var(--ink);
+  --color-bg-secondary: var(--surface-inset);
+  --color-bg-tertiary: var(--surface);
+  --color-bg-card: var(--surface);
+  --color-bg-elevated: var(--surface-raised);
+
+  --color-text-primary: var(--ink-text);
+  --color-text-secondary: var(--ink-secondary);
+  --color-text-muted: var(--ink-secondary);
+  --color-text-muted-decorative: var(--ink-tertiary);
+
+  --color-border-hover: var(--border-emphasis);
 }
 
-/* Reset y base - Solo box-sizing, Tailwind maneja margin/padding */
+/* =====================================================================
+   RESET Y BASE
+   ===================================================================== */
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -155,197 +182,159 @@ html {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* scroll-behavior: smooth quitado. En Chrome combinaba mal con re-renders
-     de React Query: cada llegada de datos durante un scroll en curso hacia
-     que el browser interpolase la posicion y el usuario percibia
-     "los elementos bajan en vez del viewport". El smooth scroll de anclas
-     se gestiona caso por caso con scrollIntoView({behavior:'smooth'}). */
-}
-
-/* Tipografia display (Space Grotesk) para headings principales y numeros grandes.
-   Inter sigue siendo el cuerpo. Esta separacion da caracter visual sin perder
-   legibilidad. La aplicacion es por etiqueta (h1, h2) y por utility class. */
-h1, h2 {
-  font-family: var(--font-display);
-  letter-spacing: -0.02em;
-  font-weight: 700;
-}
-
-h3 {
-  font-family: var(--font-display);
-  letter-spacing: -0.01em;
-  font-weight: 600;
-}
-
-.font-display {
-  font-family: var(--font-display);
-  letter-spacing: -0.02em;
-}
-
-/* Numeros grandes de stat cards: tabular-nums para alinear digitos
-   y display font para diferenciacion visual. */
-.stat-number {
-  font-family: var(--font-display);
-  font-feature-settings: 'tnum' on, 'lnum' on;
-  font-variant-numeric: tabular-nums lining-nums;
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
 body {
   min-height: 100vh;
-  background-color: var(--color-bg-primary);
-  color: var(--color-text-primary);
+  background-color: var(--ink);
+  color: var(--ink-text);
+  /* Pequeno grano: rompe la planitud sin ser ruido AI-slop tipico. */
+  background-image:
+    radial-gradient(ellipse at top, rgba(255, 255, 255, 0.012), transparent 70%),
+    radial-gradient(ellipse at bottom right, rgba(212, 237, 58, 0.02), transparent 60%);
 }
 
-/* Links */
+/* =====================================================================
+   TIPOGRAFIA
+   --------------------------------------------------------------------- */
+
+h1, h2 {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+}
+
+h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Eyebrows: mono uppercase tracking-wide. Marca de la consola. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;       /* 11px */
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-tertiary);
+  line-height: 1.2;
+}
+
+/* Numeros tabulares para KPIs y tablas. */
+.stat-number {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+  font-variant-numeric: tabular-nums lining-nums slashed-zero;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Hero numbers: display serif para impacto editorial */
+.stat-hero {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-feature-settings: 'tnum' on, 'lnum' on;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+}
+
+/* =====================================================================
+   LINKS
+   ===================================================================== */
+
 a {
-  color: var(--color-primary-400);
+  color: var(--ink-text);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--color-primary-300);
+  color: var(--signal);
 }
 
-/* Scrollbar personalizado */
+/* =====================================================================
+   FOCUS RING ACCESIBLE
+   --------------------------------------------------------------------- */
+
+:focus-visible {
+  outline: 1px solid var(--signal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* =====================================================================
+   SCROLLBAR DISCRETO
+   --------------------------------------------------------------------- */
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg-secondary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-bg-elevated);
-  border-radius: 4px;
+  background: var(--border-emphasis);
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-hover);
+  background: var(--border-strong);
 }
 
-/* Focus visible para accesibilidad */
-:focus-visible {
-  outline: 2px solid var(--color-primary-500);
-  outline-offset: 2px;
+/* =====================================================================
+   UTILITIES
+   ===================================================================== */
+
+/* Hairline divisor: una sola pixel-line con gradiente sutil */
+.hairline {
+  border: 0;
+  border-top: 1px solid var(--border-hairline);
+  height: 0;
 }
 
-/* Utility classes personalizadas */
-.glass-effect {
-  background: rgba(30, 41, 59, 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--color-border);
+.hairline-strong {
+  border-top: 1px solid var(--border-emphasis);
 }
 
-.glow-primary {
-  box-shadow: var(--shadow-glow-primary);
-}
-
-.glow-accent {
-  box-shadow: var(--shadow-glow-accent);
-}
-
-/* Animaciones */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { 
-    opacity: 0; 
-    transform: translateY(10px); 
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
-  }
-}
-
-/* pulse-glow optimizado: usa transform + opacity (compositor) en lugar de
-   box-shadow (que causa reflow en cada frame). El glow visual se conserva
-   con una capa absoluta animada en lugar de la sombra de la caja. */
-@keyframes pulse-glow {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.85;
-  }
-  50% {
-    transform: scale(1.015);
-    opacity: 1;
-  }
-}
-
-.animate-fade-in {
-  animation: fadeIn var(--transition-normal) ease-out;
-}
-
-.animate-slide-up {
-  animation: slideUp var(--transition-normal) ease-out;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-/* `.stagger-children` queda como no-op para garantizar estabilidad visual.
- *
- * Historico: aplicaba `opacity: 0` + `slideUp 450ms forwards` a TODOS los
- * hijos del contenedor. Eso provocaba un bug visual reportado en QA:
- * cuando React re-renderizaba (al filtrar, paginar, recibir datos async,
- * etc.) los hijos volvian a entrar desde `opacity: 0 + translateY(10px)`,
- * dando la sensacion de "los elementos bajan y se ve el fondo en negro".
- * Tambien se confundia con un fallo de scroll porque la primera pulsacion
- * de la rueda coincidia con un nuevo render → re-entrada animada → el
- * usuario percibia que la pagina no scrolleaba.
- *
- * Solucion conservadora: los elementos aparecen estables, sin animacion
- * de entrada. La sensacion "premium" se aporta con un fade-in suave a
- * nivel de pagina (clase `.animate-fade-in`, que se aplica una vez en
- * mount al contenedor PageLayout). */
-.stagger-children > * {
-  opacity: 1;
-  transform: none;
-}
-
-/* Gradient sweep en hover: una franja diagonal de luz cyan/emerald cruza
-   la card al pasar el raton. Tecnica `::before` con transform translateX
-   (compositor-friendly, sin reflow). */
-.card-hover-sweep {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-.card-hover-sweep::before {
+/* Tick marks decorativos (estilo regla metrica) */
+.tick-marks::before {
   content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    115deg,
-    transparent 30%,
-    rgba(6, 182, 212, 0.08) 50%,
-    transparent 70%
+  display: block;
+  height: 8px;
+  background-image: linear-gradient(
+    to right,
+    var(--border-emphasis) 1px,
+    transparent 1px
   );
-  transform: translateX(-100%);
-  transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
-  pointer-events: none;
-  z-index: 0;
-}
-.card-hover-sweep:hover::before {
-  transform: translateX(100%);
-}
-.card-hover-sweep > * {
-  position: relative;
-  z-index: 1;
+  background-size: 12px 100%;
+  background-position: 0 100%;
+  background-repeat: repeat-x;
+  margin-bottom: 8px;
+  opacity: 0.5;
 }
 
-/* Utility no-scrollbar: esconde scrollbars (horizontal o vertical) sin
-   perder funcionalidad. Util en la nav central que puede llegar a
-   scrollear horizontalmente con muchos items. */
+/* No-scrollbar: para navs horizontales que pueden desbordar */
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -354,21 +343,34 @@ a:hover {
   display: none;
 }
 
-/* Reducir intensidad de backdrop-blur en mobile (perf): los compositores de
-   GPU moviles luchan con blur >= 12px en superficies grandes. Bajamos de
-   blur(24px) (xl) a blur(8px) en pantallas <=768px sin perder el efecto
-   "frosted glass" que da identidad al diseno. */
-@media (max-width: 768px) {
-  .backdrop-blur-xl {
-    --tw-backdrop-blur: blur(8px);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-  }
+/* =====================================================================
+   ANIMACIONES
+   ---------------------------------------------------------------------
+   Politica: animaciones minimas. Solo fade-in al cargar pagina y
+   transitions de hover/focus. NO entradas con slide-up staggered (causaban
+   el bug "elementos bajan en negro" reportado en QA). NO glows pulsantes
+   por defecto (AI-slop heredado).
+   ===================================================================== */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* Respetar la preferencia del usuario por reducir animaciones (WCAG 2.3.3).
-   Tambien quita el blur pesado para usuarios que pueden sufrir motion
-   sickness o trabajan con hardware modesto. */
+.animate-fade-in {
+  animation: fadeIn 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* `.stagger-children` queda como no-op intencional (ver historia en
+   index.css legacy). */
+.stagger-children > * {
+  opacity: 1;
+  transform: none;
+}
+
+/* =====================================================================
+   RESPETO POR PREFERENCIAS DE MOTION (WCAG 2.3.3)
+   ===================================================================== */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
@@ -376,10 +378,40 @@ a:hover {
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
-  .backdrop-blur-xl,
-  .backdrop-blur-2xl,
-  .backdrop-blur-3xl {
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-  }
+}
+
+/* =====================================================================
+   COMPATIBILIDAD CON UTILITIES LEGACY
+   ---------------------------------------------------------------------
+   .glass-effect, .glow-*, .card-hover-sweep y .animate-pulse-glow
+   se mantienen como NO-OP para no romper componentes que aun los
+   referencien hasta que la Fase 4 los reemplace por completo.
+   ===================================================================== */
+
+.glass-effect {
+  background: var(--surface);
+  border: 1px solid var(--border-hairline);
+  /* sin backdrop-blur */
+}
+
+.glow-primary,
+.glow-accent {
+  box-shadow: none;
+  border-color: var(--border-emphasis);
+}
+
+.card-hover-sweep {
+  position: relative;
+}
+.card-hover-sweep:hover {
+  border-color: var(--border-strong);
+}
+
+.animate-pulse-glow {
+  /* no-op intencional */
+  animation: none;
+}
+
+.animate-slide-up {
+  animation: fadeIn 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }

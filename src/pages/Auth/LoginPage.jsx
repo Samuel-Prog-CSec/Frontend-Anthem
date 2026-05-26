@@ -1,25 +1,62 @@
 /**
- * Pagina de Login
- * 
- * Formulario de inicio de sesion con validacion y diseno futurista.
+ * Pagina de Login - "Civic Operations Console"
+ *
+ * Dos paneles editoriales:
+ *  - Izquierda (lg+): wordmark monoespacial + cabecera serif italic +
+ *    bento tipo telemetria con metricas de la ciudad (mock fallback si
+ *    no hay endpoint publico). Sin gradients ni blobs.
+ *  - Derecha: formulario sobrio, button signal yellow, copy editorial.
  */
 
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, LogIn, AlertCircle, Zap, Shield, Activity } from 'lucide-react';
-import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../components/common';
+import { LogIn, AlertCircle } from 'lucide-react';
+import { Button, Input } from '../../components/common';
 import { useAuth } from '../../context';
 import { ROUTES } from '../../constants';
 
 /**
- * Pagina de inicio de sesion
+ * Card mini de telemetria estatica (placeholder editorial).
+ *
+ * No depende de la API porque LoginPage es publico: si pidieramos al
+ * backend, expondriamos endpoint sin auth. Los valores son indicativos
+ * de la escala del dataset (ver Fase 0 / docs).
  */
+const TELEMETRIA_VIVA = [
+  { etiqueta: 'Estaciones acusticas', valor: '93', unidad: 'activas', estado: 'ok' },
+  { etiqueta: 'Calidad del aire', valor: '22.8', unidad: 'µg/m³ NO2', estado: 'ok' },
+  { etiqueta: 'Puntos de trafico', valor: '13.1K', unidad: 'sensorizados', estado: 'ok' },
+  { etiqueta: 'Ruido medio LAeq24', valor: '60.1', unidad: 'dB urbano', estado: 'caution' }
+];
+
+function PanelTelemetria() {
+  return (
+    <div className="grid grid-cols-2 gap-px bg-[var(--border-hairline)] border border-[var(--border-hairline)]">
+      {TELEMETRIA_VIVA.map((item) => (
+        <div key={item.etiqueta} className="bg-[var(--surface)] p-5 flex flex-col gap-2">
+          <p className="eyebrow">{item.etiqueta}</p>
+          <p className="stat-number text-2xl text-foreground">{item.valor}</p>
+          <div className="flex items-center gap-2">
+            <span
+              className={`size-1.5 rounded-full ${item.estado === 'ok' ? 'bg-[var(--ok)]' : 'bg-[var(--caution)]'}`}
+              aria-hidden="true"
+            />
+            <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--ink-tertiary)]">
+              {item.unidad}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function LoginPage() {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -27,218 +64,171 @@ function LoginPage() {
     e.preventDefault();
     setError('');
 
-    // Validacion basica client-side
     if (!identifier.trim()) {
-      setError('El usuario o email es obligatorio');
+      setError('Indica usuario o correo para continuar.');
       return;
     }
     if (!password || password.length < 8) {
-      setError('La contrasena debe tener al menos 8 caracteres');
+      setError('La contrasena debe tener al menos 8 caracteres.');
       return;
     }
 
     setIsLoading(true);
-
     try {
       await login(identifier, password);
       navigate(ROUTES.DASHBOARD);
     } catch (err) {
-      setError(err.message || 'Error al iniciar sesion. Verifica tus credenciales.');
+      setError(err.message || 'No se pudo iniciar sesion. Revisa tus credenciales o intenta de nuevo.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-background via-background to-cyan-950 flex">
-      {/* Panel izquierdo - Branding */}
-      <header className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-        {/* Fondo con patron */}
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/20 to-emerald-600/20" aria-hidden="true" />
-        <div
-          className="absolute inset-0 opacity-10"
-          aria-hidden="true"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2306b6d4' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-          }}
-        />
-
-        {/* Contenido del branding */}
-        <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
-          {/* Logo grande */}
-          <div className="mb-12">
-            <div className="inline-flex items-center justify-center size-20 rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 shadow-2xl shadow-cyan-500/30 mb-6">
-              <span className="text-white font-bold text-4xl" aria-hidden="true">A</span>
-            </div>
-            <h1 className="text-5xl font-bold text-foreground mb-4">
-              Anthem City
+    <main className="min-h-screen bg-background flex">
+      {/* Panel izquierdo - Branding tecnico */}
+      <aside className="hidden lg:flex lg:w-1/2 relative border-r border-[var(--border-hairline)]">
+        <div className="relative z-10 flex flex-col justify-between w-full px-12 xl:px-20 py-16">
+          {/* Wordmark superior */}
+          <div className="space-y-4">
+            <p className="eyebrow">ANTHEM // CTC // ACCESO</p>
+            <h1 className="font-display italic text-5xl xl:text-6xl text-foreground leading-[0.95]">
+              La ciudad,<br />
+              <span className="text-[var(--signal)]">vista</span> en datos.
             </h1>
-            <p className="text-xl text-cyan-100/80">
-              Smart Dashboard 2051
+            <p className="text-base text-muted-foreground max-w-md leading-relaxed">
+              Consola integral de operaciones urbanas para la malla sensorizada
+              de Anthem City. Aire, ruido, movilidad, censo, accidentalidad,
+              en una sola superficie.
             </p>
           </div>
 
-          {/* Features */}
-          <div className="space-y-6">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 size-12 rounded-xl bg-cyan-500/20 flex items-center justify-center" aria-hidden="true">
-                <Activity className="size-6 text-cyan-400" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-foreground mb-1">Monitoreo en Tiempo Real</h2>
-                <p className="text-muted-foreground">Datos de calidad del aire, ruido y ubicaciones actualizados constantemente.</p>
-              </div>
+          {/* Bento de telemetria viva */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="eyebrow">Pulso del sistema / instantanea 2051</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--ink-tertiary)]">
+                ENERO – DICIEMBRE
+              </p>
             </div>
-
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 size-12 rounded-xl bg-emerald-500/20 flex items-center justify-center" aria-hidden="true">
-                <Zap className="size-6 text-emerald-400" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-foreground mb-1">Analisis Inteligente</h2>
-                <p className="text-muted-foreground">Visualizaciones avanzadas para tomar decisiones informadas.</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 size-12 rounded-xl bg-violet-500/20 flex items-center justify-center" aria-hidden="true">
-                <Shield className="size-6 text-violet-400" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-foreground mb-1">Seguridad Avanzada</h2>
-                <p className="text-muted-foreground">Autenticacion JWT con los mas altos estandares de seguridad.</p>
-              </div>
-            </div>
+            <PanelTelemetria />
           </div>
 
           {/* Footer del panel */}
-          <div className="mt-12 pt-8 border-t border-cyan-500/20">
-            <p className="text-sm text-muted-foreground">
-              Sistema de gestion urbana inteligente
-            </p>
-          </div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--ink-tertiary)]">
+            12 MODULOS // 21 DISTRITOS // ~24M REGISTROS
+          </p>
         </div>
-
-        {/* Circulos decorativos */}
-        <div className="absolute -top-24 -right-24 size-96 rounded-full bg-cyan-500/10 blur-3xl" aria-hidden="true" />
-        <div className="absolute -bottom-32 -left-32 size-96 rounded-full bg-emerald-500/10 blur-3xl" aria-hidden="true" />
-      </header>
+      </aside>
 
       {/* Panel derecho - Formulario */}
-      <section className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12" aria-label="Formulario de inicio de sesion">
-        <div className="w-full max-w-lg">
-          {/* Logo movil (sin h1 duplicado: el h1 visible en escritorio cuelga del panel izquierdo) */}
-          <div className="lg:hidden text-center mb-8">
-            <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 shadow-lg shadow-cyan-500/20 mb-4">
-              <span className="text-white font-bold text-3xl" aria-hidden="true">A</span>
-            </div>
-            <p className="text-2xl font-bold text-foreground">Anthem City</p>
-            <p className="text-muted-foreground mt-1">Smart Dashboard 2051</p>
+      <section
+        className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12"
+        aria-label="Formulario de inicio de sesion"
+      >
+        <div className="w-full max-w-md">
+          {/* Wordmark movil */}
+          <div className="lg:hidden text-center mb-10 space-y-2">
+            <p className="eyebrow">ANTHEM // CTC</p>
+            <h1 className="font-display italic text-3xl text-foreground leading-tight">
+              La ciudad, <span className="text-[var(--signal)]">vista</span> en datos.
+            </h1>
           </div>
 
-          {/* Card del formulario */}
-          <Card className="shadow-2xl">
-            <CardHeader className="text-center pb-2">
-              <CardTitle className="text-2xl">Bienvenido</CardTitle>
-              <CardDescription className="text-base">
-                Ingresa tus credenciales para continuar
-              </CardDescription>
-            </CardHeader>
+          {/* Formulario */}
+          <div className="space-y-8">
+            <header className="space-y-2">
+              <p className="eyebrow">Identificacion del operador</p>
+              <h2 className="font-display italic text-3xl text-foreground leading-tight">
+                Acceso a la consola
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Introduce tus credenciales para continuar.
+              </p>
+            </header>
 
-            <form onSubmit={handleSubmit}>
-              <CardContent className="space-y-8 pt-6">
-                {/* Error */}
-                {error && (
-                  <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30">
-                    <AlertCircle className="size-5 text-red-400 flex-shrink-0" />
-                    <p className="text-sm text-red-300">{error}</p>
-                  </div>
-                )}
-
-                {/* Identifier */}
-                <div className="space-y-3">
-                  <label htmlFor="identifier" className="text-sm font-medium text-foreground/80 block">
-                    Usuario o Correo
-                  </label>
-                  <Input
-                    id="identifier"
-                    type="text"
-                    placeholder="usuario o tu@email.com"
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    startIcon={Mail}
-                    className="h-12 text-base"
-                    required
-                  />
-                </div>
-
-                {/* Password (sin enlace de "olvidaste contrasena": el flujo de recuperacion
-                    no esta implementado todavia; cuando se anada, restaurar el control) */}
-                <div className="space-y-3">
-                  <label htmlFor="password" className="text-sm font-medium text-foreground/80 block">
-                    Contrasena
-                  </label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Ingresa tu contrasena"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    startIcon={Lock}
-                    className="h-12 text-base"
-                    required
-                  />
-                </div>
-              </CardContent>
-
-              <CardFooter className="flex-col gap-5 pt-2">
-                <Button 
-                  type="submit" 
-                  className="w-full h-12 text-base font-semibold bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 shadow-lg shadow-cyan-500/20" 
-                  isLoading={isLoading}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div
+                  className="flex items-start gap-3 p-4 border border-[var(--alert)] bg-[var(--surface-raised)]"
+                  role="alert"
                 >
-                  {!isLoading && <LogIn className="size-5 mr-2" />}
-                  Iniciar Sesion
-                </Button>
-
-                <div className="relative w-full">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-border" />
-                  </div>
-                  <div className="relative flex justify-center text-xs">
-                    <span className="bg-card px-4 text-foreground0">o</span>
-                  </div>
+                  <AlertCircle className="size-4 text-[var(--alert)] flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-foreground leading-snug">{error}</p>
                 </div>
+              )}
 
-                <p className="text-sm text-muted-foreground text-center">
-                  ¿No tienes una cuenta?{' '}
-                  <Link to={ROUTES.REGISTER} className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors">
-                    Crear cuenta
-                  </Link>
-                </p>
-              </CardFooter>
+              <div className="space-y-2">
+                <label
+                  htmlFor="identifier"
+                  className="font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--ink-secondary)] block"
+                >
+                  Usuario o correo
+                </label>
+                <Input
+                  id="identifier"
+                  type="text"
+                  placeholder="operador.04 o tu@ciudad.es"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  required
+                  autoComplete="username"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="password"
+                  className="font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--ink-secondary)] block"
+                >
+                  Clave de acceso
+                </label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Minimo 8 caracteres"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full"
+                isLoading={isLoading}
+              >
+                {!isLoading && <LogIn className="size-4" />}
+                Entrar a la consola
+              </Button>
             </form>
-          </Card>
 
-          {/* Info de demo */}
-          <div className="mt-6 p-4 rounded-xl border border-amber-500/30 bg-amber-500/5">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 size-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                <Zap className="size-4 text-amber-400" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-amber-300">Modo Demo</p>
-                <p className="text-xs text-amber-400/70 mt-0.5">
-                  Usa las credenciales del backend o registra un nuevo usuario para probar.
-                </p>
-              </div>
+            <hr className="hairline" />
+
+            <p className="text-sm text-muted-foreground text-center">
+              Sin credenciales todavia?{' '}
+              <Link
+                to={ROUTES.REGISTER}
+                className="text-foreground underline underline-offset-4 hover:text-[var(--signal)]"
+              >
+                Solicitar acceso
+              </Link>
+            </p>
+
+            <div className="border border-[var(--border-hairline)] bg-[var(--surface)] p-4">
+              <p className="eyebrow mb-2">Modo demostracion</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Entorno de practica universitaria. Usa las credenciales del
+                backend local o registra un operador nuevo para explorar la
+                consola.
+              </p>
             </div>
-          </div>
 
-          {/* Copyright */}
-          <p className="text-center text-xs text-muted-foreground/60 mt-8">
-            Anthem City Dashboard 2051. Proyecto Universitario.
-          </p>
+            <p className="text-center font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--ink-tertiary)]">
+              ANTHEM CITY DASHBOARD 2051 / PROYECTO UNIVERSITARIO
+            </p>
+          </div>
         </div>
       </section>
     </main>

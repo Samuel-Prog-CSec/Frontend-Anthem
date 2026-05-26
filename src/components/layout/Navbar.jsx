@@ -57,11 +57,11 @@ function ChipFiltroGeo() {
 
   return (
     <div
-      className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs font-medium text-cyan-300"
+      className="hidden xl:flex items-center gap-1.5 px-2 py-1 rounded-sm border border-[var(--signal)] bg-[var(--surface-raised)] text-[10px] font-mono uppercase tracking-[0.1em] text-[var(--signal)]"
       title="Filtro geografico activo en todo el dashboard"
     >
       <Filter className="size-3" aria-hidden="true" />
-      <span className="max-w-[120px] truncate">
+      <span className="max-w-[140px] truncate">
         {distrito}
         {barrio ? ` / ${barrio}` : ''}
       </span>
@@ -69,7 +69,7 @@ function ChipFiltroGeo() {
         type="button"
         onClick={limpiarFiltro}
         aria-label="Limpiar filtro geografico"
-        className="ml-0.5 hover:text-foreground transition-colors rounded-full hover:bg-cyan-500/20 p-0.5"
+        className="ml-0.5 hover:text-foreground transition-colors p-0.5"
       >
         <X className="size-2.5" aria-hidden="true" />
       </button>
@@ -98,7 +98,7 @@ function Navbar() {
         className="fixed top-0 left-0 right-0 z-50"
         aria-label="Navegacion principal"
       >
-        <div className="absolute inset-0 bg-background/85 backdrop-blur-xl border-b border-border/60" />
+        <div className="absolute inset-0 bg-background border-b border-[var(--border-hairline)]" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Grid 3 columnas evita el problema de flex-1 con contenido
@@ -106,21 +106,21 @@ function Navbar() {
               central scrollea horizontalmente si fuese necesario. */}
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 h-16">
 
-            {/* Columna 1: Logo */}
+            {/* Columna 1: Wordmark mono - signature visual */}
             <Link
               to={ROUTES.DASHBOARD}
               className="flex items-center gap-2 group shrink-0"
               aria-label="Ir al dashboard de Anthem City"
             >
               <span
-                className="size-2 rounded-full bg-cyan-400 group-hover:bg-cyan-300 transition-colors shrink-0"
+                className="size-1.5 rounded-full bg-[var(--signal)] group-hover:scale-110 transition-transform shrink-0"
                 aria-hidden="true"
               />
-              <span className="font-display text-base font-bold text-foreground tracking-tight">
-                Anthem
+              <span className="font-mono text-xs uppercase tracking-[0.18em] font-medium text-foreground">
+                ANTHEM
               </span>
               <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hidden lg:inline">
-                /city
+                // CTC
               </span>
             </Link>
 
@@ -143,16 +143,16 @@ function Navbar() {
                         aria-label={item.label}
                         title={item.label}
                         className={cn(
-                          'relative flex items-center justify-center size-9 rounded-md transition-colors',
+                          'relative flex items-center justify-center size-9 rounded-sm transition-colors',
                           isActive
-                            ? 'text-cyan-300 bg-cyan-500/10'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-card/60'
+                            ? 'text-foreground'
+                            : 'text-[var(--ink-tertiary)] hover:text-foreground'
                         )}
                       >
                         <Icon className="size-4" aria-hidden="true" />
                         {isActive && (
                           <span
-                            className="absolute -bottom-1 left-1/2 -translate-x-1/2 size-1 rounded-full bg-cyan-400"
+                            className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-px w-5 bg-[var(--signal)]"
                             aria-hidden="true"
                           />
                         )}
@@ -168,16 +168,11 @@ function Navbar() {
               {isAuthenticated && <ChipFiltroGeo />}
 
               {isAuthenticated ? (
-                <div className="hidden sm:flex items-center gap-1.5">
-                  <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-card/50 border border-border/60">
-                    <div
-                      className="size-5 rounded bg-cyan-500/15 flex items-center justify-center shrink-0"
-                      aria-hidden="true"
-                    >
-                      <User className="size-3 text-cyan-400" />
-                    </div>
-                    <span className="text-xs font-medium text-foreground truncate max-w-[100px]">
-                      {user?.username || 'Usuario'}
+                <div className="hidden sm:flex items-center gap-2">
+                  <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-sm border border-[var(--border-hairline)]">
+                    <User className="size-3 text-[var(--ink-tertiary)]" aria-hidden="true" />
+                    <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-foreground truncate max-w-[100px]">
+                      {user?.username || 'OPERADOR'}
                     </span>
                   </div>
 
@@ -187,15 +182,15 @@ function Navbar() {
                     onClick={handleLogout}
                     title="Cerrar sesion"
                     aria-label="Cerrar sesion"
-                    className="size-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    className="size-9 hover:text-[var(--alert)]"
                   >
                     <LogOut className="size-4" aria-hidden="true" />
                   </Button>
                 </div>
               ) : (
                 <Link to={ROUTES.LOGIN}>
-                  <Button variant="primary" size="sm">
-                    Iniciar sesion
+                  <Button variant="default" size="sm">
+                    Entrar a la consola
                   </Button>
                 </Link>
               )}
@@ -239,10 +234,10 @@ function Navbar() {
                   onClick={cerrarMenu}
                   aria-current={isActive ? 'page' : undefined}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+                    'flex items-center gap-3 px-4 py-3 rounded-sm text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-cyan-500/10 text-cyan-300 border-l-2 border-cyan-400'
-                      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground border-l-2 border-transparent'
+                      ? 'bg-[var(--surface-raised)] text-foreground border-l-2 border-[var(--signal)]'
+                      : 'text-muted-foreground hover:bg-[var(--surface-raised)] hover:text-foreground border-l-2 border-transparent'
                   )}
                 >
                   <Icon className="size-5" aria-hidden="true" />
@@ -253,12 +248,12 @@ function Navbar() {
 
             {isAuthenticated && (
               <>
-                <div className="h-px bg-border/60 my-2" />
+                <div className="h-px bg-[var(--border-hairline)] my-2" />
                 <div className="flex items-center gap-3 px-4 py-2">
-                  <div className="size-8 rounded-md bg-cyan-500/15 flex items-center justify-center">
-                    <User className="size-4 text-cyan-400" aria-hidden="true" />
-                  </div>
-                  <span className="text-sm font-medium text-foreground">{user?.username || 'Usuario'}</span>
+                  <User className="size-4 text-[var(--ink-tertiary)]" aria-hidden="true" />
+                  <span className="font-mono text-xs uppercase tracking-[0.1em] text-foreground">
+                    {user?.username || 'OPERADOR'}
+                  </span>
                 </div>
                 <button
                   type="button"
@@ -266,7 +261,7 @@ function Navbar() {
                     cerrarMenu();
                     handleLogout();
                   }}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 rounded-sm text-sm font-medium text-[var(--alert)] hover:bg-[var(--surface-raised)] transition-colors"
                   aria-label="Cerrar sesion"
                 >
                   <LogOut className="size-5" aria-hidden="true" />

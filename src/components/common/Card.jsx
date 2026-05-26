@@ -19,17 +19,17 @@ import { cn } from '../../utils';
 /**
  * Contenedor principal de la tarjeta
  */
-const Card = memo(forwardRef(({ className, hover = false, glow = false, ...props }, ref) => (
+const Card = memo(forwardRef(({ className, hover = false, glow: _glow = false, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      // Anti AI-slop: rounded-xl en lugar de 2xl (menos "marshmallow"),
-      // shadow sutil en lugar de shadow-xl agresivo, sin translate-y en
-      // hover por defecto (la accion solo ocurre cuando hover=true).
-      'rounded-xl border border-border/60 bg-card/60 text-card-foreground backdrop-blur-sm shadow-sm',
-      'transition-colors duration-200',
-      hover && 'hover:border-border hover:bg-card/80',
-      glow && 'hover:shadow-primary/10',
+      // Civic Operations Console: borders-only, sin backdrop-blur, sin
+      // shadows. La pieza es una superficie tecnica, no una nube flotante.
+      // Radius pequeno (8px). Background solido en lugar de translucent.
+      'rounded-lg border border-[var(--border-hairline)] bg-card text-card-foreground',
+      'transition-colors duration-150',
+      hover && 'hover:border-[var(--border-emphasis)]',
+      // glow es no-op en el nuevo sistema (queda por compat de API)
       className
     )}
     {...props}
@@ -70,7 +70,9 @@ const CardTitle = memo(forwardRef(({ as = 'h3', className, ...props }, ref) => {
     <Heading
       ref={ref}
       className={cn(
-        'font-display text-lg font-bold leading-tight tracking-tight text-foreground',
+        // Sans medium (no display serif aqui; el serif se reserva para H1/H2
+        // y stat-hero). Tracking ligeramente apretado para densidad.
+        'font-sans text-base font-medium leading-tight tracking-tight text-foreground',
         className
       )}
       {...props}

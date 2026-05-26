@@ -1,21 +1,20 @@
 /**
  * Componente PageLayout
  *
- * Layout base editorial para todas las paginas del dashboard. Compone
- * Navbar fija, area principal con tipografia jerarquizada y un footer
- * minimalista.
+ * Layout base "Civic Operations Console". Compone Navbar fija, area
+ * principal con jerarquia editorial y un footer monoespacial.
  *
- * Decisiones de diseno (refactor anti AI-slop):
- *   - Fondo: sutil ruido + un unico glow ambiente alineado al hero, en
- *     lugar de dos blobs simetricos cyan/emerald (patron tipico de
- *     plantillas IA).
- *   - Header: eyebrow + titulo display + descripcion separados por un
- *     hairline horizontal, escapando del "stack de h1 + p" generico.
- *   - Ritmo vertical: py-10/14 segun breakpoint, mas aire del default
- *     py-8 que sentia "encajonado".
+ * Decisiones (Fase 4 - reset bold):
+ *   - Fondo: solo el color ink solido + sutil ruido SVG. Eliminados los
+ *     blobs decorativos cyan/violet que evocaban template de SaaS.
+ *   - Header: eyebrow mono + display serif italic + lead + actions.
+ *     Hairline con tick marks como signature (regla metrica de plano
+ *     tecnico).
+ *   - Footer: wordmark mono + identificadores tecnicos (fecha, version).
  */
 
 import { Navbar } from './Navbar';
+import { StatusStrip } from '../common/StatusStrip';
 
 /**
  * Layout base de pagina
@@ -25,21 +24,34 @@ import { Navbar } from './Navbar';
  * @param {string} [props.description] - Descripcion de la pagina
  * @param {string} [props.eyebrow] - Texto pequeno sobre el titulo (ej. "Modulo / Submodulo")
  * @param {React.ReactNode} [props.actions] - Acciones de cabecera (botones, filtros)
+ * @param {string} [props.statusArea] - Texto del area mostrado en StatusStrip (ej. "Aire")
+ * @param {string} [props.statusExtra] - Texto auxiliar para StatusStrip
+ * @param {'ok'|'caution'|'alert'} [props.statusEstado='ok'] - Indicador del StatusStrip
+ * @param {boolean} [props.hideStatusStrip=false] - Ocultar el StatusStrip integrado
  */
-function PageLayout({ children, title, description, eyebrow, actions }) {
+function PageLayout({
+  children,
+  title,
+  description,
+  eyebrow,
+  actions,
+  statusArea,
+  statusExtra,
+  statusEstado = 'ok',
+  hideStatusStrip = false
+}) {
   return (
     <div className="relative min-h-screen bg-background">
       {/* Skip-link para accesibilidad de teclado (WCAG 2.4.1) */}
       <a
         href="#contenido-principal"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-md focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded focus:outline-none"
       >
         Saltar al contenido principal
       </a>
 
-      {/* Fondo: ruido sutil + un unico glow ambiente alto a la izquierda.
-          El ruido se monta como mascara SVG inline para evitar peticion HTTP
-          y se aplica con opacidad baja para que no compita con el contenido. */}
+      {/* Fondo: solo grano sutil para romper la planitud. Sin blobs
+          decorativos. La textura es papel/asfalto, no nube. */}
       <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
         <div
           className="absolute inset-0 opacity-[0.025]"
@@ -48,8 +60,6 @@ function PageLayout({ children, title, description, eyebrow, actions }) {
               "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")"
           }}
         />
-        <div className="absolute -top-32 -left-24 size-[480px] rounded-full bg-cyan-500/[0.06] blur-[120px]" />
-        <div className="absolute bottom-0 right-1/3 size-[420px] rounded-full bg-violet-500/[0.04] blur-[120px]" />
       </div>
 
       <Navbar />
@@ -61,12 +71,12 @@ function PageLayout({ children, title, description, eyebrow, actions }) {
               <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                 <div className="space-y-3">
                   {eyebrow && (
-                    <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                    <p className="eyebrow">
                       {eyebrow}
                     </p>
                   )}
                   {title && (
-                    <h1 className="font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-bold text-foreground tracking-tight leading-[1.05]">
+                    <h1 className="font-display italic text-4xl sm:text-5xl lg:text-6xl text-foreground tracking-tight leading-[1]">
                       {title}
                     </h1>
                   )}
@@ -77,40 +87,44 @@ function PageLayout({ children, title, description, eyebrow, actions }) {
                   )}
                 </div>
                 {actions && (
-                  <div className="flex items-center gap-3 flex-shrink-0">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     {actions}
                   </div>
                 )}
               </div>
 
-              {/* Hairline horizontal para anclar el header. Marca el limite
-                  entre cabecera y contenido sin recurrir a un titulo gigante
-                  ni a un fondo coloreado. */}
-              <div className="mt-8 h-px w-full bg-gradient-to-r from-border via-border/40 to-transparent" />
+              {/* Hairline con tick marks como signature: regla metrica de
+                  un plano tecnico. Marca el limite entre cabecera y
+                  contenido. */}
+              <div className="mt-8 tick-marks" />
             </header>
           )}
 
-          {/* Sin animacion de entrada a nivel de contenedor.
-              Cualquier `animate-fade-in` / `animate-slide-up` aqui se
-              re-disparaba en cada re-render de PageLayout (filtros, paginacion,
-              data async), provocando el bug "elementos bajan, fondo negro"
-              reportado por QA: el usuario percibia que la pagina no scrollea
-              porque la primera interaccion coincidia con una nueva entrada
-              animada de los hijos. Se elimina por completo. */}
+          {/* StatusStrip integrado por defecto: signature de la consola.
+              Las paginas pueden ocultarlo con hideStatusStrip=true cuando
+              estorbe en layouts compactos. */}
+          {!hideStatusStrip && (
+            <div className="mb-8">
+              <StatusStrip area={statusArea || title} extra={statusExtra} estado={statusEstado} />
+            </div>
+          )}
+
+          {/* Sin animacion de entrada a nivel de contenedor (bug historico
+              de "elementos bajan en fondo negro" tras re-render). */}
           <div>
             {children}
           </div>
         </div>
       </main>
 
-      <footer className="relative z-10 border-t border-border/40 mt-12">
+      <footer className="relative z-10 border-t border-[var(--border-hairline)] mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              Anthem City Dashboard 2051
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              ANTHEM // CTC // SISTEMA DE OPERACIONES URBANAS
             </p>
-            <p className="text-xs text-muted-foreground">
-              Smart City Monitoring System - Proyecto Universitario
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--ink-tertiary)]">
+              2051 / v0.1 / PROYECTO UNIVERSITARIO
             </p>
           </div>
         </div>

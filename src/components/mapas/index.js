@@ -8,3 +8,4 @@ export { MapaClusterizado } from './MapaClusterizado';
 export { CapaGeoJSON } from './CapaGeoJSON';
 export { MapaUnificado } from './MapaUnificado';
 export { PanelCapasMapa } from './PanelCapasMapa';
+export { MapaEmptyOverlay } from './MapaEmptyOverlay';

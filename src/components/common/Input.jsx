@@ -1,11 +1,12 @@
 /**
- * Componente Input
+ * Componente Input - "Civic Operations Console"
  *
- * Campo de entrada de texto con estilo consistente.
- * Basado en patrones de Shadcn/ui.
- *
- * Documentacion de referencia:
- * - Shadcn/ui Input: https://ui.shadcn.com/docs/components/input
+ * Campo de entrada tecnico:
+ * - Radius muy pequeno (rounded-sm: 2px). El input es una zona de captura.
+ * - Borde fino + background inset (mas oscuro que el panel) para senalar
+ *   "aqui se escribe" sin necesidad de outline pesado.
+ * - Focus: solo cambia color del borde a signal, sin ring. Mas tecnico.
+ * - startIcon opcional, ahora con tono mas discreto.
  */
 
 import { forwardRef, memo } from 'react';
@@ -27,14 +28,15 @@ const Input = memo(forwardRef(({ className, type = 'text', error, startIcon: Sta
         id={id}
         type={type}
         className={cn(
-          'peer flex h-12 w-full rounded-xl border bg-input/60 py-2.5 text-base text-foreground',
-          'placeholder:text-muted-foreground transition-all duration-200',
-          'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-0',
-          'disabled:cursor-not-allowed disabled:opacity-50',
-          StartIcon ? 'pl-14 pr-4' : 'px-4',
+          'peer flex h-10 w-full rounded-sm border bg-[var(--surface-inset)]',
+          'py-2 text-sm text-foreground placeholder:text-[var(--ink-muted)]',
+          'transition-colors duration-150',
+          'focus:outline-none',
+          'disabled:cursor-not-allowed disabled:opacity-40',
+          StartIcon ? 'pl-10 pr-3' : 'px-3',
           error
-            ? 'border-destructive/60 focus-visible:border-destructive focus-visible:ring-destructive/30'
-            : 'border-border/60 hover:border-border focus-visible:border-primary focus-visible:ring-ring/30',
+            ? 'border-[var(--alert)] focus:border-[var(--alert)]'
+            : 'border-[var(--border-hairline)] hover:border-[var(--border-emphasis)] focus:border-[var(--signal)]',
           className
         )}
         ref={ref}
@@ -44,13 +46,15 @@ const Input = memo(forwardRef(({ className, type = 'text', error, startIcon: Sta
       />
 
       {StartIcon && (
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none transition-colors duration-200 peer-focus:text-primary">
-          <StartIcon className="size-5" />
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-tertiary)] pointer-events-none transition-colors duration-150 peer-focus:text-[var(--signal)]">
+          <StartIcon className="size-4" />
         </div>
       )}
 
       {error && (
-        <p id={errorId} className="mt-1.5 text-xs text-destructive" role="alert">{error}</p>
+        <p id={errorId} className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--alert)]" role="alert">
+          {error}
+        </p>
       )}
     </div>
   );

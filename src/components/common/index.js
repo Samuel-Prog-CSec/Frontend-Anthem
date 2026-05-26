@@ -17,6 +17,7 @@ export { Pagination } from './Pagination';
 export { ErrorBoundary } from './ErrorBoundary';
 export { Skeleton, TableSkeleton, StatsSkeleton, CardSkeleton, ChartSkeleton } from './Skeleton';
 export { EnlacesCruzados } from './EnlacesCruzados';
+export { StatusStrip } from './StatusStrip';
 
 // Primitives basados en Radix UI (migracion v1.1)
 export {
