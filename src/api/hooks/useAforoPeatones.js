@@ -3,7 +3,7 @@
  * Estructura paralela a `useAforoBicicletas`.
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   obtenerAforoPeatones,
   obtenerEstacionPeatones,
@@ -18,6 +18,7 @@ export function useAforoPeatones(params) {
   return useQuery({
     queryKey: ['aforo-peatones', params],
     queryFn: ({ signal }) => obtenerAforoPeatones(params, { signal }),
+    placeholderData: keepPreviousData,
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,

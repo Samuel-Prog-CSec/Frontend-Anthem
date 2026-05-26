@@ -6,7 +6,7 @@
  * los queryKeys cambian (evita race conditions).
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { obtenerUbicaciones, obtenerPuntosMedicion, obtenerRutasTransporte } from '../servicioUbicaciones';
 
 /**
@@ -18,6 +18,8 @@ export function useUbicaciones(params) {
   return useQuery({
     queryKey: ['ubicaciones', params],
     queryFn: ({ signal }) => obtenerUbicaciones(params, { signal }),
+    // Evita parpadeo al paginar 82K ubicaciones (824 paginas)
+    placeholderData: keepPreviousData,
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,

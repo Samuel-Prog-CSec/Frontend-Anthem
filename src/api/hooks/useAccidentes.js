@@ -2,7 +2,7 @@
  * Hooks de React Query para Accidentes
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   obtenerDatosAccidentes, obtenerAccidentePorExpediente,
   obtenerEstadisticasAccidentes, obtenerComparativaDistritos,
@@ -13,6 +13,9 @@ export function useAccidentes(params) {
   return useQuery({
     queryKey: ['accidentes', params],
     queryFn: ({ signal }) => obtenerDatosAccidentes(params, { signal }),
+    // Mantener los datos anteriores mientras llega la nueva pagina evita el
+    // parpadeo en la tabla al cambiar de pagina o aplicar filtros.
+    placeholderData: keepPreviousData,
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,

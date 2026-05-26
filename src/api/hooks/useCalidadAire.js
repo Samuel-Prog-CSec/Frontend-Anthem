@@ -5,13 +5,14 @@
  * para permitir cancelacion automatica y prevenir race conditions.
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { obtenerDatosCalidadAire, obtenerEstadisticasCalidadAire, obtenerTendenciasCalidadAire } from '../servicioCalidadAire';
 
 export function useCalidadAire(params) {
   return useQuery({
     queryKey: ['calidad-aire', params],
     queryFn: ({ signal }) => obtenerDatosCalidadAire(params, { signal }),
+    placeholderData: keepPreviousData,
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,

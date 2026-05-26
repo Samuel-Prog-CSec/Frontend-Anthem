@@ -2,13 +2,14 @@
  * Hooks de React Query para Contaminacion Acustica
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { obtenerDatosRuido, obtenerEstadisticasRuido, obtenerListaEstacionesRuido, obtenerRankingRuido, obtenerCumplimientoRuido, obtenerTendenciasRuido } from '../servicioRuido';
 
 export function useRuido(params) {
   return useQuery({
     queryKey: ['ruido', params],
     queryFn: ({ signal }) => obtenerDatosRuido(params, { signal }),
+    placeholderData: keepPreviousData,
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,

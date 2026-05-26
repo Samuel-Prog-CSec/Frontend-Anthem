@@ -2,7 +2,7 @@
  * Hooks de React Query para Aforo de Bicicletas
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   obtenerAforoBicicletas,
   obtenerEstacionAforo,
@@ -16,6 +16,7 @@ export function useAforoBicicletas(params) {
   return useQuery({
     queryKey: ['aforo-bicicletas', params],
     queryFn: ({ signal }) => obtenerAforoBicicletas(params, { signal }),
+    placeholderData: keepPreviousData,
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,

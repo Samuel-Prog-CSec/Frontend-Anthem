@@ -2,7 +2,7 @@
  * Hooks de React Query para Bicicletas (Disponibilidad)
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   obtenerDisponibilidad, obtenerEstadisticas,
   obtenerTendenciasMensuales, obtenerMayorUso,
@@ -13,6 +13,7 @@ export function useBicicletas(params) {
   return useQuery({
     queryKey: ['bicicletas', params],
     queryFn: ({ signal }) => obtenerDisponibilidad(params, { signal }),
+    placeholderData: keepPreviousData,
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,

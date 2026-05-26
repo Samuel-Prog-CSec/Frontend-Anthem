@@ -2,7 +2,7 @@
  * Hooks de React Query para Censo
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   obtenerDatosCenso,
   obtenerPiramidePoblacion,
@@ -17,6 +17,7 @@ export function useCenso(params) {
   return useQuery({
     queryKey: ['censo', params],
     queryFn: ({ signal }) => obtenerDatosCenso(params, { signal }),
+    placeholderData: keepPreviousData,
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,

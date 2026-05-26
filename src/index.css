@@ -1,9 +1,8 @@
+/* PostCSS exige que TODOS los @import vayan antes de cualquier otra regla
+   (excepto @charset/@layer vacio). Por eso las fuentes van primero. */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
-
-/* Tipografias del proyecto: Space Grotesk (display) + Inter (cuerpo).
-   Cargadas via Google Fonts con display=swap para evitar FOIT. */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 /* ========================================
    SMART CITY DASHBOARD - DESIGN SYSTEM

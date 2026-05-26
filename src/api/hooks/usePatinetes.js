@@ -2,7 +2,7 @@
  * Hooks de React Query para Patinetes (Asignacion de scooters)
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   obtenerAsignaciones, obtenerEstadisticasDistritos,
   obtenerAnalisisMercado, obtenerZonasConcentracion, obtenerDetallesArea
@@ -12,6 +12,7 @@ export function usePatinetes(params) {
   return useQuery({
     queryKey: ['patinetes', params],
     queryFn: ({ signal }) => obtenerAsignaciones(params, { signal }),
+    placeholderData: keepPreviousData,
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,

@@ -2,7 +2,7 @@
  * Hooks de React Query para Multas
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   obtenerMultas,
   obtenerMultaPorId,
@@ -16,6 +16,9 @@ export function useMultas(params) {
   return useQuery({
     queryKey: ['multas', params],
     queryFn: ({ signal }) => obtenerMultas(params, { signal }),
+    // Mantener la pagina anterior visible mientras llega la nueva (1.36M
+    // multas en 27K paginas; el parpadeo es muy notable sin keepPreviousData).
+    placeholderData: keepPreviousData,
     select: (response) => ({
       data: response.data || [],
       pagination: response.pagination || null,
