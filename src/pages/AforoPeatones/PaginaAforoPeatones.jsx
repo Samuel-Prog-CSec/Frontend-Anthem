@@ -31,7 +31,7 @@ import {
   useMapaAforoPeatones
 } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
-import { formatNumber } from '../../utils';
+import { formatNumber, formatHour } from '../../utils';
 
 import EstadisticasAforoPeatones from './EstadisticasAforoPeatones';
 import FiltrosAforoPeatones from './FiltrosAforoPeatones';
@@ -97,7 +97,7 @@ function PaginaAforoPeatones() {
   const datosPatronHorario = useMemo(() => {
     const raw = distribucionResult?.data?.distribucionHoraria || distribucionResult?.data?.data || [];
     return raw.map(h => ({
-      hora: `${h.hora}:00`,
+      hora: formatHour(h.hora),
       promedio: Math.round(h.promedioPeatones || 0),
       total: h.totalPeatones || 0
     }));

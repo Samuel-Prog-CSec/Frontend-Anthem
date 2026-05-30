@@ -13,7 +13,7 @@ import {
   ErrorState, EmptyState, Pagination, TableSkeleton
 } from '../../components/common';
 import { LOCATION_TYPE_LABELS, nombreDistrito } from '../../constants';
-import { formatCoordinates } from '../../utils';
+import { formatUbicacionCoords } from '../../utils';
 import { iconosPorTipo, variantesBadgePorTipo } from './constantes';
 
 function TablaUbicaciones({
@@ -82,10 +82,7 @@ function TablaUbicaciones({
                         {nombreDistrito(location.distrito)}
                       </TableCell>
                       <TableCell className="hidden xl:table-cell text-sm text-muted-foreground font-mono">
-                        {location.geometry?.coordinates
-                          ? formatCoordinates(location.geometry.coordinates[1], location.geometry.coordinates[0])
-                          : '-'
-                        }
+                        {formatUbicacionCoords(location)}
                       </TableCell>
                     </TableRow>
                   );

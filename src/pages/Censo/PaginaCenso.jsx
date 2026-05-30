@@ -10,6 +10,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { PageLayout } from '../../components/layout';
 import { useCenso, useCensoDashboard, useCensoDistritos } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG, ETIQUETAS_GRUPOS_EDAD } from '../../constants';
+import { formatNumber } from '../../utils';
 
 import EstadisticasCenso from './EstadisticasCenso';
 import FiltrosCenso from './FiltrosCenso';
@@ -141,7 +142,11 @@ function PaginaCenso() {
     <PageLayout
       eyebrow="Demografia / Censo"
       title="Pulso demografico"
-      description={`1.81 millones de registros con edad, sexo, nacionalidad y seccion censal. Piramides poblacionales y analisis por barrio para ${DATE_CONFIG.DATASET_YEAR}.`}
+      description={
+        paginacion?.totalDocuments
+          ? `${formatNumber(paginacion.totalDocuments)} registros con edad, sexo, nacionalidad y seccion censal. Piramides poblacionales y analisis por barrio para ${DATE_CONFIG.DATASET_YEAR}.`
+          : `Registros con edad, sexo, nacionalidad y seccion censal. Piramides poblacionales y analisis por barrio para ${DATE_CONFIG.DATASET_YEAR}.`
+      }
     >
       <EstadisticasCenso
         poblacionTotal={resumen.poblacionTotal || 0}

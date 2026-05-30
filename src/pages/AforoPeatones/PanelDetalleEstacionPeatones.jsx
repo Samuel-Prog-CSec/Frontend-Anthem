@@ -7,7 +7,7 @@ import { X } from 'lucide-react';
 import {
   Card, CardHeader, CardTitle, CardContent, CardDescription, Button, CardSkeleton
 } from '../../components/common';
-import { formatNumber } from '../../utils';
+import { formatNumber, formatearNombreDistrito } from '../../utils';
 
 function PanelDetalleEstacionPeatones({
   identificador,
@@ -60,7 +60,7 @@ function PanelDetalleEstacionPeatones({
           <div className="text-center p-3 rounded-lg bg-muted/50">
             <p className="text-sm text-muted-foreground">Distrito</p>
             <p className="text-lg font-semibold text-white">
-              {resumen.distrito || '-'}
+              {formatearNombreDistrito(resumen.distrito)}
             </p>
           </div>
           <div className="text-center p-3 rounded-lg bg-muted/50">

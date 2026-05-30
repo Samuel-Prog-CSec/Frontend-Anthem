@@ -20,7 +20,7 @@ function GraficosCenso({ datosGraficoDistritos, datosGraficoEdad }) {
           data={datosGraficoDistritos}
           xKey="nombre"
           bars={[
-            { key: 'espanoles', name: 'Espanoles', color: CHART_COLORS.primary },
+            { key: 'espanoles', name: 'Españoles', color: CHART_COLORS.primary },
             { key: 'extranjeros', name: 'Extranjeros', color: CHART_COLORS.tertiary }
           ]}
         />

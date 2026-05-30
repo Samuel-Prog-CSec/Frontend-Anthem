@@ -38,7 +38,7 @@ function GraficosCalidadAire({
             title={`Tendencia - ${AIR_QUALITY_MAGNITUDES[magnitudFiltro] || 'Contaminante'}`}
             data={datosGraficoPagina}
             xKey="fecha"
-            bars={[{ key: 'promedio', name: 'Promedio diario (ug/m3)', color: CHART_COLORS.primary }]}
+            bars={[{ key: 'promedio', name: 'Promedio diario (μg/m³)', color: CHART_COLORS.primary }]}
             height={250}
           />
         </div>
@@ -73,9 +73,9 @@ function GraficosCalidadAire({
               data={datosTendencia}
               xKey="periodo"
               lines={[
-                { key: 'promedio', name: 'Promedio (ug/m3)', color: CHART_COLORS.primary },
-                { key: 'maximo', name: 'Maximo (ug/m3)', color: CHART_COLORS.danger },
-                { key: 'minimo', name: 'Minimo (ug/m3)', color: CHART_COLORS.secondary }
+                { key: 'promedio', name: 'Promedio (μg/m³)', color: CHART_COLORS.primary },
+                { key: 'maximo', name: 'Maximo (μg/m³)', color: CHART_COLORS.danger },
+                { key: 'minimo', name: 'Minimo (μg/m³)', color: CHART_COLORS.secondary }
               ]}
               height={300}
             />

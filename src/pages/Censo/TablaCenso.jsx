@@ -12,7 +12,7 @@ import {
   ErrorState, EmptyState, Pagination, TableSkeleton
 } from '../../components/common';
 import { ETIQUETAS_GRUPOS_EDAD, DATE_CONFIG, PAGINATION } from '../../constants';
-import { formatNumber } from '../../utils';
+import { formatNumber, formatearNombreDistrito } from '../../utils';
 import { obtenerVarianteBadgeEdad, formatearPorcentaje } from './helpers';
 
 function TablaCenso({
@@ -60,7 +60,7 @@ function TablaCenso({
                     <TableHead>Distrito</TableHead>
                     <TableHead>Barrio</TableHead>
                     <TableHead className="text-right">Pob. total</TableHead>
-                    <TableHead className="text-right">Espanoles</TableHead>
+                    <TableHead className="text-right">Españoles</TableHead>
                     <TableHead className="text-right">Extranjeros</TableHead>
                     <TableHead className="text-right">% Extr.</TableHead>
                     <TableHead>Grupo edad</TableHead>
@@ -80,7 +80,7 @@ function TablaCenso({
                         onClick={() => onClickFila(codigoDistrito)}
                       >
                         <TableCell className="font-medium">
-                          {registro.distrito?.descripcion || '-'}
+                          {formatearNombreDistrito(registro.distrito?.descripcion)}
                         </TableCell>
                         <TableCell>{registro.barrio?.descripcion || '-'}</TableCell>
                         <TableCell className="text-right font-mono">{formatNumber(stats.totalPoblacion)}</TableCell>

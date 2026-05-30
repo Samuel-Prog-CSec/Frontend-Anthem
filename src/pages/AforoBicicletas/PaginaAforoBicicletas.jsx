@@ -17,7 +17,7 @@ import {
   useAforoEstaciones, useAforoEstacion, useMapaAforo, useCensoResumenDistritos
 } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
-import { formatNumber } from '../../utils';
+import { formatNumber, formatHour } from '../../utils';
 
 import EstadisticasAforoBicicletas from './EstadisticasAforoBicicletas';
 import FiltrosAforoBicicletas from './FiltrosAforoBicicletas';
@@ -83,7 +83,7 @@ function PaginaAforoBicicletas() {
       || distribucionResult?.data?.data
       || [];
     return raw.map(h => ({
-      hora: `${h.hora ?? h._id}:00`,
+      hora: formatHour(h.hora ?? h._id),
       promedio: Math.round(h.promedioBicicletas || h.avgBicicletas || 0),
       total: h.totalBicicletas || 0
     }));
@@ -161,7 +161,11 @@ function PaginaAforoBicicletas() {
     <PageLayout
       eyebrow="Movilidad / Aforo de bicicletas"
       title="Trafico ciclista por estacion"
-      description={`293.496 mediciones horarias de bicicletas en circulacion, agregadas por estacion fija con franja temporal. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`}
+      description={
+        totalMediciones > 0
+          ? `${formatNumber(totalMediciones)} mediciones horarias de bicicletas en circulacion, agregadas por estacion fija con franja temporal. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`
+          : `Mediciones horarias de bicicletas en circulacion, agregadas por estacion fija con franja temporal. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`
+      }
     >
       <EstadisticasAforoBicicletas
         totalMediciones={totalMediciones}

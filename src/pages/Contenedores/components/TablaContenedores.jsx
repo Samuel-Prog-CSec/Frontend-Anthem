@@ -10,7 +10,7 @@ import {
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
   Badge, Pagination, EmptyState, ErrorState, TableSkeleton
 } from '../../../components/common';
-import { formatNumber } from '../../../utils';
+import { formatNumber, formatearNombreDistrito } from '../../../utils';
 import { etiquetaTipoContenedor, varianteBadgePorTipo } from '../helpers';
 
 const TablaContenedores = memo(function TablaContenedores({
@@ -75,7 +75,7 @@ const TablaContenedores = memo(function TablaContenedores({
                       </span>
                     </TableCell>
                     <TableCell className="text-cyan-400 font-medium">
-                      {c.distrito}
+                      {formatearNombreDistrito(c.distrito)}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {c.barrio && c.barrio !== 'NO_ESPECIFICADO' ? c.barrio : '-'}

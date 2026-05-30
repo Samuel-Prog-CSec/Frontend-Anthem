@@ -96,11 +96,18 @@ function PaginaUbicaciones() {
     refetch();
   }, [refetch]);
 
+  // Subtitulo derivado del conteo real (antes hardcoded "82.362" que era
+  // el numero anterior a la deduplicacion del dataset de ubicaciones).
+  const totalUbicaciones = stats?.total ?? null;
+  const subtituloUbicaciones = totalUbicaciones != null
+    ? `${totalUbicaciones.toLocaleString('es-ES')} estaciones acusticas, puntos de medicion de trafico y rutas de transporte georreferenciados sobre Madrid.`
+    : 'Estaciones acusticas, puntos de medicion de trafico y rutas de transporte georreferenciados sobre Madrid.';
+
   return (
     <PageLayout
       eyebrow="Infraestructura / Ubicaciones"
       title="Anatomia de la malla sensorizada"
-      description="82.362 estaciones acusticas, puntos de medicion de trafico y rutas de transporte georreferenciados sobre Madrid."
+      description={subtituloUbicaciones}
       actions={
         <Button variant="outline" onClick={refrescar}>
           <RefreshCw className="size-4 mr-2" aria-hidden="true" />

@@ -181,7 +181,7 @@ function PaginaAireTrafico() {
             <StatCard
               title="NO2 promedio"
               value={formatNumber(no2Promedio, 1)}
-              subtitle="ug/m3 en el periodo"
+              subtitle="μg/m³ en el periodo"
               icon={Wind}
               isLoading={cargando}
             />

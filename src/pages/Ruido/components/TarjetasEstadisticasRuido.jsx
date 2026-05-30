@@ -34,10 +34,17 @@ const TarjetasEstadisticasRuido = memo(function TarjetasEstadisticasRuido({ esta
         subtitle="23:00 - 07:00"
         icon={Moon}
       />
+      {/*
+        El valor `cantidadExceden` que devuelve el backend cuenta
+        ESTACIONES con al menos una excedencia anual, no mediciones
+        individuales. Antes el subtitulo decia "mediciones" lo que daba
+        a entender que 18 mediciones excedian (cuando son 174 sobre 359).
+        Renombramos para reflejar la unidad real.
+      */}
       <StatCard
-        title="Exceden Limite"
+        title="Estaciones con excedencia"
         value={estadisticas.cantidadExceden}
-        subtitle="mediciones"
+        subtitle="al menos una vez en 2051"
         icon={AlertTriangle}
       />
     </div>

@@ -28,6 +28,7 @@ import {
   useMapaContenedores
 } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
+import { formatNumber } from '../../utils';
 import {
   TarjetasEstadisticasContenedores,
   FiltrosContenedores,
@@ -225,7 +226,11 @@ function PaginaContenedores() {
     <PageLayout
       eyebrow="Servicios urbanos / Residuos"
       title="Capilaridad de residuos"
-      description={`35.369 contenedores georreferenciados con tipo de residuo, lote y cobertura por distrito. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`}
+      description={
+        listadoResult?.pagination?.totalDocuments
+          ? `${formatNumber(listadoResult.pagination.totalDocuments)} contenedores georreferenciados con tipo de residuo, lote y cobertura por distrito. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`
+          : `Contenedores georreferenciados con tipo de residuo, lote y cobertura por distrito. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`
+      }
       actions={
         <Button variant="outline" onClick={() => refetchListado()}>
           <RefreshCw className="size-4 mr-2" aria-hidden="true" />

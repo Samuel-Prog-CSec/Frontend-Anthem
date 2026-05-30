@@ -116,12 +116,18 @@ function PaginaBicicletas() {
 
   const tendenciasGrafico = useMemo(() => {
     if (!tendencias || tendencias.length === 0) return [];
-    return tendencias.map(item => ({
-      mes: MESES_ABREVIATURAS[item._id - 1] || `Mes ${item._id}`,
-      totalUsos: item.totalUsos || 0,
-      usosAnual: item.usosAnual || 0,
-      usosOcasional: item.usosOcasional || 0
-    }));
+    return tendencias.map(item => {
+      // El backend devuelve `mes` (no `_id`), `totalUsosAnual`,
+      // `totalUsosOcasional` (no `usosAnual`/`usosOcasional`). Tolerar ambos
+      // shapes por si el endpoint cambia.
+      const numMes = item.mes ?? item._id;
+      return {
+        mes: MESES_ABREVIATURAS[numMes - 1] || item.nombreMes || `Mes ${numMes}`,
+        totalUsos: item.totalUsos ?? 0,
+        usosAnual: item.totalUsosAnual ?? item.usosAnual ?? 0,
+        usosOcasional: item.totalUsosOcasional ?? item.usosOcasional ?? 0
+      };
+    });
   }, [tendencias]);
 
   const manejarCambioFiltro = useCallback((nombre, valor) => {

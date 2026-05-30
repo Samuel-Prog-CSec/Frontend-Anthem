@@ -19,12 +19,14 @@ import {
   useCensoResumenDistritos
 } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
+import { formatNumber } from '../../utils';
 
 import EstadisticasMultas from './EstadisticasMultas';
 import FiltrosMultas from './FiltrosMultas';
 import GraficosMultas from './GraficosMultas';
 import PanelDetalleMulta from './PanelDetalleMulta';
 import TablaMultas from './TablaMultas';
+import { formatearLugar } from './helpers';
 
 function PaginaMultas() {
   const [filtros, setFiltros] = useState({
@@ -110,10 +112,13 @@ function PaginaMultas() {
 
   const datosGraficoRanking = useMemo(() => {
     if (!ranking?.data) return [];
-    return ranking.data.slice(0, 10).map(r => ({
-      nombre: r.lugar ? (r.lugar.length > 30 ? r.lugar.substring(0, 30) + '...' : r.lugar) : r._id,
-      total: r.totalMultas || r.count || 0
-    }));
+    return ranking.data.slice(0, 10).map(r => {
+      const lugarLimpio = r.lugar ? formatearLugar(r.lugar) : null;
+      const nombre = lugarLimpio && lugarLimpio !== '-'
+        ? (lugarLimpio.length > 30 ? lugarLimpio.substring(0, 30) + '...' : lugarLimpio)
+        : r._id;
+      return { nombre, total: r.totalMultas || r.count || 0 };
+    });
   }, [ranking]);
 
   const multasPerCapita = useMemo(() => {
@@ -159,7 +164,11 @@ function PaginaMultas() {
     <PageLayout
       eyebrow="Movilidad / Multas"
       title="Disuasion circulatoria"
-      description={`1.36 millones de boletines con calificacion, importe, descuento aplicado y puntos detraidos durante ${DATE_CONFIG.DATASET_YEAR}.`}
+      description={
+        paginacion?.totalDocuments
+          ? `${formatNumber(paginacion.totalDocuments)} boletines con calificacion, importe, descuento aplicado y puntos detraidos durante ${DATE_CONFIG.DATASET_YEAR}.`
+          : `Boletines con calificacion, importe, descuento aplicado y puntos detraidos durante ${DATE_CONFIG.DATASET_YEAR}.`
+      }
     >
       <EstadisticasMultas
         totalMultas={totalMultas}

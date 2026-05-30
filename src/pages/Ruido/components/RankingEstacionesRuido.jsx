@@ -48,8 +48,10 @@ const RankingEstacionesRuido = memo(function RankingEstacionesRuido({ datos, car
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
+                    {/* Badge tiene uppercase: envolvemos las unidades en
+                        normal-case para que "dB" no se transforme en "DB". */}
                     <Badge variant={obtenerVarianteBadgeRuido(estacion.laeq24)} className="font-mono">
-                      {formatNumber(estacion.laeq24, 1)} dB
+                      {formatNumber(estacion.laeq24, 1)}<span className="normal-case"> dB</span>
                     </Badge>
                   </TableCell>
                   <TableCell className="text-center font-mono text-sm text-foreground/80">

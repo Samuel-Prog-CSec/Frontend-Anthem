@@ -23,7 +23,7 @@ import {
 import { StatCard, BarChartCard } from '../../components/charts';
 import { useRuidoRanking, useCensoResumenDistritos } from '../../api/hooks';
 import { ROUTES, DATE_CONFIG, NOISE_LIMITS } from '../../constants';
-import { formatNumber, formatDecibels } from '../../utils';
+import { formatNumber, formatDecibels, formatearNombreDistrito } from '../../utils';
 
 function PaginaRuidoCenso() {
   const {
@@ -48,6 +48,17 @@ function PaginaRuidoCenso() {
 
   // Mapear estaciones a distritos cuando viene la info, contar incumplimientos
   const stats = useMemo(() => {
+    // El censo devuelve CHAMBERI/CHAMARTIN/TETUAN/VICALVARO sin tildes (los
+    // CSV de origen las eliminan), pero el ranking ruido viene con tildes
+    // porque las hereda de accidents. Para que el lookup matchee hay que
+    // normalizar quitando diacríticos en ambos lados.
+    const normalizarClave = (s) => (s || '')
+      .toString()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .toUpperCase()
+      .trim();
+
     const totalEstaciones = estaciones.length;
     const incumplimientos = estaciones.filter(e =>
       (e.laeq24 || e.promedioLaeq24 || 0) > NOISE_LIMITS.DIURNO
@@ -64,13 +75,13 @@ function PaginaRuidoCenso() {
     const indexCenso = new Map();
     distritos.forEach(d => {
       const nombre = d.nombre || d._id;
-      if (nombre) {indexCenso.set(nombre.toUpperCase(), d.totalPoblacion || 0);}
+      if (nombre) {indexCenso.set(normalizarClave(nombre), d.totalPoblacion || 0);}
     });
 
     const distritosAfectados = Array.from(porDistrito.values()).map(d => ({
       ...d,
       laeqMedio: d.estacionesAfectadas > 0 ? d.sumLaeq / d.estacionesAfectadas : 0,
-      poblacion: indexCenso.get((d.distrito || '').toUpperCase()) || 0
+      poblacion: indexCenso.get(normalizarClave(d.distrito)) || 0
     }))
     .sort((a, b) => b.poblacion - a.poblacion);
 
@@ -172,7 +183,7 @@ function PaginaRuidoCenso() {
                   const excedeMucho = d.laeqMedio - NOISE_LIMITS.DIURNO > 5;
                   return (
                     <TableRow key={d.distrito}>
-                      <TableCell className="font-medium text-cyan-400">{d.distrito}</TableCell>
+                      <TableCell className="font-medium text-cyan-400">{formatearNombreDistrito(d.distrito)}</TableCell>
                       <TableCell className="text-right font-mono">{formatNumber(d.estacionesAfectadas)}</TableCell>
                       <TableCell className="text-right">
                         <Badge variant={excedeMucho ? 'destructive' : 'warning'}>

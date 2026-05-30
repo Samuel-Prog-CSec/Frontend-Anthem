@@ -1,20 +1,25 @@
 /**
  * Correlacion Multas x Accidentes
  *
- * Comparativa por distrito: cuantos accidentes y cuantas multas se registran
- * en cada zona. Permite identificar patrones (zonas con muchas multas y
- * pocos accidentes pueden indicar control efectivo; al reves alerta de
- * riesgo no contenido).
+ * Los dos datasets viven en granularidades distintas en el CSV de origen:
+ *  - Multas: indexadas por LUGAR (calle/punto kilometrico). No hay columna
+ *    de distrito. Solo el 1.8% de las multas trae coordenadas UTM, por lo
+ *    que reverse-geocoding no cubre la mayoria.
+ *  - Accidentes: indexados por distrito municipal (21 distritos de Madrid).
+ *
+ * Forzar un cruce calle->distrito devolveria sesgo enorme. Mostramos en
+ * paralelo el ranking real de cada dataset y un ratio global del corpus
+ * como indicador agregado.
  */
 
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, FileWarning, AlertTriangle, TrendingUp } from 'lucide-react';
+import { ArrowLeft, FileWarning, AlertTriangle, TrendingUp, Info } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
 import {
   Card, CardHeader, CardTitle, CardDescription, CardContent, Button,
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
-  Badge, EmptyState, TableSkeleton
+  EmptyState, TableSkeleton
 } from '../../components/common';
 import { StatCard, BarChartCard } from '../../components/charts';
 import { useAccidentesComparativa, useMultasRanking } from '../../api/hooks';
@@ -29,89 +34,70 @@ function PaginaMultasAccidentes() {
   const {
     data: rankingMultas,
     isLoading: cargandoMultas
-  } = useMultasRanking({ groupBy: 'distrito', limit: 50 });
+  } = useMultasRanking({ groupBy: 'lugar', limit: 50 });
 
   const cargando = cargandoAccidentes || cargandoMultas;
 
-  const filas = useMemo(() => {
-    // Tolerar varias formas del backend:
-    //  - accidentesResult.data.comparativa (shape real actual)
-    //  - accidentesResult.data (array directo, retrocompat)
-    //  - accidentesResult (objeto sin envoltorio)
+  // Tolerar varias formas de respuesta del backend
+  const accidentesPorDistrito = useMemo(() => {
     const accsRaw = accidentesResult?.data?.comparativa
       || accidentesResult?.data
       || accidentesResult
       || [];
     const accs = Array.isArray(accsRaw) ? accsRaw : [];
+    return accs
+      .map(a => ({
+        nombre: (a._id || a.distrito || '').toString(),
+        total: a.totalAccidentes || a.total || 0
+      }))
+      .filter(r => r.nombre)
+      .sort((a, b) => b.total - a.total);
+  }, [accidentesResult]);
+
+  const multasPorLugar = useMemo(() => {
     const multasRaw = rankingMultas?.data?.ranking
       || rankingMultas?.data?.lugares
       || rankingMultas?.data
       || [];
     const multas = Array.isArray(multasRaw) ? multasRaw : [];
-
-    // Indexar accidentes por distrito (uppercase) -> total
-    const indexAcc = new Map();
-    accs.forEach(a => {
-      const nombre = a._id || a.distrito;
-      if (nombre) {indexAcc.set(nombre.toUpperCase(), a.totalAccidentes || a.total || 0);}
-    });
-
-    // Indexar multas por distrito (toleramos varias formas del backend)
-    const indexMultas = new Map();
-    multas.forEach(m => {
-      const nombre = m._id || m.distrito || m.lugar;
-      if (nombre) {indexMultas.set(String(nombre).toUpperCase(), m.totalMultas || m.total || m.count || 0);}
-    });
-
-    // Union de claves
-    const claves = new Set([...indexAcc.keys(), ...indexMultas.keys()]);
-    const resultado = [];
-    claves.forEach(k => {
-      resultado.push({
-        distrito: k,
-        accidentes: indexAcc.get(k) || 0,
-        multas: indexMultas.get(k) || 0
-      });
-    });
-
-    // Ratio multas/accidente: alto = mas control que siniestros, bajo = lo contrario
-    return resultado.map(r => ({
-      ...r,
-      ratio: r.accidentes > 0 ? r.multas / r.accidentes : (r.multas > 0 ? Infinity : 0)
-    }));
-  }, [accidentesResult, rankingMultas]);
-
-  const filasTop = useMemo(() => {
-    // Solo mostramos filas con cruce real (ambos datos > 0). Antes el OR
-    // incluia filas con muchas multas y "SIN ACCIDENTES" cuando el ranking
-    // de multas devuelve calles especificas (P. SM.CABEZA_N115...) que no
-    // matchean con la agregacion por distrito de accidentes. Resultado:
-    // todas las filas mostraban ratio infinito sin lectura util.
-    return [...filas]
-      .filter(f => f.accidentes > 0 && f.multas > 0)
-      .sort((a, b) => (b.accidentes + b.multas) - (a.accidentes + a.multas))
-      .slice(0, 20);
-  }, [filas]);
-
-  const datosGrafico = useMemo(() => {
-    return filasTop.slice(0, 12).map(f => ({
-      name: f.distrito,
-      multas: f.multas,
-      accidentes: f.accidentes
-    }));
-  }, [filasTop]);
+    return multas
+      .map(m => ({
+        nombre: (m._id || m.lugar || m.distrito || '').toString(),
+        total: m.totalMultas || m.total || m.count || 0
+      }))
+      .filter(r => r.nombre)
+      .sort((a, b) => b.total - a.total);
+  }, [rankingMultas]);
 
   const totales = useMemo(() => {
-    const totalAccidentes = filas.reduce((s, f) => s + f.accidentes, 0);
-    const totalMultas = filas.reduce((s, f) => s + f.multas, 0);
+    const totalAccidentes = accidentesPorDistrito.reduce((s, f) => s + f.total, 0);
+    const totalMultas = multasPorLugar.reduce((s, f) => s + f.total, 0);
     const ratioGlobal = totalAccidentes > 0 ? totalMultas / totalAccidentes : 0;
     return { totalAccidentes, totalMultas, ratioGlobal };
-  }, [filas]);
+  }, [accidentesPorDistrito, multasPorLugar]);
+
+  const datosGraficoAccidentes = useMemo(() => {
+    return accidentesPorDistrito.slice(0, 12).map(r => ({
+      name: r.nombre,
+      accidentes: r.total
+    }));
+  }, [accidentesPorDistrito]);
+
+  const datosGraficoMultas = useMemo(() => {
+    return multasPorLugar.slice(0, 12).map(r => ({
+      name: r.nombre.length > 24 ? `${r.nombre.slice(0, 22)}...` : r.nombre,
+      multas: r.total
+    }));
+  }, [multasPorLugar]);
+
+  const sinDatos = !cargando
+    && accidentesPorDistrito.length === 0
+    && multasPorLugar.length === 0;
 
   return (
     <PageLayout
       title="Multas vs. Accidentes"
-      description="Cruce por distrito entre multas registradas y accidentes ocurridos."
+      description="Indicadores agregados por dataset. La cruzada distrito-a-distrito no es posible porque la base de multas se indexa por calle, no por distrito."
       actions={
         <Button asChild variant="outline" size="sm">
           <Link to={ROUTES.CORRELACIONES}>
@@ -125,93 +111,152 @@ function PaginaMultasAccidentes() {
         <StatCard
           title="Total accidentes"
           value={formatNumber(totales.totalAccidentes)}
+          subtitle="agregado por distrito"
           icon={AlertTriangle}
           isLoading={cargando}
         />
         <StatCard
-          title="Total multas"
+          title="Total multas (top 50)"
           value={formatNumber(totales.totalMultas)}
+          subtitle="agregado por lugar"
           icon={FileWarning}
           isLoading={cargando}
         />
         <StatCard
           title="Ratio multas/accidente"
           value={formatNumber(totales.ratioGlobal, 2)}
-          subtitle="global del dataset"
+          subtitle="global del corpus"
           icon={TrendingUp}
           isLoading={cargando}
         />
       </div>
 
-      <BarChartCard
-        title="Top 12 distritos: accidentes vs. multas"
-        data={datosGrafico}
-        xKey="name"
-        bars={[
-          { key: 'multas', name: 'Multas', color: '#ef4444' },
-          { key: 'accidentes', name: 'Accidentes', color: '#f59e0b' }
-        ]}
-        height={360}
-        isLoading={cargando}
-      />
-
-      <Card className="mt-6">
+      <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Comparativa por distrito (top 20)</CardTitle>
-          <CardDescription>
-            Ratios altos pueden indicar zonas con mucho control sancionador y baja siniestralidad. Ratios bajos sugieren riesgo no contenido por la normativa actual.
-          </CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <Info className="size-4" aria-hidden="true" />
+            Por que dos rankings paralelos
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          {cargando ? (
-            <TableSkeleton rows={8} columns={5} />
-          ) : filasTop.length === 0 ? (
-            <EmptyState
-              title="Sin datos cruzados"
-              description="No se pudo construir la comparativa."
-              icon={FileWarning}
-            />
-          ) : (
-            <Table label="Comparativa multas vs accidentes" rowCount={filasTop.length}>
-              <TableCaption className="sr-only">Comparativa por distrito</TableCaption>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Distrito</TableHead>
-                  <TableHead className="text-right">Accidentes</TableHead>
-                  <TableHead className="text-right">Multas</TableHead>
-                  <TableHead className="text-right">Ratio M/A</TableHead>
-                  <TableHead className="text-center">Indicador</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filasTop.map(f => {
-                  const ratioFinito = Number.isFinite(f.ratio);
-                  const indicador = !ratioFinito || f.accidentes === 0
-                    ? { variant: 'info', label: 'Sin accidentes' }
-                    : f.ratio > totales.ratioGlobal * 1.5
-                      ? { variant: 'success', label: 'Alto control' }
-                      : f.ratio < totales.ratioGlobal * 0.5
-                        ? { variant: 'destructive', label: 'Riesgo' }
-                        : { variant: 'secondary', label: 'Equilibrado' };
-                  return (
-                    <TableRow key={f.distrito}>
-                      <TableCell className="font-medium text-cyan-400">{f.distrito}</TableCell>
-                      <TableCell className="text-right font-mono">{formatNumber(f.accidentes)}</TableCell>
-                      <TableCell className="text-right font-mono">{formatNumber(f.multas)}</TableCell>
-                      <TableCell className="text-right font-mono text-foreground">
-                        {ratioFinito ? formatNumber(f.ratio, 2) : '∞'}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant={indicador.variant}>{indicador.label}</Badge>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          )}
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            El CSV de multas no incluye distrito; solo registra el lugar de la denuncia (calle o punto kilometrico). Solo el 1.8% trae coordenadas UTM, insuficiente para reverse-geocoding fiable. Por integridad mostramos cada dataset en su granularidad real: accidentes por distrito (21 unidades) y multas por lugar (top 50 calles).
+          </p>
         </CardContent>
       </Card>
+
+      {sinDatos ? (
+        <EmptyState
+          title="Sin datos"
+          description="No se pudieron cargar accidentes ni multas."
+          icon={FileWarning}
+        />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <BarChartCard
+            title="Top 12 distritos por accidentes"
+            data={datosGraficoAccidentes}
+            xKey="name"
+            bars={[
+              { key: 'accidentes', name: 'Accidentes', color: '#f59e0b' }
+            ]}
+            height={360}
+            isLoading={cargando}
+          />
+          <BarChartCard
+            title="Top 12 lugares por multas"
+            data={datosGraficoMultas}
+            xKey="name"
+            bars={[
+              { key: 'multas', name: 'Multas', color: '#ef4444' }
+            ]}
+            height={360}
+            isLoading={cargando}
+          />
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Distritos con mas accidentes</CardTitle>
+            <CardDescription>
+              Ranking municipal por distrito. Util para asignar recursos de patrullaje y mejora de infraestructura.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {cargando ? (
+              <TableSkeleton rows={8} columns={2} />
+            ) : accidentesPorDistrito.length === 0 ? (
+              <EmptyState
+                title="Sin datos"
+                description="No hay accidentes en la consulta."
+                icon={AlertTriangle}
+              />
+            ) : (
+              <Table label="Top distritos por accidentes" rowCount={Math.min(20, accidentesPorDistrito.length)}>
+                <TableCaption className="sr-only">Top 20 distritos con mas accidentes</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">#</TableHead>
+                    <TableHead>Distrito</TableHead>
+                    <TableHead className="text-right">Accidentes</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {accidentesPorDistrito.slice(0, 20).map((r, idx) => (
+                    <TableRow key={r.nombre}>
+                      <TableCell className="font-mono text-muted-foreground">{idx + 1}</TableCell>
+                      <TableCell className="font-medium">{r.nombre}</TableCell>
+                      <TableCell className="text-right font-mono">{formatNumber(r.total)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Lugares con mas multas</CardTitle>
+            <CardDescription>
+              Calles y puntos kilometricos con mayor numero de denuncias. Permite identificar focos sancionadores.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {cargando ? (
+              <TableSkeleton rows={8} columns={2} />
+            ) : multasPorLugar.length === 0 ? (
+              <EmptyState
+                title="Sin datos"
+                description="No hay multas en la consulta."
+                icon={FileWarning}
+              />
+            ) : (
+              <Table label="Top lugares por multas" rowCount={Math.min(20, multasPorLugar.length)}>
+                <TableCaption className="sr-only">Top 20 lugares con mas multas</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">#</TableHead>
+                    <TableHead>Lugar</TableHead>
+                    <TableHead className="text-right">Multas</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {multasPorLugar.slice(0, 20).map((r, idx) => (
+                    <TableRow key={r.nombre}>
+                      <TableCell className="font-mono text-muted-foreground">{idx + 1}</TableCell>
+                      <TableCell className="font-medium">{r.nombre}</TableCell>
+                      <TableCell className="text-right font-mono">{formatNumber(r.total)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </PageLayout>
   );
 }

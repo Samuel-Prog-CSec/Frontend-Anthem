@@ -142,40 +142,40 @@ function PaginaPatinetes() {
 
   const cerrarArea = useCallback(() => setAreaQuery(null), []);
 
-  // Estadisticas derivadas de la pagina actual
+  // Estadisticas derivadas (preferir agregado global de estadisticasDistritos
+  // sobre la pagina actual de `datos`, que era solo el primer page de 50
+  // registros). Antes el KPI mostraba 182 (suma de la primera pagina) en
+  // vez del total real (~4821) y el promedio coincidia raro con el total.
   const estadisticas = useMemo(() => {
-    if (datos.length === 0) {
-      return {
-        totalPatinetes: 0,
-        proveedoresActivos: 0,
-        promedioPorBarrio: 0,
-        totalAreas: 0
-      };
-    }
+    const totalAreas = paginacionActual.totalItems || datos.length;
 
-    const totalPatinetes = datos
-      .filter(d => d.estadisticas?.totalPatinetes != null)
-      .reduce((sum, d) => sum + d.estadisticas.totalPatinetes, 0);
+    // Total agregado: usar estadisticasDistritos si esta disponible
+    // (suma todos los distritos), caer a datos como fallback.
+    const totalPatinetes = estadisticasDistritos.length > 0
+      ? estadisticasDistritos.reduce((sum, d) => sum + (d.totalPatinetes || 0), 0)
+      : datos
+          .filter(d => d.estadisticas?.totalPatinetes != null)
+          .reduce((sum, d) => sum + d.estadisticas.totalPatinetes, 0);
 
+    // Proveedores: media de proveedores activos por area (de la pagina
+    // actual; aproximacion razonable).
     const proveedoresValues = datos
       .filter(d => d.estadisticas?.proveedoresActivos != null)
       .map(d => d.estadisticas.proveedoresActivos);
-
     const proveedoresActivos = proveedoresValues.length > 0
       ? proveedoresValues.reduce((a, b) => a + b, 0) / proveedoresValues.length
       : 0;
 
-    const promedioPorBarrio = datos.length > 0
-      ? totalPatinetes / datos.length
-      : 0;
+    // Promedio por area: total agregado / numero total de areas registradas
+    const promedioPorBarrio = totalAreas > 0 ? totalPatinetes / totalAreas : 0;
 
     return {
       totalPatinetes,
       proveedoresActivos,
       promedioPorBarrio,
-      totalAreas: paginacionActual.totalItems
+      totalAreas
     };
-  }, [datos, paginacionActual.totalItems]);
+  }, [datos, paginacionActual.totalItems, estadisticasDistritos]);
 
   // Opciones de distrito derivadas de estadisticasDistritos
   const districtOptions = useMemo(() => {
@@ -207,7 +207,9 @@ function PaginaPatinetes() {
     <PageLayout
       eyebrow="Movilidad / Micromovilidad"
       title="Flota de micromovilidad"
-      description={`3.186 patinetes desplegados por ocho proveedores en 128 areas de la ciudad. Densidad, dominancia HHI y zonas de concentracion en ${DATE_CONFIG.DATASET_YEAR}.`}
+      description={estadisticas.totalPatinetes > 0
+        ? `${estadisticas.totalPatinetes.toLocaleString('es-ES')} patinetes desplegados en ${estadisticas.totalAreas} areas de la ciudad. Densidad, dominancia HHI y zonas de concentracion en ${DATE_CONFIG.DATASET_YEAR}.`
+        : `Flota de micromovilidad agregada por distrito y barrio. Densidad, dominancia HHI y zonas de concentracion en ${DATE_CONFIG.DATASET_YEAR}.`}
       actions={
         <Button variant="outline" onClick={() => refetch()}>
           <RefreshCw className="size-4 mr-2" />

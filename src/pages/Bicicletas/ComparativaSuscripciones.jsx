@@ -43,15 +43,20 @@ function ComparativaSuscripciones({ comparativa }) {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/*
+            Las metricas son SUMAS DE USOS, no cuentas de personas unicas.
+            Llamar "Suscriptores" a 3.4 M para una flota de ~2.5K bicis es
+            enganyoso: una sola persona contribuye N veces al "usosAbonadoAnual".
+          */}
           <StatCard
-            title="Suscriptores anuales"
+            title="Usos de abonados (anual)"
             value={formatNumber(totalAnual)}
             subtitle={`Promedio diario: ${formatNumber(promedioAnual, 1)}`}
             icon={UserCheck}
             accent="cyan"
           />
           <StatCard
-            title="Usuarios ocasionales"
+            title="Usos ocasionales"
             value={formatNumber(totalOcasional)}
             subtitle={`Promedio diario: ${formatNumber(promedioOcasional, 1)}`}
             icon={Users}

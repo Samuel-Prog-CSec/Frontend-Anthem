@@ -12,7 +12,7 @@ import {
   ErrorState, EmptyState, Pagination, TableSkeleton
 } from '../../components/common';
 import { ETIQUETAS_FRANJAS_HORARIAS, DATE_CONFIG, PAGINATION } from '../../constants';
-import { formatNumber, formatDate } from '../../utils';
+import { formatNumber, formatDate, formatHour, formatearNombreDistrito } from '../../utils';
 import { obtenerVarianteBadgeFranja } from './helpers';
 
 function TablaAforoBicicletas({
@@ -74,10 +74,10 @@ function TablaAforoBicicletas({
                       onClick={() => onClickEstacion(registro.identificador)}
                     >
                       <TableCell>{formatDate(registro.fecha)}</TableCell>
-                      <TableCell className="font-mono">{registro.hora}:00</TableCell>
+                      <TableCell className="font-mono">{formatHour(registro.hora)}</TableCell>
                       <TableCell className="font-medium">{registro.identificador}</TableCell>
                       <TableCell className="text-right font-mono">{registro.bicicletas}</TableCell>
-                      <TableCell>{registro.ubicacion?.distrito || '-'}</TableCell>
+                      <TableCell>{formatearNombreDistrito(registro.ubicacion?.distrito)}</TableCell>
                       <TableCell>{registro.ubicacion?.nombreVial || '-'}</TableCell>
                       <TableCell>
                         {registro.franjaHoraria && (

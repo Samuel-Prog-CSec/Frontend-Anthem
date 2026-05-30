@@ -54,13 +54,21 @@ function TopDiasCard({ titulo, icono, iconoColor, dias, prefijoKey }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {/*
+          El endpoint /bicicletas/mayor-uso devuelve solo: dia, totalUsos,
+          mediaBicicletasDisponibles, tasaOcupacion. usosAnual/usosOcasional
+          no estan disponibles a este nivel granular (solo en el agregado
+          /tendencias/mensual o /suscripciones), asi que sustituimos las
+          columnas previas por las metricas que SI provee el endpoint para
+          evitar mostrar guiones vacios.
+        */}
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Dia</TableHead>
               <TableHead className="text-right">Total usos</TableHead>
-              <TableHead className="text-right">Usos anual</TableHead>
-              <TableHead className="text-right">Usos ocasional</TableHead>
+              <TableHead className="text-right">Bicis medias</TableHead>
+              <TableHead className="text-right">Ocupacion (%)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -69,10 +77,10 @@ function TopDiasCard({ titulo, icono, iconoColor, dias, prefijoKey }) {
                 <TableCell>{formatDate(item.dia)}</TableCell>
                 <TableCell className="text-right font-mono font-medium">{formatNumber(item.totalUsos)}</TableCell>
                 <TableCell className="text-right font-mono">
-                  {formatNumber(item.usosAnual || item.usosAbonadoAnual)}
+                  {formatNumber(item.mediaBicicletasDisponibles, 1)}
                 </TableCell>
                 <TableCell className="text-right font-mono">
-                  {formatNumber(item.usosOcasional || item.usosAbonadoOcasional)}
+                  {item.tasaOcupacion != null ? `${formatNumber(item.tasaOcupacion, 2)}%` : '-'}
                 </TableCell>
               </TableRow>
             ))}

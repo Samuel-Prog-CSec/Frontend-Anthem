@@ -86,11 +86,17 @@ const TablaRuido = memo(function TablaRuido({
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
+                      {/* Badge tiene `uppercase` por defecto, asi que `dB` se
+                          transforma en `DB`. Envolvemos las unidades en
+                          `normal-case` para preservar la mayuscula correcta
+                          del decibelio. Mismo patron en IndicadorCumplimiento. */}
                       <Badge
                         variant={obtenerVarianteBadgeRuido(record.nivelDiurno)}
                         className="font-mono"
                       >
-                        {record.nivelDiurno != null ? `${formatNumber(record.nivelDiurno, 1)} dB` : '-'}
+                        {record.nivelDiurno != null
+                          ? <>{formatNumber(record.nivelDiurno, 1)}<span className="normal-case"> dB</span></>
+                          : '-'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">
@@ -98,7 +104,9 @@ const TablaRuido = memo(function TablaRuido({
                         variant={obtenerVarianteBadgeRuido(record.nivelVespertino)}
                         className="font-mono"
                       >
-                        {record.nivelVespertino != null ? `${formatNumber(record.nivelVespertino, 1)} dB` : '-'}
+                        {record.nivelVespertino != null
+                          ? <>{formatNumber(record.nivelVespertino, 1)}<span className="normal-case"> dB</span></>
+                          : '-'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">
@@ -106,7 +114,9 @@ const TablaRuido = memo(function TablaRuido({
                         variant={obtenerVarianteBadgeRuido(record.nivelNocturno)}
                         className="font-mono"
                       >
-                        {record.nivelNocturno != null ? `${formatNumber(record.nivelNocturno, 1)} dB` : '-'}
+                        {record.nivelNocturno != null
+                          ? <>{formatNumber(record.nivelNocturno, 1)}<span className="normal-case"> dB</span></>
+                          : '-'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center font-mono text-foreground/80">

@@ -12,6 +12,7 @@ import {
   EmptyState, TableSkeleton
 } from '../../components/common';
 import { LOCATION_TYPE_LABELS } from '../../constants';
+import { formatearNombreDistrito } from '../../utils';
 
 function DetallePuntosMedicion({ tipo, datos, isLoading }) {
   if (!tipo) return null;
@@ -48,7 +49,7 @@ function DetallePuntosMedicion({ tipo, datos, isLoading }) {
                 <TableRow key={`punto-${index}`}>
                   <TableCell className="font-medium">{punto.nombre}</TableCell>
                   <TableCell className="text-muted-foreground font-mono">{punto.id}</TableCell>
-                  <TableCell>{punto.distrito}</TableCell>
+                  <TableCell>{formatearNombreDistrito(punto.distrito)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

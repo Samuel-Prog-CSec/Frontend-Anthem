@@ -2,8 +2,11 @@
  * Analisis de densidad y cobertura por distrito.
  * Subcomponente de PaginaContenedores.
  *
- * Muestra una tabla con el desglose de densidad (contenedores por punto)
- * y distribucion por tipo. Permite filtrar por distrito y tipo activos.
+ * El dataset tiene 1 contenedor por documento (cantidad === 1 para los
+ * 37.954 docs), por lo que la metrica "contenedores por punto" del backend
+ * siempre da 1,00 y no aporta. La sustituimos por "% del distrito": del
+ * total de contenedores del distrito, cuanto cae en ese barrio. Asi la
+ * fila muestra concentracion real de contenedores dentro del distrito.
  */
 
 import { memo, useMemo } from 'react';
@@ -13,7 +16,7 @@ import {
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell, TableCaption,
   Badge, EmptyState, TableSkeleton
 } from '../../../components/common';
-import { formatNumber } from '../../../utils';
+import { formatNumber, formatearNombreDistrito } from '../../../utils';
 import { etiquetaTipoContenedor, varianteBadgePorTipo } from '../helpers';
 
 const AnalisisDensidadContenedores = memo(function AnalisisDensidadContenedores({
@@ -24,7 +27,21 @@ const AnalisisDensidadContenedores = memo(function AnalisisDensidadContenedores(
 }) {
   const filas = useMemo(() => {
     if (!Array.isArray(datos)) {return [];}
+    // Total por distrito (sumando todos los barrios) para calcular el
+    // % de cada fila respecto a su distrito.
+    const totalPorDistrito = datos.reduce((acc, fila) => {
+      if (!fila.distrito) return acc;
+      acc[fila.distrito] = (acc[fila.distrito] || 0) + (fila.totalContenedores || 0);
+      return acc;
+    }, {});
     return [...datos]
+      .map(fila => {
+        const totalDistrito = totalPorDistrito[fila.distrito] || 0;
+        const pct = totalDistrito > 0
+          ? (fila.totalContenedores / totalDistrito) * 100
+          : null;
+        return { ...fila, porcentajeDistrito: pct };
+      })
       .sort((a, b) => (b.totalContenedores || 0) - (a.totalContenedores || 0))
       .slice(0, 25);
   }, [datos]);
@@ -44,7 +61,7 @@ const AnalisisDensidadContenedores = memo(function AnalisisDensidadContenedores(
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <TableSkeleton rows={6} columns={5} />
+          <TableSkeleton rows={6} columns={5} aria-label="Cargando analisis" />
         ) : filas.length === 0 ? (
           <EmptyState
             title="Sin datos de densidad"
@@ -61,8 +78,7 @@ const AnalisisDensidadContenedores = memo(function AnalisisDensidadContenedores(
                 <TableHead>Distrito</TableHead>
                 <TableHead>Barrio</TableHead>
                 <TableHead className="text-right">Contenedores</TableHead>
-                <TableHead className="text-right">Ubicaciones</TableHead>
-                <TableHead className="text-right">Densidad</TableHead>
+                <TableHead className="text-right">% del distrito</TableHead>
                 <TableHead>Tipos presentes</TableHead>
               </TableRow>
             </TableHeader>
@@ -73,7 +89,7 @@ const AnalisisDensidadContenedores = memo(function AnalisisDensidadContenedores(
                 return (
                   <TableRow key={`${fila.distrito}-${fila.barrio || idx}`}>
                     <TableCell className="font-medium text-cyan-400">
-                      {fila.distrito}
+                      {formatearNombreDistrito(fila.distrito)}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {fila.barrio && fila.barrio !== 'NO_ESPECIFICADO' ? fila.barrio : '-'}
@@ -81,12 +97,9 @@ const AnalisisDensidadContenedores = memo(function AnalisisDensidadContenedores(
                     <TableCell className="text-right font-mono">
                       {formatNumber(fila.totalContenedores)}
                     </TableCell>
-                    <TableCell className="text-right font-mono">
-                      {formatNumber(fila.totalPuntos)}
-                    </TableCell>
                     <TableCell className="text-right font-mono text-foreground">
-                      {fila.densidad?.contenedoresPorPunto != null
-                        ? formatNumber(fila.densidad.contenedoresPorPunto, 2)
+                      {fila.porcentajeDistrito != null
+                        ? `${formatNumber(fila.porcentajeDistrito, 1)} %`
                         : '-'}
                     </TableCell>
                     <TableCell>

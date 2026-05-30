@@ -67,7 +67,11 @@ function TablaCalidadAire({
               <TableBody>
                 {data.map((record) => {
                   const avg = calcularPromedioDiario(record.medicionesHorarias);
-                  const level = obtenerNivelCalidadAire(avg);
+                  // Pasamos `magnitud` para que el helper use la tabla EEA
+                  // correcta de cada contaminante. Sin ella la antigua escala
+                  // generica 0-50/51-100/... daba falsos "Buena" para valores
+                  // de PM2.5 que ya excedian el limite OMS.
+                  const level = obtenerNivelCalidadAire(avg, record.magnitud);
 
                   return (
                     <TableRow key={record._id}>
@@ -81,7 +85,7 @@ function TablaCalidadAire({
                         {AIR_QUALITY_MAGNITUDES[record.magnitud] || `Magnitud ${record.magnitud}`}
                       </TableCell>
                       <TableCell className="text-right font-mono">
-                        {avg != null ? `${formatNumber(avg, 2)} ug/m3` : '-'}
+                        {avg != null ? `${formatNumber(avg, 2)} μg/m³` : '-'}
                       </TableCell>
                       <TableCell>
                         <Badge variant={level.variant}>

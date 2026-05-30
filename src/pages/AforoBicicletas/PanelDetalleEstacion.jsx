@@ -10,7 +10,7 @@ import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
   Button, CardSkeleton
 } from '../../components/common';
-import { formatNumber } from '../../utils';
+import { formatNumber, formatearNombreDistrito } from '../../utils';
 
 function PanelDetalleEstacion({ identificador, detalle, isLoading, onCerrar }) {
   if (!identificador) return null;
@@ -39,7 +39,7 @@ function PanelDetalleEstacion({ identificador, detalle, isLoading, onCerrar }) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Celda etiqueta="Total bicicletas" valor={formatNumber(summary.totalBicicletas || 0)} />
           <Celda etiqueta="Mediciones" valor={formatNumber(summary.totalMediciones || 0)} />
-          <Celda etiqueta="Distrito" valor={summary.distrito || '-'} />
+          <Celda etiqueta="Distrito" valor={formatearNombreDistrito(summary.distrito)} />
           <Celda etiqueta="Nombre vial" valor={summary.nombreVial || '-'} />
         </div>
       </CardContent>

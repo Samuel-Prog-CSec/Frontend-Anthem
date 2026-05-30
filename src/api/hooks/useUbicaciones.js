@@ -36,22 +36,25 @@ export function useUbicacionesStats() {
   return useQuery({
     queryKey: ['ubicaciones-stats'],
     queryFn: async ({ signal }) => {
-      const [totalRes, acusticaRes, traficoRes, metroRes, busRes, cercaniasRes] = await Promise.all([
+      // Solo pedimos los conteos puntuales (estaciones y puntos de trafico)
+      // y derivamos rutas_transporte como diferencia. Antes se sumaban solo
+      // metro+autobus+cercanias y se perdian interurbano, metro_ligero y
+      // zona_taxi (11.829 docs invisibles en el KPI "RUTAS TRANSPORTE").
+      const [totalRes, acusticaRes, traficoRes] = await Promise.all([
         obtenerUbicaciones({ limit: 1 }, { signal }),
         obtenerUbicaciones({ limit: 1, type: 'estacion_acustica' }, { signal }),
-        obtenerUbicaciones({ limit: 1, type: 'punto_trafico' }, { signal }),
-        obtenerUbicaciones({ limit: 1, type: 'ruta_metro' }, { signal }),
-        obtenerUbicaciones({ limit: 1, type: 'ruta_autobus' }, { signal }),
-        obtenerUbicaciones({ limit: 1, type: 'ruta_cercanias' }, { signal })
+        obtenerUbicaciones({ limit: 1, type: 'punto_trafico' }, { signal })
       ]);
 
+      const total = totalRes.pagination?.totalDocuments || 0;
+      const estacion_acustica = acusticaRes.pagination?.totalDocuments || 0;
+      const punto_trafico = traficoRes.pagination?.totalDocuments || 0;
+
       return {
-        total: totalRes.pagination?.totalDocuments || 0,
-        estacion_acustica: acusticaRes.pagination?.totalDocuments || 0,
-        punto_trafico: traficoRes.pagination?.totalDocuments || 0,
-        rutas_transporte: (metroRes.pagination?.totalDocuments || 0) +
-                          (busRes.pagination?.totalDocuments || 0) +
-                          (cercaniasRes.pagination?.totalDocuments || 0)
+        total,
+        estacion_acustica,
+        punto_trafico,
+        rutas_transporte: Math.max(0, total - estacion_acustica - punto_trafico)
       };
     },
     staleTime: 10 * 60 * 1000

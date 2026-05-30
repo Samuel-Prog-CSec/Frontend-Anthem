@@ -21,11 +21,18 @@ function EstadisticasCalidadAire({
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {/*
+        `estadisticasApi.totalRegistros` solo cuenta el subconjunto del
+        agregado (un (fecha, magnitud) concreto). Para el KPI principal el
+        valor honesto es el total de documentos del listado, que viene de
+        la paginacion del propio endpoint /calidad-aire. Asi evitamos
+        mostrar "10.850" cuando hay 55.265 mediciones en el dataset.
+      */}
       <StatCard
         title="Total mediciones"
-        value={hasApi
-          ? formatNumber(estadisticasApi.totalRegistros)
-          : (totalDocumentos ?? '-')}
+        value={totalDocumentos != null
+          ? formatNumber(totalDocumentos)
+          : (hasApi ? formatNumber(estadisticasApi.totalRegistros) : '-')}
         subtitle={cargandoStats ? 'Cargando...' : undefined}
         icon={Activity}
         accent="cyan"
@@ -33,8 +40,8 @@ function EstadisticasCalidadAire({
       <StatCard
         title="Promedio general"
         value={hasApi
-          ? `${formatNumber(estadisticasApi.promedio, 1)} ug/m3`
-          : `${formatNumber(estadisticasLocales.avg, 1)} ug/m3`}
+          ? `${formatNumber(estadisticasApi.promedio, 1)} μg/m³`
+          : `${formatNumber(estadisticasLocales.avg, 1)} μg/m³`}
         subtitle={hasApi ? 'todas las estaciones' : 'en pagina actual'}
         icon={Wind}
         accent="emerald"
@@ -42,8 +49,8 @@ function EstadisticasCalidadAire({
       <StatCard
         title="Valor maximo"
         value={hasApi
-          ? `${formatNumber(estadisticasApi.maximo, 1)} ug/m3`
-          : `${formatNumber(estadisticasLocales.max, 1)} ug/m3`}
+          ? `${formatNumber(estadisticasApi.maximo, 1)} μg/m³`
+          : `${formatNumber(estadisticasLocales.max, 1)} μg/m³`}
         subtitle={hasApi ? 'registrado' : 'en pagina actual'}
         icon={TrendingUp}
         accent="amber"

@@ -26,10 +26,16 @@ const TarjetasEstadisticasPatinetes = memo(function TarjetasEstadisticasPatinete
         value={formatNumber(Math.round(estadisticas.promedioPorBarrio))}
         icon={BarChart3}
       />
+      {/*
+        Antes el titulo era "Proveedores Activos" pero el valor que viene
+        del backend es el PROMEDIO de proveedores por area (no el total de
+        proveedores activos en la flota, que son 14). Renombramos para
+        que el label coincida con el numero mostrado y no confunda.
+      */}
       <StatCard
-        title="Proveedores Activos"
+        title="Proveedores promedio/area"
         value={Math.round(estadisticas.proveedoresActivos)}
-        subtitle="promedio por area"
+        subtitle="sobre 14 operadores"
         icon={Users}
       />
     </div>

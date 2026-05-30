@@ -67,10 +67,24 @@ export function useAforoPeatonesTendencias(params = {}) {
   });
 }
 
+/**
+ * Extrae el FeatureCollection del envelope { success, data: { type, features } }.
+ * MapaClusterizado lee .features directamente, asi que sin este `select` el
+ * componente recibia el wrap completo y `wrap.features` quedaba undefined →
+ * "Sin cobertura" aun con 19 estaciones disponibles en el endpoint.
+ */
+function extraerFeatureCollection(respuesta) {
+  const data = respuesta?.data ?? respuesta;
+  if (data?.type === 'FeatureCollection') return data;
+  if (data?.data?.type === 'FeatureCollection') return data.data;
+  return { type: 'FeatureCollection', features: [], metadata: { total: 0 } };
+}
+
 export function useMapaAforoPeatones(params = {}) {
   return useQuery({
     queryKey: ['aforo-peatones-mapa', params],
     queryFn: ({ signal }) => obtenerMapaPeatones(params, { signal }),
+    select: extraerFeatureCollection,
     staleTime: 5 * 60 * 1000
   });
 }

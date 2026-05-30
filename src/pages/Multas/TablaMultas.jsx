@@ -13,7 +13,7 @@ import {
 } from '../../components/common';
 import { ETIQUETAS_CALIFICACION_MULTA, DATE_CONFIG, PAGINATION } from '../../constants';
 import { formatNumber, formatDate } from '../../utils';
-import { obtenerVarianteBadgeCalificacion, formatearImporte } from './helpers';
+import { obtenerVarianteBadgeCalificacion, formatearImporte, formatearLugar } from './helpers';
 
 function TablaMultas({
   datos,
@@ -72,9 +72,12 @@ function TablaMultas({
                       onClick={() => onClickMulta(multa._id)}
                     >
                       <TableCell>{formatDate(multa.fecha)}</TableCell>
-                      <TableCell>{multa.hora || '-'}</TableCell>
+                      {/* El CSV guarda la hora como "HH.MM" con punto.
+                          Para presentacion convertimos a "HH:MM" para que
+                          coincida con la convencion europea estandar. */}
+                      <TableCell>{multa.hora ? multa.hora.replace('.', ':') : '-'}</TableCell>
                       <TableCell className="max-w-[200px] truncate" title={multa.lugar}>
-                        {multa.lugar || '-'}
+                        {formatearLugar(multa.lugar)}
                       </TableCell>
                       <TableCell>
                         <Badge variant={obtenerVarianteBadgeCalificacion(multa.calificacion)}>
