@@ -11,6 +11,7 @@ import {
   Button, CardSkeleton
 } from '../../components/common';
 import { formatNumber, formatearNombreDistrito } from '../../utils';
+import { descomponerIdentificadorAforo } from './helpers';
 
 function PanelDetalleEstacion({ identificador, detalle, isLoading, onCerrar }) {
   if (!identificador) return null;
@@ -18,12 +19,18 @@ function PanelDetalleEstacion({ identificador, detalle, isLoading, onCerrar }) {
   if (!detalle?.data) return null;
 
   const summary = detalle.data.summary || detalle.data.data || detalle.data;
+  const partes = descomponerIdentificadorAforo(identificador);
 
   return (
     <Card className="mb-6 border-emerald-500/30">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Estacion: {identificador}</CardTitle>
+          <div>
+            <CardTitle className="text-base font-mono">{identificador}</CardTitle>
+            {partes.legible && (
+              <p className="text-xs text-muted-foreground mt-1">{partes.legible}</p>
+            )}
+          </div>
           <Button
             variant="ghost"
             size="sm"

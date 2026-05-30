@@ -4,9 +4,15 @@
  * Card de filtros: distrito, grupo de edad y mes. Las opciones de
  * distrito se calculan en la pagina padre desde las estadisticas y se
  * inyectan por props (porque dependen del conjunto de distritos cargado).
+ *
+ * El dataset Anthem 2051 trae 12 snapshots mensuales: el censo tiene una
+ * fila por persona-edad-seccion y mes (~237k personas x 12 = 2.85 M
+ * filas). Cuando el usuario no aplica filtros se le muestra ese total y
+ * el listado paginado lo hace inmanejable; el banner explica por que el
+ * conteo es tan alto y sugiere acotar para una "foto" puntual.
  */
 
-import { Filter, RefreshCw, X } from 'lucide-react';
+import { Filter, RefreshCw, X, Info } from 'lucide-react';
 import {
   Card, CardHeader, CardTitle, CardContent,
   Button, Select
@@ -48,6 +54,17 @@ function FiltrosCenso({
         </div>
       </CardHeader>
       <CardContent>
+        {!hayFiltrosActivos && (
+          <div className="flex items-start gap-3 mb-4 p-3 rounded-md bg-cyan-500/5 border border-cyan-500/20">
+            <Info className="size-4 text-cyan-400 mt-0.5 flex-shrink-0" aria-hidden="true" />
+            <p className="text-sm text-muted-foreground">
+              El censo tiene una fila por persona, edad, seccion y mes (12 snapshots
+              al año). Por eso ves <span className="font-mono text-foreground">2,85 M</span> registros
+              sin filtros. Aplica un mes concreto para una "foto" mensual (~237k filas) o
+              acota tambien por grupo de edad para granularidades manejables.
+            </p>
+          </div>
+        )}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           <Select
             options={opcionesDistrito}

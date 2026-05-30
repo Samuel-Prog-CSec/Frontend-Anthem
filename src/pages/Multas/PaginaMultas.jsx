@@ -18,6 +18,7 @@ import {
   useMultas, useMultasDashboard, useMultasRanking, useMultaDetalle,
   useCensoResumenDistritos
 } from '../../api/hooks';
+import { useFiltroGeo } from '../../context/useFiltroGeo';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
 import { formatNumber } from '../../utils';
 
@@ -160,6 +161,11 @@ function PaginaMultas() {
     filtros.calificacion || filtros.denunciante || filtros.mes || filtros.tieneDescuento
   );
 
+  // Aviso explicito cuando el usuario tiene un filtro geografico activo:
+  // las multas no tienen distrito normalizado en el dataset, asi que el
+  // total no cambia y la per-capita global se interpretaria mal.
+  const { distrito: distritoFiltrado } = useFiltroGeo();
+
   return (
     <PageLayout
       eyebrow="Movilidad / Multas"
@@ -176,6 +182,7 @@ function PaginaMultas() {
         puntosTotales={puntosTotales}
         porcentajeGraves={porcentajeGraves}
         multasPerCapita={multasPerCapita}
+        distritoFiltrado={distritoFiltrado}
         isLoading={!dashboard}
       />
 

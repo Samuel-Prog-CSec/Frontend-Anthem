@@ -9,7 +9,7 @@ import {
   Badge, TableSkeleton, ErrorState, EmptyState, Pagination
 } from '../../components/common';
 import { PAGINATION, FRANJAS_HORARIAS, ETIQUETAS_FRANJAS_HORARIAS, DATE_CONFIG } from '../../constants';
-import { formatNumber, formatDate, formatHour, formatearNombreDistrito } from '../../utils';
+import { formatNumber, formatDate, formatHour, formatearNombreDistrito, descomponerIdentificadorAforo } from '../../utils';
 
 function obtenerVarianteBadgeFranja(franja) {
   switch (franja) {
@@ -77,7 +77,11 @@ function TablaAforoPeatones({
                     >
                       <TableCell>{formatDate(registro.fecha)}</TableCell>
                       <TableCell>{formatHour(registro.hora)}</TableCell>
-                      <TableCell className="font-medium">{registro.identificador}</TableCell>
+                      <TableCell className="font-medium font-mono text-xs"
+                        title={descomponerIdentificadorAforo(registro.identificador).legible || registro.identificador}
+                      >
+                        {registro.identificador}
+                      </TableCell>
                       <TableCell className="text-right font-semibold">{registro.peatones}</TableCell>
                       <TableCell>{formatearNombreDistrito(registro.ubicacion?.distrito)}</TableCell>
                       <TableCell>{registro.ubicacion?.nombreVial || '-'}</TableCell>

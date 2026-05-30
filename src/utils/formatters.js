@@ -185,6 +185,62 @@ export function formatHour(hour) {
   return `${h.toString().padStart(2, '0')}:00`;
 }
 
+const AFORO_TIPO_ESTACION = { PERM: 'Permanente', TEMP: 'Temporal' };
+const AFORO_MODALIDAD = { BICI: 'Bicicletas', PEA: 'Peatones' };
+
+/**
+ * Descompone el identificador tecnico de una estacion de aforo en partes
+ * legibles. Los identificadores siguen el patron
+ * `{TIPO_ESTACION}_{MODALIDAD}{NN}_{PM}{MM}`:
+ *
+ *   `PERM_BICI20_PM02` -> Permanente · Bicicletas · Estacion 20 · Punto 02
+ *   `PERM_PEA02_PM01`  -> Permanente · Peatones · Estacion 02 · Punto 01
+ *
+ * Usado en tablas (como `title` para tooltip) y en paneles de detalle
+ * (como subtitulo). Si el identificador no encaja en el patron,
+ * `legible` es null y el caller decide el fallback (normalmente
+ * mostrar el codigo crudo).
+ *
+ * Vive en utils/ porque es compartido entre AforoBicicletas y
+ * AforoPeatones; la modalidad sale del propio codigo, no hace falta
+ * duplicar la funcion por pagina.
+ *
+ * @param {string|null|undefined} identificador
+ * @returns {{tipoEstacion: string, modalidad: string, estacion: string, punto: string, legible: string|null}}
+ */
+export function descomponerIdentificadorAforo(identificador) {
+  if (!identificador || typeof identificador !== 'string') {
+    return { tipoEstacion: '', modalidad: '', estacion: '', punto: '', legible: null };
+  }
+  const partes = identificador.trim().toUpperCase().split('_');
+  if (partes.length < 3) {
+    return { tipoEstacion: '', modalidad: '', estacion: '', punto: '', legible: null };
+  }
+  const [tipoCodigo, modalidadRaw, puntoRaw] = partes;
+  const matchModalidad = modalidadRaw.match(/^([A-Z]+)(\d+)$/);
+  const matchPunto = puntoRaw.match(/^([A-Z]+)(\d+)$/);
+  if (!matchModalidad || !matchPunto) {
+    return {
+      tipoEstacion: AFORO_TIPO_ESTACION[tipoCodigo] || tipoCodigo,
+      modalidad: modalidadRaw,
+      estacion: '',
+      punto: puntoRaw,
+      legible: null
+    };
+  }
+  const [, modalidadCodigo, estacionNum] = matchModalidad;
+  const [, , puntoNum] = matchPunto;
+  const tipoEtiqueta = AFORO_TIPO_ESTACION[tipoCodigo] || tipoCodigo;
+  const modalidadEtiqueta = AFORO_MODALIDAD[modalidadCodigo] || modalidadCodigo;
+  return {
+    tipoEstacion: tipoEtiqueta,
+    modalidad: modalidadEtiqueta,
+    estacion: estacionNum,
+    punto: puntoNum,
+    legible: `${tipoEtiqueta} · ${modalidadEtiqueta} · Estacion ${estacionNum} · Punto ${puntoNum}`
+  };
+}
+
 /**
  * Capitaliza la primera letra de un string
  * @param {string} str - String a capitalizar

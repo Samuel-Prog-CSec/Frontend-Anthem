@@ -32,3 +32,9 @@ export function rangoHorarioDeFranja(franjaHoraria) {
   };
   return rangos[franjaHoraria] || null;
 }
+
+// `descomponerIdentificadorAforo` vive en `utils/formatters` para
+// reutilizarlo desde AforoPeatones tambien sin imports cross-page.
+// Re-exportamos aqui para no romper el path corto que ya usaban
+// TablaAforoBicicletas y PanelDetalleEstacion.
+export { descomponerIdentificadorAforo } from '../../utils/formatters';

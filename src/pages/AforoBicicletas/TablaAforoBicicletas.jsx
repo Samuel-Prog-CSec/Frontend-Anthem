@@ -13,7 +13,7 @@ import {
 } from '../../components/common';
 import { ETIQUETAS_FRANJAS_HORARIAS, DATE_CONFIG, PAGINATION } from '../../constants';
 import { formatNumber, formatDate, formatHour, formatearNombreDistrito } from '../../utils';
-import { obtenerVarianteBadgeFranja } from './helpers';
+import { obtenerVarianteBadgeFranja, descomponerIdentificadorAforo } from './helpers';
 
 function TablaAforoBicicletas({
   datos,
@@ -75,7 +75,11 @@ function TablaAforoBicicletas({
                     >
                       <TableCell>{formatDate(registro.fecha)}</TableCell>
                       <TableCell className="font-mono">{formatHour(registro.hora)}</TableCell>
-                      <TableCell className="font-medium">{registro.identificador}</TableCell>
+                      <TableCell className="font-medium font-mono text-xs"
+                        title={descomponerIdentificadorAforo(registro.identificador).legible || registro.identificador}
+                      >
+                        {registro.identificador}
+                      </TableCell>
                       <TableCell className="text-right font-mono">{registro.bicicletas}</TableCell>
                       <TableCell>{formatearNombreDistrito(registro.ubicacion?.distrito)}</TableCell>
                       <TableCell>{registro.ubicacion?.nombreVial || '-'}</TableCell>

@@ -7,7 +7,7 @@ import { X } from 'lucide-react';
 import {
   Card, CardHeader, CardTitle, CardContent, CardDescription, Button, CardSkeleton
 } from '../../components/common';
-import { formatNumber, formatearNombreDistrito } from '../../utils';
+import { formatNumber, formatearNombreDistrito, descomponerIdentificadorAforo } from '../../utils';
 
 function PanelDetalleEstacionPeatones({
   identificador,
@@ -24,14 +24,20 @@ function PanelDetalleEstacionPeatones({
   }
 
   const resumen = detalleEstacion.data.summary || detalleEstacion.data.data || {};
+  const partes = descomponerIdentificadorAforo(identificador);
 
   return (
     <Card className="mb-6 border-emerald-500/30">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">
-            Estacion: {identificador}
-          </CardTitle>
+          <div>
+            <CardTitle className="text-base font-mono">
+              {identificador}
+            </CardTitle>
+            {partes.legible && (
+              <p className="text-xs text-muted-foreground mt-1">{partes.legible}</p>
+            )}
+          </div>
           <Button
             variant="ghost"
             size="sm"
