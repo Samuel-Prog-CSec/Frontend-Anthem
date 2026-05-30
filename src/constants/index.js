@@ -11,7 +11,12 @@
 
 export const API_CONFIG = {
   BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1',
-  TIMEOUT: 10000, // 10 segundos
+  // 30 segundos -- subido de 10 s porque varias agregaciones del modulo de
+  // trafico (132 M docs) y censo (2.85 M docs) pasan de 10 s aun con
+  // cache calentada en dev. El interceptor ya reintenta 3 veces, asi que
+  // 10 s × 3 = 30 s de espera total con error final; subir a 30 s da una
+  // unica espera larga pero exitosa.
+  TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000 // 1 segundo entre reintentos
 };
@@ -95,13 +100,18 @@ export const AIR_QUALITY_MAGNITUDES = {
  */
 export const MAGNITUDES_PERMITIDAS = Object.keys(AIR_QUALITY_MAGNITUDES).map(Number);
 
+// La leyenda muestra cualitativamente los seis niveles que usa el helper
+// `obtenerNivelCalidadAire(value, magnitud)`. Los rangos numericos exactos
+// dependen del contaminante (NO2, PM10, PM2.5, O3...): ver tabla
+// `UMBRALES_POR_MAGNITUD` en `pages/CalidadAire/helpers.js`. El label
+// `range` aqui es solo el orden cualitativo dentro de la escala.
 export const AIR_QUALITY_LEVELS = {
-  BUENA: { label: 'Buena', color: 'var(--color-air-good)', range: '0-50' },
-  MODERADA: { label: 'Moderada', color: 'var(--color-air-moderate)', range: '51-100' },
-  DANINA_GRUPOS_SENSIBLES: { label: 'Danina para grupos sensibles', color: 'var(--color-air-unhealthy-sensitive)', range: '101-150' },
-  DANINA: { label: 'Danina', color: 'var(--color-air-unhealthy)', range: '151-200' },
-  MUY_DANINA: { label: 'Muy danina', color: 'var(--color-air-very-unhealthy)', range: '201-300' },
-  PELIGROSA: { label: 'Peligrosa', color: 'var(--color-air-hazardous)', range: '300+' }
+  BUENA:                  { label: 'Buena',                   color: 'var(--color-air-good)',                range: '1/6' },
+  MODERADA:               { label: 'Moderada',                color: 'var(--color-air-moderate)',            range: '2/6' },
+  DANINA_GRUPOS_SENSIBLES:{ label: 'Dañina para grupos sensibles', color: 'var(--color-air-unhealthy-sensitive)', range: '3/6' },
+  DANINA:                 { label: 'Dañina',                  color: 'var(--color-air-unhealthy)',           range: '4/6' },
+  MUY_DANINA:             { label: 'Muy dañina',              color: 'var(--color-air-very-unhealthy)',      range: '5/6' },
+  PELIGROSA:              { label: 'Peligrosa',               color: 'var(--color-air-hazardous)',           range: '6/6' }
 };
 
 // ========================================

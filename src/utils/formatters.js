@@ -62,7 +62,7 @@ export function formatConcentration(value, unit = 'ug/m3') {
 }
 
 /**
- * Formatea coordenadas geograficas
+ * Formatea coordenadas geograficas en formato WGS84 (lat, lon).
  * @param {number} lat - Latitud
  * @param {number} lon - Longitud
  * @returns {string} Coordenadas formateadas
@@ -73,13 +73,115 @@ export function formatCoordinates(lat, lon) {
 }
 
 /**
- * Formatea una hora en formato 24h
- * @param {number} hour - Hora (1-24)
- * @returns {string} Hora formateada (ej: "08:00")
+ * Formatea las coordenadas de una ubicacion soportando los dos formatos
+ * que devuelve el backend:
+ *   - `geometry.coordinates: [lon, lat]` (GeoJSON WGS84, en endpoints /mapa
+ *     y en algunos listados ya transformados).
+ *   - `coordenadas: { x, y }` (UTM ETRS89 zona 30N, en el listado plano
+ *     `/ubicaciones`).
+ *
+ * Sin esta funcion el listado plano mostraba '-' en los 27 454 registros
+ * porque la celda solo entendia GeoJSON.
+ *
+ * @param {{geometry?: {coordinates?: [number, number]}, coordenadas?: {x?: number, y?: number}}} location
+ * @returns {string} Coordenadas legibles, con sufijo `UTM` cuando el dato es UTM.
+ */
+export function formatUbicacionCoords(location) {
+  if (!location) return '-';
+  const coords = location.geometry?.coordinates;
+  if (Array.isArray(coords) && coords.length >= 2) {
+    const [lon, lat] = coords;
+    if (Number.isFinite(lat) && Number.isFinite(lon)) {
+      return formatCoordinates(lat, lon);
+    }
+  }
+  const utm = location.coordenadas;
+  if (utm && Number.isFinite(utm.x) && Number.isFinite(utm.y)) {
+    // ETRS89/UTM-30N: enteros suficientes (precision ~1m).
+    return `${Math.round(utm.x)}, ${Math.round(utm.y)} UTM`;
+  }
+  return '-';
+}
+
+/**
+ * Mapa canonico de los 21 distritos de Anthem (calcado de Madrid).
+ *
+ * El backend almacena los nombres como llegan del CSV de cada dominio.
+ * Esto produce inconsistencias visibles en la UI:
+ *   - containers: "CHAMARTIN", "CIUDAD-LINEAL", "TETUAN"
+ *   - accidents:  "CHAMARTIN", "CIUDAD LINEAL", "TETUAN"
+ * Normalizamos siempre a la forma con tildes y separador con espacio
+ * (no guion) para que la UI muestre el mismo nombre en todas las
+ * paginas y para que los joins por distrito (Censo cross-domain) no
+ * fallen por diferencias tipograficas.
+ *
+ * La clave es la version "ascii-mayusculas-sin-puntuacion" del nombre
+ * para hacer match con cualquier variante de entrada.
+ */
+const DISTRITOS_CANONICOS = {
+  CENTRO: 'CENTRO',
+  ARGANZUELA: 'ARGANZUELA',
+  RETIRO: 'RETIRO',
+  SALAMANCA: 'SALAMANCA',
+  CHAMARTIN: 'CHAMARTÍN',
+  TETUAN: 'TETUÁN',
+  CHAMBERI: 'CHAMBERÍ',
+  'FUENCARRAL EL PARDO': 'FUENCARRAL-EL PARDO',
+  'MONCLOA ARAVACA': 'MONCLOA-ARAVACA',
+  LATINA: 'LATINA',
+  CARABANCHEL: 'CARABANCHEL',
+  USERA: 'USERA',
+  'PUENTE DE VALLECAS': 'PUENTE DE VALLECAS',
+  MORATALAZ: 'MORATALAZ',
+  'CIUDAD LINEAL': 'CIUDAD LINEAL',
+  HORTALEZA: 'HORTALEZA',
+  VILLAVERDE: 'VILLAVERDE',
+  'VILLA DE VALLECAS': 'VILLA DE VALLECAS',
+  VICALVARO: 'VICÁLVARO',
+  'SAN BLAS CANILLEJAS': 'SAN BLAS-CANILLEJAS',
+  BARAJAS: 'BARAJAS'
+};
+
+/**
+ * Normaliza un nombre de distrito a su forma canonica (mayusculas con
+ * tildes correctas, separador con guion donde corresponde).
+ *
+ * Acepta cualquier variante de entrada (sin tildes, con guion, con
+ * espacios, en minusculas) porque internamente convierte a la clave
+ * ascii-mayusculas para hacer el lookup. Si el nombre no esta en el
+ * mapa, devuelve el original tal cual para no perder informacion.
+ *
+ * @param {string|null|undefined} nombre - Nombre de distrito tal como
+ *   viene del backend
+ * @returns {string} Nombre canonico con tildes/separadores correctos
+ */
+export function formatearNombreDistrito(nombre) {
+  if (!nombre || typeof nombre !== 'string') return '-';
+  const clave = nombre
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toUpperCase()
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return DISTRITOS_CANONICOS[clave] || nombre;
+}
+
+/**
+ * Formatea una hora en formato 24h con cero a la izquierda.
+ *
+ * Aceptamos tanto el rango 0-23 (UTC estandar, viene del backend de
+ * aforos) como 1-24 (donde 24 representa medianoche del dia siguiente).
+ * En cualquier caso devolvemos siempre dos digitos para que la columna
+ * no salte visualmente entre "9:00" y "10:00".
+ *
+ * @param {number|string} hour - Hora (0-24)
+ * @returns {string} Hora formateada (ej: "08:00", "00:00")
  */
 export function formatHour(hour) {
-  if (hour < 1 || hour > 24) return '-';
-  const h = hour === 24 ? 0 : hour;
+  const n = typeof hour === 'string' ? Number(hour) : hour;
+  if (!Number.isFinite(n) || n < 0 || n > 24) return '-';
+  const h = n === 24 ? 0 : Math.trunc(n);
   return `${h.toString().padStart(2, '0')}:00`;
 }
 

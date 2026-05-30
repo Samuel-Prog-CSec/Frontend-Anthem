@@ -4,12 +4,21 @@
  * Boton reutilizable con multiples variantes y tamanos.
  * Basado en patrones de Shadcn/ui.
  *
+ * Soporta `asChild`: cuando es `true`, en vez de renderizar un `<button>`
+ * propio, se clona el hijo y se le inyectan las props (className, ref,
+ * eventos). Esto permite usar el estilo de Button sobre un `<Link>`,
+ * `<a>` u otro elemento sin anidar `<button>` dentro y sin que React
+ * tire el warning "asChild prop on a DOM element" — antes el componente
+ * pasaba `asChild` al `<button>` HTML directamente.
+ *
  * Documentacion de referencia:
  * - Shadcn/ui Button: https://ui.shadcn.com/docs/components/button
+ * - Radix Slot: https://www.radix-ui.com/primitives/docs/utilities/slot
  * - class-variance-authority: https://cva.style/docs
  */
 
 import { forwardRef, memo } from 'react';
+import { Slot } from '@radix-ui/react-slot';
 import { cn } from '../../utils';
 import { buttonVariants } from './buttonVariants';
 
@@ -20,16 +29,35 @@ import { buttonVariants } from './buttonVariants';
  * @param {string} [props.variant] - Variante: 'default', 'primary', 'destructive', 'outline', 'secondary', 'ghost', 'link'
  * @param {string} [props.size] - Tamano: 'default', 'sm', 'lg', 'icon'
  * @param {boolean} [props.isLoading] - Muestra estado de carga
+ * @param {boolean} [props.asChild] - Si true, clona el hijo y le aplica los estilos del Button en vez de renderizar un <button>
  */
 const Button = memo(forwardRef(({
   className,
   variant,
   size,
   isLoading = false,
+  asChild = false,
   children,
   disabled,
   ...props
 }, ref) => {
+  const Comp = asChild ? Slot : 'button';
+
+  // En modo asChild no podemos pasar `disabled` (no es atributo HTML
+  // valido en un <a>/<Link>) ni el spinner de carga: el caller decide la
+  // semantica de su elemento clonado.
+  if (asChild) {
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      >
+        {children}
+      </Comp>
+    );
+  }
+
   return (
     <button
       className={cn(buttonVariants({ variant, size, className }))}
