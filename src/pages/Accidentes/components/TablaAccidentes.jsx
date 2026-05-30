@@ -12,7 +12,7 @@ import {
   Badge, Pagination, EmptyState, ErrorState, TableSkeleton
 } from '../../../components/common';
 import { useCensoResumenDistritos } from '../../../api/hooks';
-import { formatDate } from '../../../utils';
+import { formatDate, formatearNombreDistrito } from '../../../utils';
 import { ROUTES, DATE_CONFIG } from '../../../constants';
 import { obtenerVarianteBadgeGravedad, obtenerBadgeAlcohol } from '../helpers';
 
@@ -50,12 +50,30 @@ const TablaAccidentes = memo(function TablaAccidentes({
     return map;
   }, [resumenDistritos]);
 
+  // Marcamos cada fila como "inicio de expediente" o "continuacion" para
+  // que el usuario vea de un vistazo que las 3-4 filas con el mismo
+  // expediente son personas distintas afectadas en el MISMO accidente,
+  // no duplicados. La fila inicial mantiene fila completa; las
+  // continuaciones difuminan los campos que se repiten (fecha, hora,
+  // calle, distrito, tipo, gravedad) y solo destacan los que varian
+  // entre personas (vehiculo, persona, alcohol).
+  const filasConGrupo = useMemo(() => {
+    let ultimoExpediente = null;
+    return datos.map((record) => {
+      const expediente = record.numeroExpediente || record._id;
+      const esInicio = expediente !== ultimoExpediente;
+      ultimoExpediente = expediente;
+      return { record, esInicio };
+    });
+  }, [datos]);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Registro de Accidentes</CardTitle>
         <CardDescription>
-          Personas afectadas en accidentes de trafico
+          Cada fila representa una persona afectada. Un mismo expediente puede
+          generar varias filas cuando hay varias personas implicadas.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -94,11 +112,14 @@ const TablaAccidentes = memo(function TablaAccidentes({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {datos.map((record) => {
+                {filasConGrupo.map(({ record, esInicio }) => {
                   const alcohol = obtenerBadgeAlcohol(record.personaAfectada?.positivaAlcohol);
 
                   return (
-                    <TableRow key={record._id}>
+                    <TableRow
+                      key={record._id}
+                      className={esInicio ? 'border-t-2 border-t-border/80' : ''}
+                    >
                       <TableCell className="font-medium font-mono text-xs">
                         {record.numeroExpediente ? (
                           <button
@@ -132,15 +153,16 @@ const TablaAccidentes = memo(function TablaAccidentes({
                           // (texto raro o vacio), mostramos texto plano.
                           const nombreDistrito = record.ubicacion?.nombreDistrito;
                           if (!nombreDistrito) return '-';
+                          const nombreCanonico = formatearNombreDistrito(nombreDistrito);
                           const distritoCanon = distritoPorNombre.get(normalizarNombre(nombreDistrito));
-                          if (!distritoCanon) return nombreDistrito;
+                          if (!distritoCanon) return nombreCanonico;
                           return (
                             <Link
                               to={ROUTES.DISTRITO_PATH(distritoCanon.codigo)}
                               className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 underline transition-colors"
                               title={`Ver perfil de ${distritoCanon.nombre}`}
                             >
-                              {nombreDistrito}
+                              {nombreCanonico}
                               <ExternalLink className="size-3" aria-hidden="true" />
                             </Link>
                           );

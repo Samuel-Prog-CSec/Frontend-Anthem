@@ -1,20 +1,38 @@
 /**
  * Hook useEstadisticasDashboard
  *
- * Carga las metricas resumidas del dashboard (ubicaciones, calidad aire, ruido)
- * en paralelo con Promise.allSettled. Cancela en desmontaje via AbortController
- * (los servicios subyacentes ya soportan AbortSignal).
+ * Carga las metricas resumidas del dashboard en paralelo con
+ * Promise.allSettled. Una llamada por modulo, con `limit: 1` para
+ * minimizar payload: solo nos interesa `pagination.totalDocuments`.
+ *
+ * Cancela en desmontaje via AbortController (los servicios subyacentes
+ * ya soportan AbortSignal). Si un endpoint falla, el resto sigue
+ * mostrandose; solo esa tarjeta queda con su contador a 0 + error.
  */
 
 import { useEffect, useState } from 'react';
 import { obtenerUbicaciones } from '../../../api/servicioUbicaciones';
 import { obtenerDatosCalidadAire } from '../../../api/servicioCalidadAire';
 import { obtenerDatosRuido } from '../../../api/servicioRuido';
+import { obtenerDatosAccidentes } from '../../../api/servicioAccidentes';
+import { obtenerAsignaciones } from '../../../api/servicioPatinetes';
+import { obtenerDisponibilidad } from '../../../api/servicioBicicletas';
+import { obtenerDatosCenso } from '../../../api/servicioCenso';
+import { obtenerMultas } from '../../../api/servicioMultas';
+import { obtenerAforoBicicletas } from '../../../api/servicioAforoBicicletas';
+
+const INICIAL = { total: 0, cargando: true, error: null };
 
 const ESTADO_INICIAL = {
-  ubicaciones: { total: 0, cargando: true, error: null },
-  calidadAire: { total: 0, cargando: true, error: null },
-  ruido: { total: 0, cargando: true, error: null }
+  ubicaciones: { ...INICIAL },
+  calidadAire: { ...INICIAL },
+  ruido: { ...INICIAL },
+  accidentes: { ...INICIAL },
+  patinetes: { ...INICIAL },
+  bicicletas: { ...INICIAL },
+  censo: { ...INICIAL },
+  multas: { ...INICIAL },
+  aforoBicicletas: { ...INICIAL }
 };
 
 const aEstado = (resultado) => resultado.status === 'fulfilled'
@@ -28,18 +46,36 @@ export function useEstadisticasDashboard() {
     const controlador = new AbortController();
 
     const cargarEstadisticas = async () => {
-      const [resultadoUbicaciones, resultadoAire, resultadoRuido] = await Promise.allSettled([
-        obtenerUbicaciones({ limit: 1 }, { signal: controlador.signal }),
-        obtenerDatosCalidadAire({ limit: 1 }, { signal: controlador.signal }),
-        obtenerDatosRuido({ limit: 1 }, { signal: controlador.signal })
+      const opts = { signal: controlador.signal };
+      const args = [{ limit: 1 }, opts];
+
+      const [
+        rUbicaciones, rAire, rRuido, rAccidentes,
+        rPatinetes, rBicicletas, rCenso, rMultas, rAforo
+      ] = await Promise.allSettled([
+        obtenerUbicaciones(...args),
+        obtenerDatosCalidadAire(...args),
+        obtenerDatosRuido(...args),
+        obtenerDatosAccidentes(...args),
+        obtenerAsignaciones(...args),
+        obtenerDisponibilidad(...args),
+        obtenerDatosCenso(...args),
+        obtenerMultas(...args),
+        obtenerAforoBicicletas(...args)
       ]);
 
-      if (controlador.signal.aborted) {return;}
+      if (controlador.signal.aborted) { return; }
 
       setEstadisticas({
-        ubicaciones: aEstado(resultadoUbicaciones),
-        calidadAire: aEstado(resultadoAire),
-        ruido: aEstado(resultadoRuido)
+        ubicaciones: aEstado(rUbicaciones),
+        calidadAire: aEstado(rAire),
+        ruido: aEstado(rRuido),
+        accidentes: aEstado(rAccidentes),
+        patinetes: aEstado(rPatinetes),
+        bicicletas: aEstado(rBicicletas),
+        censo: aEstado(rCenso),
+        multas: aEstado(rMultas),
+        aforoBicicletas: aEstado(rAforo)
       });
     };
 

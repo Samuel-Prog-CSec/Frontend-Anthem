@@ -99,12 +99,20 @@ function PaginaDistrito() {
   const accidentesRecientes = accidentesResult?.data || [];
   const totalAccidentesPag = accidentesResult?.pagination?.totalDocuments || 0;
 
-  // Comparativa por distritos para extraer total acumulado del distrito actual
+  // Comparativa por distritos para extraer total acumulado del distrito actual.
+  //
+  // El backend devuelve `{ success, data: { comparativa: [...] } }`. El hook
+  // pasa `response.data` (objeto), por lo que necesitamos descender un nivel
+  // mas y tolerar tambien el caso de que algun importador antiguo devuelva
+  // un array plano directamente. Sin este guard `.find()` revienta y
+  // ErrorBoundary tira toda la pagina /distritos/:codigo.
   const { data: comparativaResult } = useAccidentesComparativa();
-  const datosComparativa = useMemo(
-    () => comparativaResult?.data || [],
-    [comparativaResult?.data]
-  );
+  const datosComparativa = useMemo(() => {
+    const raw = comparativaResult?.data;
+    if (Array.isArray(raw)) {return raw;}
+    if (Array.isArray(raw?.comparativa)) {return raw.comparativa;}
+    return [];
+  }, [comparativaResult?.data]);
   const accidentesEnDistrito = useMemo(() => {
     if (!nombreDistrito) return 0;
     const upper = nombreDistrito.toUpperCase();

@@ -4,7 +4,7 @@
  */
 
 import { memo } from 'react';
-import { ShieldAlert, Skull, Wine, AlertTriangle, Users } from 'lucide-react';
+import { ShieldAlert, Skull, Wine, Users } from 'lucide-react';
 import { StatCard } from '../../../components/charts';
 import { formatNumber } from '../../../utils';
 
@@ -32,12 +32,14 @@ const TarjetasEstadisticasAccidentes = memo(function TarjetasEstadisticasAcciden
         icon={Skull}
       />
       <StatCard
-        title={estadisticasGenerales?.promedioGravedad != null ? 'Promedio Gravedad' : 'Con Alcohol'}
-        value={estadisticasGenerales?.promedioGravedad != null
-          ? formatNumber(estadisticasGenerales.promedioGravedad, 2)
-          : estadisticas.conAlcohol}
-        subtitle={estadisticasGenerales?.promedioGravedad != null ? 'escala de severidad' : 'en pagina actual'}
-        icon={estadisticasGenerales?.promedioGravedad != null ? AlertTriangle : Wine}
+        title="Con Alcohol"
+        value={formatNumber(
+          estadisticasGenerales?.accidentesConAlcohol != null
+            ? estadisticasGenerales.accidentesConAlcohol
+            : estadisticas.conAlcohol
+        )}
+        subtitle={estadisticasGenerales?.accidentesConAlcohol != null ? 'total global' : 'en pagina actual'}
+        icon={Wine}
       />
     </div>
   );

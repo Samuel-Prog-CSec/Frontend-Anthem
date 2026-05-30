@@ -2,7 +2,10 @@
  * Pagina de Trafico
  *
  * Modulo de visualizacion de mediciones de trafico en tiempo real (15min)
- * sobre la coleccion masiva (~138M docs). Por su volumen, no carga datos
+ * sobre la coleccion masiva (~132M docs tras el ultimo reimport con la
+ * coercion 29/02->28/02 y los writeErrors clasificados; mantener el orden
+ * de magnitud en la `CardDescription` mientras no se anyada un endpoint
+ * /trafico/count cacheado). Por su volumen, no carga datos
  * automaticamente: el usuario debe especificar un rango (max 7 dias) y
  * opcionalmente un tipo de via (URB | M30) y pulsar Aplicar.
  *
@@ -132,7 +135,7 @@ function PaginaTrafico() {
           <CardHeader>
             <CardTitle>Sin filtros aplicados</CardTitle>
             <CardDescription>
-              Por el volumen del dataset (~138M mediciones) se requiere un
+              Por el volumen del dataset (~132M mediciones) se requiere un
               rango de fechas para arrancar el analisis.
             </CardDescription>
           </CardHeader>

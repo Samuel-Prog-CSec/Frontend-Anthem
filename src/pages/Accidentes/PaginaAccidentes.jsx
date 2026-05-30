@@ -22,6 +22,7 @@ import {
   useAccidentesMapaCalor, useMapaAccidentes
 } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
+import { formatNumber } from '../../utils';
 import {
   TarjetasEstadisticasAccidentes,
   MapaCalorAccidentes,
@@ -82,7 +83,13 @@ function PaginaAccidentes() {
   } = useAccidentes(queryParams);
 
   const { data: distritosResult } = useAccidentesComparativa();
-  const { data: statsResult } = useAccidentesEstadisticas();
+  // Sin startDate/endDate el backend toma "ultimos 30 dias" desde HOY (2026)
+  // y devuelve cero, porque todo el dataset Smart City vive en 2051.
+  // Pasamos rango anual completo del dataset para obtener estadisticas reales.
+  const { data: statsResult } = useAccidentesEstadisticas({
+    startDate: `${DATE_CONFIG.DATASET_YEAR}-01-01`,
+    endDate: `${DATE_CONFIG.DATASET_YEAR}-12-31`
+  });
   const { data: heatmapResult } = useAccidentesMapaCalor(PARAMS_HEATMAP_FIJOS);
 
   // FeatureCollection GeoJSON para heatmap Leaflet.
@@ -112,7 +119,14 @@ function PaginaAccidentes() {
     if (Array.isArray(raw?.data)) return raw.data;
     return [];
   }, [distritosResult?.data]);
-  const estadisticasGenerales = statsResult?.data || null;
+  // El backend devuelve totalAccidentes/accidentesGraves/accidentesMortales
+  // anidados dentro de data.resumen. Aplanamos para que TarjetasEstadisticas
+  // los lea desde top-level junto con distribucionTipos/factoresRiesgo/etc.
+  const estadisticasGenerales = useMemo(() => {
+    const raw = statsResult?.data;
+    if (!raw) return null;
+    return { ...raw, ...(raw.resumen || {}) };
+  }, [statsResult?.data]);
   const error = mainError?.message || null;
 
   // Procesar zonas de accidentalidad del mapa de calor (top 10)
@@ -232,7 +246,11 @@ function PaginaAccidentes() {
     <PageLayout
       eyebrow="Seguridad vial / Accidentes"
       title="Cicatrices de la malla vial"
-      description={`Expedientes georreferenciados con gravedad, tipo de vehiculo y persona afectada. 32.421 personas registradas en ${DATE_CONFIG.DATASET_YEAR}.`}
+      description={
+        accidentesResult?.pagination?.totalDocuments
+          ? `Expedientes georreferenciados con gravedad, tipo de vehiculo y persona afectada. ${formatNumber(accidentesResult.pagination.totalDocuments)} personas registradas en ${DATE_CONFIG.DATASET_YEAR}.`
+          : `Expedientes georreferenciados con gravedad, tipo de vehiculo y persona afectada. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`
+      }
       actions={
         <Button variant="outline" onClick={() => refetch()}>
           <RefreshCw className="size-4 mr-2" />

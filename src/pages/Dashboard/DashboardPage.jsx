@@ -50,8 +50,11 @@ function DashboardPage() {
     >
       <BannerCabecera />
 
-      {/* Stats: grid 3 columnas en md, mantiene pesos pero las cards ya
-          tienen tratamiento individual (acento lateral, no gradient + glow). */}
+      {/* Stats: grid 3 columnas en lg con UNA tarjeta por modulo. Antes
+          mostrabamos solo 3 (ubicaciones, aire, ruido) y el dashboard se
+          sentia descompensado respecto a los 9 modulos de mas abajo.
+          Cada tarjeta hace una llamada `limit: 1` en paralelo (ver
+          useEstadisticasDashboard) para minimizar payload. */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-14">
         <TarjetaEstadisticaDashboard
           titulo="Ubicaciones registradas"
@@ -77,13 +80,61 @@ function DashboardPage() {
           color="purple"
           cargando={estadisticas.ruido.cargando}
         />
+        <TarjetaEstadisticaDashboard
+          titulo="Accidentes registrados"
+          valor={estadisticas.accidentes.total.toLocaleString()}
+          subtitulo="Personas afectadas en siniestros"
+          icono={AlertTriangle}
+          color="amber"
+          cargando={estadisticas.accidentes.cargando}
+        />
+        <TarjetaEstadisticaDashboard
+          titulo="Asignaciones de patinetes"
+          valor={estadisticas.patinetes.total.toLocaleString()}
+          subtitulo="Reparto por distrito y proveedor"
+          icono={Zap}
+          color="rose"
+          cargando={estadisticas.patinetes.cargando}
+        />
+        <TarjetaEstadisticaDashboard
+          titulo="Registros de bicicletas"
+          valor={estadisticas.bicicletas.total.toLocaleString()}
+          subtitulo="Disponibilidad y usos"
+          icono={Bike}
+          color="sky"
+          cargando={estadisticas.bicicletas.cargando}
+        />
+        <TarjetaEstadisticaDashboard
+          titulo="Filas del censo"
+          valor={estadisticas.censo.total.toLocaleString()}
+          subtitulo="Demografia por distrito y barrio"
+          icono={Users}
+          color="cyan"
+          cargando={estadisticas.censo.cargando}
+        />
+        <TarjetaEstadisticaDashboard
+          titulo="Multas de trafico"
+          valor={estadisticas.multas.total.toLocaleString()}
+          subtitulo="Infracciones registradas"
+          icono={FileWarning}
+          color="amber"
+          cargando={estadisticas.multas.cargando}
+        />
+        <TarjetaEstadisticaDashboard
+          titulo="Aforo de bicicletas"
+          valor={estadisticas.aforoBicicletas.total.toLocaleString()}
+          subtitulo="Conteo horario por estacion"
+          icono={Activity}
+          color="emerald"
+          cargando={estadisticas.aforoBicicletas.cargando}
+        />
       </div>
 
       {/* Modulos: header editorial con eyebrow + titulo + descriptor */}
       <section className="mb-14" aria-labelledby="dashboard-modulos-titulo">
         <div className="mb-8">
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted-foreground mb-2">
-            Catalogo / 9 modulos
+            Catalogo / {MODULOS_ACCESO_RAPIDO.length} modulos
           </p>
           <h2 id="dashboard-modulos-titulo" className="font-display text-2xl md:text-3xl font-bold text-foreground tracking-tight">
             Modulos del sistema
