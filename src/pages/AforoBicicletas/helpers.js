@@ -13,7 +13,7 @@ export function obtenerVarianteBadgeFranja(franja) {
     case FRANJAS_HORARIAS.MAÑANA: return 'info';
     case FRANJAS_HORARIAS.MEDIODIA: return 'success';
     case FRANJAS_HORARIAS.TARDE: return 'warning';
-    case FRANJAS_HORARIAS.NOCHE: return 'purple';
+    case FRANJAS_HORARIAS.NOCHE: return 'secondary';
     default: return 'secondary';
   }
 }

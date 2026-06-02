@@ -53,13 +53,13 @@ function EstadisticasAforoBicicletas({
       </div>
 
       {bicicletasPerCapita && (
-        <Card className="mb-6 border-emerald-500/20">
+        <Card className="mb-6 border-[var(--border-emphasis)]">
           <CardContent className="py-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">
                 Bicicletas por cada 1.000 habitantes (datos del censo)
               </span>
-              <span className="font-display text-lg font-bold text-emerald-400 tabular-nums">
+              <span className="font-display text-lg font-bold text-foreground tabular-nums">
                 {bicicletasPerCapita}
               </span>
             </div>

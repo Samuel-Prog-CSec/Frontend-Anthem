@@ -9,7 +9,7 @@ import { ROUTES } from '../../constants';
 
 function NotFoundPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background to-background flex items-center justify-center p-4">
+    <main className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="text-center">
         <div className="inline-flex items-center justify-center size-20 rounded-2xl bg-destructive/20 mb-6">
           <AlertCircle className="size-10 text-destructive" aria-hidden="true" />

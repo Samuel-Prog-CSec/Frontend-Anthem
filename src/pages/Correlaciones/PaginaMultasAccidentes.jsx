@@ -23,7 +23,7 @@ import {
 } from '../../components/common';
 import { StatCard, BarChartCard } from '../../components/charts';
 import { useAccidentesComparativa, useMultasRanking } from '../../api/hooks';
-import { ROUTES } from '../../constants';
+import { ROUTES, CHART_COLORS } from '../../constants';
 import { formatNumber } from '../../utils';
 
 function PaginaMultasAccidentes() {
@@ -158,7 +158,7 @@ function PaginaMultasAccidentes() {
             data={datosGraficoAccidentes}
             xKey="name"
             bars={[
-              { key: 'accidentes', name: 'Accidentes', color: '#f59e0b' }
+              { key: 'accidentes', name: 'Accidentes', color: CHART_COLORS.tertiary }
             ]}
             height={360}
             isLoading={cargando}
@@ -168,7 +168,7 @@ function PaginaMultasAccidentes() {
             data={datosGraficoMultas}
             xKey="name"
             bars={[
-              { key: 'multas', name: 'Multas', color: '#ef4444' }
+              { key: 'multas', name: 'Multas', color: CHART_COLORS.danger }
             ]}
             height={360}
             isLoading={cargando}

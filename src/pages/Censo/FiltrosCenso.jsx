@@ -32,7 +32,7 @@ function FiltrosCenso({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Filter className="size-4 text-cyan-400" aria-hidden="true" />
+            <Filter className="size-4 text-muted-foreground" aria-hidden="true" />
             <CardTitle className="text-base">Filtros</CardTitle>
           </div>
           <div className="flex items-center gap-2">
@@ -55,8 +55,8 @@ function FiltrosCenso({
       </CardHeader>
       <CardContent>
         {!hayFiltrosActivos && (
-          <div className="flex items-start gap-3 mb-4 p-3 rounded-md bg-cyan-500/5 border border-cyan-500/20">
-            <Info className="size-4 text-cyan-400 mt-0.5 flex-shrink-0" aria-hidden="true" />
+          <div className="flex items-start gap-3 mb-4 p-3 rounded-md bg-info/5 border border-info/20">
+            <Info className="size-4 text-info mt-0.5 flex-shrink-0" aria-hidden="true" />
             <p className="text-sm text-muted-foreground">
               El censo tiene una fila por persona, edad, seccion y mes (12 snapshots
               al año). Por eso ves <span className="font-mono text-foreground">2,85 M</span> registros

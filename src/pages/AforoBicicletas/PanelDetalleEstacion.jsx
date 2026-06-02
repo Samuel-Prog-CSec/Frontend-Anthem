@@ -22,7 +22,7 @@ function PanelDetalleEstacion({ identificador, detalle, isLoading, onCerrar }) {
   const partes = descomponerIdentificadorAforo(identificador);
 
   return (
-    <Card className="mb-6 border-emerald-500/30">
+    <Card className="mb-6 border-[var(--border-emphasis)]">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>

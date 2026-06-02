@@ -12,7 +12,7 @@ import { GRUPOS_EDAD_CENSO } from '../../constants';
 export function obtenerVarianteBadgeEdad(grupoEdad) {
   switch (grupoEdad) {
     case GRUPOS_EDAD_CENSO.INFANTIL: return 'info';
-    case GRUPOS_EDAD_CENSO.JUVENIL: return 'primary';
+    case GRUPOS_EDAD_CENSO.JUVENIL: return 'signal';
     case GRUPOS_EDAD_CENSO.ADULTO_JOVEN: return 'success';
     case GRUPOS_EDAD_CENSO.ADULTO: return 'secondary';
     case GRUPOS_EDAD_CENSO.MAYOR: return 'warning';

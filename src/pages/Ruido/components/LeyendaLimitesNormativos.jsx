@@ -19,24 +19,24 @@ const LeyendaLimitesNormativos = memo(function LeyendaLimitesNormativos() {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-900/20 border border-amber-700/30">
-            <Sun className="size-5 text-amber-400" />
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border-emphasis)]">
+            <Sun className="size-5 text-muted-foreground" />
             <div>
-              <p className="font-medium text-white">Diurno (07:00 - 19:00)</p>
+              <p className="font-medium text-foreground">Diurno (07:00 - 19:00)</p>
               <p className="text-sm text-muted-foreground">Limite: {NOISE_LIMITS.DIURNO} dB</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-orange-900/20 border border-orange-700/30">
-            <Sunset className="size-5 text-orange-400" />
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border-emphasis)]">
+            <Sunset className="size-5 text-muted-foreground" />
             <div>
-              <p className="font-medium text-white">Vespertino (19:00 - 23:00)</p>
+              <p className="font-medium text-foreground">Vespertino (19:00 - 23:00)</p>
               <p className="text-sm text-muted-foreground">Limite: {NOISE_LIMITS.VESPERTINO} dB</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-purple-900/20 border border-purple-700/30">
-            <Moon className="size-5 text-purple-400" />
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border-emphasis)]">
+            <Moon className="size-5 text-muted-foreground" />
             <div>
-              <p className="font-medium text-white">Nocturno (23:00 - 07:00)</p>
+              <p className="font-medium text-foreground">Nocturno (23:00 - 07:00)</p>
               <p className="text-sm text-muted-foreground">Limite: {NOISE_LIMITS.NOCTURNO} dB</p>
             </div>
           </div>

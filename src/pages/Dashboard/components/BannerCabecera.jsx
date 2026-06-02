@@ -29,15 +29,15 @@ const METRICAS_ESCALA = [
 export function BannerCabecera() {
   return (
     <section
-      className="relative mb-12 overflow-hidden rounded-2xl border border-border/60 bg-card/30 backdrop-blur-sm"
+      className="relative mb-12 overflow-hidden rounded-xl border border-border bg-card"
       aria-labelledby="banner-dashboard-titulo"
     >
-      {/* Acento vertical izquierdo - reemplaza el SVG pattern decorativo */}
-      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-500 via-cyan-500/30 to-transparent" />
+      {/* Acento vertical izquierdo (signal vial) - reemplaza el SVG pattern decorativo */}
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/40" />
 
       <div className="grid gap-10 px-8 py-10 md:px-12 md:py-14 lg:grid-cols-[1.5fr_1fr] lg:gap-16">
         <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-cyan-400 mb-5">
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-primary mb-5">
             Anthem City / Vista general
           </p>
 
@@ -50,7 +50,7 @@ export function BannerCabecera() {
             <span className="relative inline-block">
               <span className="relative z-10">visualizado en datos</span>
               <span
-                className="absolute bottom-1 left-0 right-0 h-3 bg-cyan-500/20 -skew-x-6"
+                className="absolute bottom-1 left-0 right-0 h-3 bg-primary/20 -skew-x-6"
                 aria-hidden="true"
               />
             </span>

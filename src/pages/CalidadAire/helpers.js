@@ -62,6 +62,20 @@ const UMBRALES_POR_MAGNITUD = {
   14: { cortes: [50, 100, 130, 240, 380],   unidad: 'μg/m³' }
 };
 
+/**
+ * Devuelve la unidad de medida de una magnitud (codigo Ayto. Madrid).
+ *
+ * El CO (codigo 6) se reporta en mg/m3; el resto de contaminantes tabulados
+ * en ug/m3. Para magnitudes sin tabla (hidrocarburos, etilbenceno...) se
+ * asume ug/m3 por ser la unidad mayoritaria de la malla atmosferica.
+ *
+ * @param {number} magnitud - Codigo de magnitud
+ * @returns {string} Unidad ('ug/m3' o 'mg/m3')
+ */
+export function obtenerUnidadMagnitud(magnitud) {
+  return UMBRALES_POR_MAGNITUD[magnitud]?.unidad ?? 'μg/m³';
+}
+
 // Tabla de niveles ordenados de menor a mayor severidad.
 const NIVELES_CALIDAD = [
   { label: 'Buena',                variant: 'success' },

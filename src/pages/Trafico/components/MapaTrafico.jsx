@@ -12,6 +12,7 @@ import { MapPin } from 'lucide-react';
 import { MapaInteractivo } from '../../../components/mapas';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Skeleton, EmptyState } from '../../../components/common';
 import { formatNumber } from '../../../utils';
+import { CONGESTION_LEVEL_COLORS } from '../../../constants';
 import { colorPorPorcentajeCongestion, etiquetaTipoElemento, nivelDesdePorcentaje, etiquetaCongestion } from '../helpers';
 
 const MapaTrafico = memo(function MapaTrafico({
@@ -124,10 +125,10 @@ const MapaTrafico = memo(function MapaTrafico({
 
 function LeyendaCongestion() {
   const items = [
-    { nivel: 'Fluido (<20%)', color: '#10b981' },
-    { nivel: 'Denso (20-50%)', color: '#f59e0b' },
-    { nivel: 'Congestionado (50-80%)', color: '#ef4444' },
-    { nivel: 'Colapsado (>=80%)', color: '#7c2d12' }
+    { nivel: 'Fluido (<20%)', color: CONGESTION_LEVEL_COLORS.FLUIDO },
+    { nivel: 'Denso (20-50%)', color: CONGESTION_LEVEL_COLORS.DENSO },
+    { nivel: 'Congestionado (50-80%)', color: CONGESTION_LEVEL_COLORS.CONGESTIONADO },
+    { nivel: 'Colapsado (>=80%)', color: CONGESTION_LEVEL_COLORS.COLAPSADO }
   ];
   return (
     <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">

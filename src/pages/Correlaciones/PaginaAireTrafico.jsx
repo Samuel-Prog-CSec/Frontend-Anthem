@@ -24,7 +24,7 @@ import {
   useAnalisisCongestion,
   useCalidadAireStats
 } from '../../api/hooks';
-import { ROUTES, TRAFICO_MAPA_MAX_DIAS } from '../../constants';
+import { ROUTES, TRAFICO_MAPA_MAX_DIAS, CHART_COLORS } from '../../constants';
 import { formatNumber } from '../../utils';
 import { rangoFechasInicial, validarRangoMapa } from '../Trafico/helpers';
 
@@ -212,8 +212,8 @@ function PaginaAireTrafico() {
               data={datosGrafico}
               xKey="name"
               bars={[
-                { key: 'intensidad', name: 'Intensidad media (v/h)', color: '#06b6d4' },
-                { key: 'congestion', name: '% Congestion', color: '#f59e0b' }
+                { key: 'intensidad', name: 'Intensidad media (v/h)', color: CHART_COLORS.primary },
+                { key: 'congestion', name: '% Congestion', color: CHART_COLORS.tertiary }
               ]}
               height={400}
             />

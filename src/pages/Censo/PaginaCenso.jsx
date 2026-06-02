@@ -10,7 +10,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { PageLayout } from '../../components/layout';
 import { useCenso, useCensoDashboard, useCensoDistritos } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG, ETIQUETAS_GRUPOS_EDAD } from '../../constants';
-import { formatNumber } from '../../utils';
+import { formatNumber, formatearNombreDistrito } from '../../utils';
 
 import EstadisticasCenso from './EstadisticasCenso';
 import FiltrosCenso from './FiltrosCenso';
@@ -45,31 +45,66 @@ function PaginaCenso() {
     return params;
   }, [paginaActual, filtros]);
 
-  const statsParams = useMemo(() => ({
+  // El dashboard (tarjetas de resumen + piramide de edad) SI se filtra por
+  // distrito para que las metricas reflejen el distrito seleccionado y el
+  // filtro tenga efecto completo, no solo sobre la tabla.
+  const dashboardParams = useMemo(() => ({
+    año: DATE_CONFIG.DATASET_YEAR,
+    ...(filtros.mes ? { mes: parseInt(filtros.mes) } : {}),
+    ...(filtros.distrito ? { distrito: parseInt(filtros.distrito) } : {})
+  }), [filtros.mes, filtros.distrito]);
+
+  // El resumen de distritos alimenta el grafico comparativo Y las opciones
+  // del selector de distrito, asi que se mantiene SIN filtrar por distrito
+  // (si no, el comparativo mostraria un solo distrito y el selector se
+  // quedaria con una unica opcion).
+  const distritosParams = useMemo(() => ({
     año: DATE_CONFIG.DATASET_YEAR,
     ...(filtros.mes ? { mes: parseInt(filtros.mes) } : {})
   }), [filtros.mes]);
 
   const { data: censoResult, isLoading, error, refetch } = useCenso(queryParams);
-  const { data: dashboardResult } = useCensoDashboard(statsParams);
-  const { data: distritosResult } = useCensoDistritos(statsParams);
+  const { data: dashboardResult } = useCensoDashboard(dashboardParams);
+  const { data: distritosResult } = useCensoDistritos(distritosParams);
 
   const datos = useMemo(() => censoResult?.data || [], [censoResult?.data]);
   const paginacion = censoResult?.pagination || null;
   const dashboard = dashboardResult?.data || null;
   const distritosStats = distritosResult?.data || null;
 
+  // El endpoint /censo/distritos/estadisticas devuelve `estadisticasDistritos`
+  // con shape anidado ({ distrito: {codigo, nombre}, poblacion: {total, ...},
+  // porcentajes: {...} }). Lo normalizamos UNA vez a la forma plana que esperan
+  // el grafico comparativo, el selector de distrito y el panel de detalle.
+  // Antes la pagina leia `districtStatistics` (clave que el backend nunca emite)
+  // y con shape plano, por lo que el selector quedaba sin opciones, el grafico
+  // comparativo vacio y el panel de detalle nunca encontraba el distrito.
+  const distritosNormalizados = useMemo(() => {
+    const lista = distritosStats?.estadisticasDistritos
+      || distritosStats?.districtStatistics
+      || [];
+    return lista.map(d => ({
+      codigoDistrito: d.distrito?.codigo ?? d.codigoDistrito,
+      distrito: d.distrito?.nombre ?? (typeof d.distrito === 'string' ? d.distrito : d.nombre),
+      poblacionTotal: d.poblacion?.total ?? d.poblacionTotal ?? 0,
+      totalEspañoles: d.poblacion?.españoles ?? d.totalEspañoles ?? 0,
+      totalExtranjeros: d.poblacion?.extranjeros ?? d.totalExtranjeros ?? 0,
+      porcentajeExtranjeros: d.porcentajes?.extranjeros ?? d.porcentajeExtranjeros ?? 0,
+      porcentajeProductiva: d.porcentajes?.poblacionProductiva ?? d.porcentajeProductiva ?? 0,
+      porcentajeTerceraEdad: d.porcentajes?.terceraEdad ?? d.porcentajeTerceraEdad ?? 0
+    }));
+  }, [distritosStats]);
+
   const datosGraficoDistritos = useMemo(() => {
-    if (!distritosStats?.districtStatistics) return [];
-    return distritosStats.districtStatistics
+    return [...distritosNormalizados]
       .sort((a, b) => b.poblacionTotal - a.poblacionTotal)
       .slice(0, 10)
       .map(d => ({
-        nombre: d.distrito || d.nombre || `Distrito ${d.codigoDistrito}`,
-        espanoles: d.totalEspañoles || d.poblacionTotal - (d.totalExtranjeros || 0),
+        nombre: formatearNombreDistrito(d.distrito),
+        espanoles: d.totalEspañoles || (d.poblacionTotal - d.totalExtranjeros),
         extranjeros: d.totalExtranjeros || 0
       }));
-  }, [distritosStats]);
+  }, [distritosNormalizados]);
 
   const datosGraficoEdad = useMemo(() => {
     if (!dashboard?.distribucionEdad) return [];
@@ -86,20 +121,17 @@ function PaginaCenso() {
     });
   }, [dashboard]);
 
-  const opcionesDistrito = useMemo(() => {
-    if (!distritosStats?.districtStatistics) return [];
-    return distritosStats.districtStatistics.map(d => ({
+  const opcionesDistrito = useMemo(() =>
+    distritosNormalizados.map(d => ({
       value: String(d.codigoDistrito),
-      label: d.distrito || d.nombre || `Distrito ${d.codigoDistrito}`
-    }));
-  }, [distritosStats]);
+      label: formatearNombreDistrito(d.distrito)
+    })),
+  [distritosNormalizados]);
 
   const detalleDistritoData = useMemo(() => {
-    if (!distritoDetalle || !distritosStats?.districtStatistics) return null;
-    return distritosStats.districtStatistics.find(
-      d => d.codigoDistrito === distritoDetalle
-    );
-  }, [distritoDetalle, distritosStats]);
+    if (!distritoDetalle) return null;
+    return distritosNormalizados.find(d => d.codigoDistrito === distritoDetalle) || null;
+  }, [distritoDetalle, distritosNormalizados]);
 
   const manejarCambioFiltro = useCallback((nombre, valor) => {
     setFiltros(prev => {

@@ -4,7 +4,7 @@
  */
 
 import { memo } from 'react';
-import { ShieldAlert, Skull, Wine, Users } from 'lucide-react';
+import { ShieldAlert, Skull, CarFront, Users } from 'lucide-react';
 import { StatCard } from '../../../components/charts';
 import { formatNumber } from '../../../utils';
 
@@ -12,34 +12,42 @@ const TarjetasEstadisticasAccidentes = memo(function TarjetasEstadisticasAcciden
   estadisticas,
   estadisticasGenerales
 }) {
+  // Un accidente (expediente) puede afectar a varias personas; por eso se
+  // distinguen "Accidentes" (expedientes unicos) de "Personas afectadas"
+  // (filas). El backend ya devuelve ambas metricas en data.resumen.
+  const global = Boolean(estadisticasGenerales);
+  const subtitle = global ? 'total del periodo' : 'en pagina actual';
+
+  const totalAccidentes = estadisticasGenerales?.totalAccidentes ?? estadisticas.totalAccidentes;
+  const totalAfectados = estadisticasGenerales?.totalAfectados ?? estadisticas.totalPersonasAfectadas;
+  const graves = estadisticasGenerales?.accidentesGraves ?? estadisticas.accidentesGraves;
+  const mortales = estadisticasGenerales?.accidentesMortales ?? estadisticas.accidentesMortales;
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       <StatCard
-        title="Total Personas Afectadas"
-        value={formatNumber(estadisticasGenerales?.totalAccidentes || estadisticas.totalPersonasAfectadas)}
+        title="Accidentes"
+        value={formatNumber(totalAccidentes)}
+        subtitle="expedientes unicos"
+        icon={CarFront}
+      />
+      <StatCard
+        title="Personas Afectadas"
+        value={formatNumber(totalAfectados)}
+        subtitle="conductores, peatones y pasajeros"
         icon={Users}
       />
       <StatCard
         title="Accidentes Graves"
-        value={formatNumber(estadisticasGenerales?.accidentesGraves || estadisticas.accidentesGraves)}
-        subtitle={estadisticasGenerales ? 'total global' : 'en pagina actual'}
+        value={formatNumber(graves)}
+        subtitle={subtitle}
         icon={ShieldAlert}
       />
       <StatCard
         title="Accidentes Mortales"
-        value={formatNumber(estadisticasGenerales?.accidentesMortales || estadisticas.accidentesMortales)}
-        subtitle={estadisticasGenerales ? 'total global' : 'en pagina actual'}
+        value={formatNumber(mortales)}
+        subtitle={subtitle}
         icon={Skull}
-      />
-      <StatCard
-        title="Con Alcohol"
-        value={formatNumber(
-          estadisticasGenerales?.accidentesConAlcohol != null
-            ? estadisticasGenerales.accidentesConAlcohol
-            : estadisticas.conAlcohol
-        )}
-        subtitle={estadisticasGenerales?.accidentesConAlcohol != null ? 'total global' : 'en pagina actual'}
-        icon={Wine}
       />
     </div>
   );

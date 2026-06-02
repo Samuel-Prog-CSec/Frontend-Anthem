@@ -12,15 +12,7 @@ import {
   Badge, EmptyState, ErrorState, TableSkeleton
 } from '../../../components/common';
 import { formatDate } from '../../../utils';
-
-function obtenerVarianteBadgeGravedad(gravedad) {
-  if (!gravedad) return 'secondary';
-  const upper = gravedad.toUpperCase();
-  if (upper === 'LEVE') return 'success';
-  if (upper === 'GRAVE') return 'warning';
-  if (upper === 'MORTAL') return 'destructive';
-  return 'secondary';
-}
+import { obtenerVarianteBadgeGravedad, etiquetaTipoAccidente } from '../../Accidentes/helpers';
 
 const TablaAccidentesRecientes = memo(function TablaAccidentesRecientes({
   accidentes,
@@ -66,7 +58,7 @@ const TablaAccidentesRecientes = memo(function TablaAccidentesRecientes({
             <TableBody>
               {accidentes.map((record) => (
                 <TableRow key={record._id}>
-                  <TableCell className="font-mono text-xs text-cyan-400">
+                  <TableCell className="font-mono text-xs text-muted-foreground">
                     {record.numeroExpediente || '-'}
                   </TableCell>
                   <TableCell>{formatDate(record.fecha)}</TableCell>
@@ -75,7 +67,9 @@ const TablaAccidentesRecientes = memo(function TablaAccidentesRecientes({
                   </TableCell>
                   <TableCell>{record.ubicacion?.calle || '-'}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {record.circunstancias?.tipoAccidente || '-'}
+                    {record.circunstancias?.tipoAccidente
+                      ? etiquetaTipoAccidente(record.circunstancias.tipoAccidente)
+                      : '-'}
                   </TableCell>
                   <TableCell>
                     <Badge variant={obtenerVarianteBadgeGravedad(record.circunstancias?.gravedad)}>

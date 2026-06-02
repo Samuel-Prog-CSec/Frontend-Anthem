@@ -2,6 +2,8 @@
  * Helpers compartidos por la pagina de Accidentes y sus subcomponentes.
  */
 
+import { formatearEtiquetaEnum } from '../../utils';
+
 /**
  * Obtiene la variante del badge segun la gravedad
  * @param {string} gravedad - Nivel de gravedad
@@ -63,3 +65,23 @@ export const opcionesGravedad = [
   { value: 'GRAVE', label: 'Grave' },
   { value: 'MORTAL', label: 'Mortal' }
 ];
+
+// Mapa enum -> etiqueta legible, derivado del catalogo del selector para no
+// duplicar la fuente de verdad.
+const ETIQUETAS_TIPO_ACCIDENTE = new Map(
+  opcionesTipoAccidente.map(({ value, label }) => [value, label])
+);
+
+/**
+ * Convierte el codigo de tipo de accidente del backend en una etiqueta
+ * legible para graficos y leyendas. Si el tipo no esta en el catalogo
+ * conocido, lo normaliza (guiones bajos a espacios, capitalizacion inicial)
+ * en lugar de mostrar el enum crudo (p.ej. "COLISION_FRONTO-LATERAL").
+ *
+ * @param {string} valor - Tipo de accidente tal cual llega del backend
+ * @returns {string} Etiqueta legible
+ */
+export function etiquetaTipoAccidente(valor) {
+  if (!valor) return 'Desconocido';
+  return ETIQUETAS_TIPO_ACCIDENTE.get(valor) || formatearEtiquetaEnum(valor, 'Desconocido');
+}

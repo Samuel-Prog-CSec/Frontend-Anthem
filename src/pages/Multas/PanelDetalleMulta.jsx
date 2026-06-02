@@ -23,7 +23,7 @@ function PanelDetalleMulta({ detalle, isLoading, onCerrar }) {
   const d = detalle;
 
   return (
-    <Card className="mb-6 border-cyan-500/30">
+    <Card className="mb-6 border-[var(--border-emphasis)]">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">Detalle de la multa</CardTitle>
@@ -83,8 +83,8 @@ function PanelDetalleMulta({ detalle, isLoading, onCerrar }) {
 }
 
 function Celda({ etiqueta, valor, variant = 'neutral', destaque = false }) {
-  const bg = variant === 'alert' ? 'bg-rose-950/30 border border-rose-500/20' : 'bg-muted/50';
-  const valorClass = destaque ? 'text-rose-400' : 'text-foreground';
+  const bg = variant === 'alert' ? 'bg-destructive/5 border border-destructive/20' : 'bg-muted/50';
+  const valorClass = destaque ? 'text-destructive' : 'text-foreground';
   return (
     <div className={`p-3 rounded-lg ${bg}`}>
       <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground mb-1.5">

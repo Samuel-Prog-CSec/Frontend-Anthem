@@ -16,10 +16,10 @@ import { useState, useCallback, useMemo } from 'react';
 import { PageLayout } from '../../components/layout';
 import {
   useMultas, useMultasDashboard, useMultasRanking, useMultaDetalle,
-  useCensoResumenDistritos
+  useMultasEstadisticas, useCensoResumenDistritos
 } from '../../api/hooks';
 import { useFiltroGeo } from '../../context/useFiltroGeo';
-import { PAGINATION, DATE_CONFIG } from '../../constants';
+import { PAGINATION, DATE_CONFIG, ETIQUETAS_CALIFICACION_MULTA } from '../../constants';
 import { formatNumber } from '../../utils';
 
 import EstadisticasMultas from './EstadisticasMultas';
@@ -28,6 +28,9 @@ import GraficosMultas from './GraficosMultas';
 import PanelDetalleMulta from './PanelDetalleMulta';
 import TablaMultas from './TablaMultas';
 import { formatearLugar } from './helpers';
+
+// Orden de severidad para ordenar las barras del grafico de distribucion.
+const ORDEN_CALIFICACION = ['LEVE', 'GRAVE', 'MUY_GRAVE'];
 
 function PaginaMultas() {
   const [filtros, setFiltros] = useState({
@@ -73,8 +76,22 @@ function PaginaMultas() {
     return params;
   }, [filtros]);
 
+  // Distribucion real por calificacion (LEVE / GRAVE / MUY_GRAVE) via
+  // /multas/estadisticas?groupBy=severity. Una distribucion no debe filtrarse
+  // por calificacion (se colapsaria a una sola barra), pero si respeta el mes.
+  const distribucionParams = useMemo(() => {
+    const params = { groupBy: 'severity' };
+    if (filtros.mes) {
+      const fecha = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes) - 1, 1);
+      params.startDate = fecha.toISOString();
+      params.endDate = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes), 0, 23, 59, 59).toISOString();
+    }
+    return params;
+  }, [filtros.mes]);
+
   const { data: multasResult, isLoading, error, refetch } = useMultas(queryParams);
   const { data: dashboardResult } = useMultasDashboard(filtroAggParams);
+  const { data: distribucionResult } = useMultasEstadisticas(distribucionParams);
   const { data: rankingResult } = useMultasRanking({ limit: 10, ...filtroAggParams });
   const { data: detalleResult, isLoading: detalleLoading } = useMultaDetalle(multaSeleccionada);
   const { data: resumenCenso } = useCensoResumenDistritos({ año: DATE_CONFIG.DATASET_YEAR });
@@ -99,25 +116,41 @@ function PaginaMultas() {
   const puntosTotales = metricasGenerales.puntosTotal || 0;
   const porcentajeGraves = Number(resumenDashboard.porcentajeGraves) || 0;
 
-  // Grafico calificacion: aproximamos "leves" como (total - graves) porque el
-  // endpoint solo expone los conteos de graves y velocidad.
+  // Grafico calificacion: distribucion real por severidad. El backend agrupa
+  // por `$calificacion`, asi que cada barra es exacta (Leve / Grave / Muy grave)
+  // en lugar de aproximar "leves" como total - graves (que colapsaba GRAVE y
+  // MUY_GRAVE en una sola barra y absorberia cualquier calificacion nueva).
   const datosGraficoCalificacion = useMemo(() => {
-    if (!metricasGenerales.totalMultas) return [];
-    const graves = metricasGenerales.multasGraves || 0;
-    const leves = Math.max(metricasGenerales.totalMultas - graves, 0);
-    return [
-      { nombre: 'Leve', total: leves },
-      { nombre: 'Grave', total: graves }
-    ].filter(d => d.total > 0);
-  }, [metricasGenerales]);
+    const lista = distribucionResult?.data?.estadisticas || [];
+    return lista
+      .map(item => {
+        const cal = item._id?.calificacion ?? item.calificacion ?? item._id;
+        return {
+          nombre: ETIQUETAS_CALIFICACION_MULTA[cal] || cal,
+          total: item.totalMultas || item.total || 0,
+          orden: ORDEN_CALIFICACION.indexOf(cal)
+        };
+      })
+      .filter(d => d.total > 0)
+      .sort((a, b) => (a.orden < 0 ? 99 : a.orden) - (b.orden < 0 ? 99 : b.orden))
+      .map(({ nombre, total }) => ({ nombre, total }));
+  }, [distribucionResult]);
 
   const datosGraficoRanking = useMemo(() => {
-    if (!ranking?.data) return [];
-    return ranking.data.slice(0, 10).map(r => {
-      const lugarLimpio = r.lugar ? formatearLugar(r.lugar) : null;
+    // El endpoint /multas/ubicaciones/ranking devuelve `data.ranking` (array
+    // con _id = lugar). Antes se leia `ranking.data` (clave inexistente) y el
+    // grafico de top ubicaciones nunca se renderizaba. Se mantiene el fallback
+    // por tolerancia a cambios de shape.
+    const lista = Array.isArray(ranking?.ranking)
+      ? ranking.ranking
+      : (Array.isArray(ranking?.data) ? ranking.data : []);
+    if (lista.length === 0) return [];
+    return lista.slice(0, 10).map(r => {
+      const lugarRaw = r.lugar || r._id;
+      const lugarLimpio = lugarRaw ? formatearLugar(lugarRaw) : null;
       const nombre = lugarLimpio && lugarLimpio !== '-'
         ? (lugarLimpio.length > 30 ? lugarLimpio.substring(0, 30) + '...' : lugarLimpio)
-        : r._id;
+        : (lugarRaw || '-');
       return { nombre, total: r.totalMultas || r.count || 0 };
     });
   }, [ranking]);

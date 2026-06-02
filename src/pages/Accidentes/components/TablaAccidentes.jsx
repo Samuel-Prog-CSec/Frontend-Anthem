@@ -12,9 +12,9 @@ import {
   Badge, Pagination, EmptyState, ErrorState, TableSkeleton
 } from '../../../components/common';
 import { useCensoResumenDistritos } from '../../../api/hooks';
-import { formatDate, formatearNombreDistrito } from '../../../utils';
+import { formatDate, formatearNombreDistrito, formatearEtiquetaEnum } from '../../../utils';
 import { ROUTES, DATE_CONFIG } from '../../../constants';
-import { obtenerVarianteBadgeGravedad, obtenerBadgeAlcohol } from '../helpers';
+import { obtenerVarianteBadgeGravedad, obtenerBadgeAlcohol, etiquetaTipoAccidente } from '../helpers';
 
 // Normaliza un nombre de distrito (uppercase + sin tildes) para hacer
 // match con el catalogo del censo. Local porque es trivial y evita anadir
@@ -58,12 +58,12 @@ const TablaAccidentes = memo(function TablaAccidentes({
   // calle, distrito, tipo, gravedad) y solo destacan los que varian
   // entre personas (vehiculo, persona, alcohol).
   const filasConGrupo = useMemo(() => {
-    let ultimoExpediente = null;
-    return datos.map((record) => {
+    return datos.map((record, indice) => {
       const expediente = record.numeroExpediente || record._id;
-      const esInicio = expediente !== ultimoExpediente;
-      ultimoExpediente = expediente;
-      return { record, esInicio };
+      const anterior = indice > 0
+        ? (datos[indice - 1].numeroExpediente || datos[indice - 1]._id)
+        : null;
+      return { record, esInicio: expediente !== anterior };
     });
   }, [datos]);
 
@@ -124,7 +124,7 @@ const TablaAccidentes = memo(function TablaAccidentes({
                         {record.numeroExpediente ? (
                           <button
                             onClick={() => onClickExpediente(record.numeroExpediente)}
-                            className="text-cyan-400 hover:text-cyan-300 underline cursor-pointer transition-colors"
+                            className="text-info hover:opacity-80 underline cursor-pointer transition-colors"
                             title="Ver detalle del expediente"
                           >
                             {record.numeroExpediente}
@@ -141,7 +141,7 @@ const TablaAccidentes = memo(function TablaAccidentes({
                         <div>
                           <p className="font-medium">{record.ubicacion?.calle || '-'}</p>
                           {record.ubicacion?.numero && (
-                            <p className="text-xs text-foreground0">N. {record.ubicacion.numero}</p>
+                            <p className="text-xs text-muted-foreground">N. {record.ubicacion.numero}</p>
                           )}
                         </div>
                       </TableCell>
@@ -159,7 +159,7 @@ const TablaAccidentes = memo(function TablaAccidentes({
                           return (
                             <Link
                               to={ROUTES.DISTRITO_PATH(distritoCanon.codigo)}
-                              className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 underline transition-colors"
+                              className="inline-flex items-center gap-1 text-info hover:opacity-80 underline transition-colors"
                               title={`Ver perfil de ${distritoCanon.nombre}`}
                             >
                               {nombreCanonico}
@@ -169,7 +169,9 @@ const TablaAccidentes = memo(function TablaAccidentes({
                         })()}
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
-                        {record.circunstancias?.tipoAccidente || '-'}
+                        {record.circunstancias?.tipoAccidente
+                          ? etiquetaTipoAccidente(record.circunstancias.tipoAccidente)
+                          : '-'}
                       </TableCell>
                       <TableCell>
                         <Badge variant={obtenerVarianteBadgeGravedad(record.circunstancias?.gravedad)}>
@@ -177,12 +179,12 @@ const TablaAccidentes = memo(function TablaAccidentes({
                         </Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
-                        {record.vehiculo?.tipo || '-'}
+                        {formatearEtiquetaEnum(record.vehiculo?.tipo)}
                       </TableCell>
                       <TableCell>
                         <div>
                           <p className="text-sm">{record.personaAfectada?.tipoPersona || '-'}</p>
-                          <p className="text-xs text-foreground0">{record.personaAfectada?.sexo || ''} {record.personaAfectada?.rangoEdad || ''}</p>
+                          <p className="text-xs text-muted-foreground">{record.personaAfectada?.sexo || ''} {record.personaAfectada?.rangoEdad || ''}</p>
                         </div>
                       </TableCell>
                       <TableCell>

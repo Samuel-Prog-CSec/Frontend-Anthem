@@ -25,35 +25,36 @@ const TablaZonasAccidentalidad = memo(function TablaZonasAccidentalidad({ zonas 
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <MapPin className="size-5" />
-          Zonas de Mayor Accidentalidad
+          Calles con mas accidentes
         </CardTitle>
         <CardDescription>
-          Top 10 zonas con mayor concentracion de accidentes (agrupadas por coordenadas)
+          Top 10 calles por numero de accidentes registrados (expedientes unicos)
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Zona (coordenadas)</TableHead>
-              <TableHead>Total Accidentes</TableHead>
-              <TableHead>Graves</TableHead>
-              <TableHead>Gravedad Media</TableHead>
+              <TableHead>Calle / Distrito</TableHead>
+              <TableHead className="text-center">Accidentes</TableHead>
+              <TableHead className="text-center">Graves</TableHead>
+              <TableHead className="text-center">Gravedad media</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {zonas.map((zona, idx) => (
-              <TableRow key={idx}>
-                <TableCell className="font-mono text-sm">
-                  ({formatNumber(zona.coordenadas?.x, 0)}, {formatNumber(zona.coordenadas?.y, 0)})
-                </TableCell>
+              <TableRow key={`${zona._id?.calle || 'zona'}-${idx}`}>
                 <TableCell>
+                  <p className="font-medium text-sm">{zona._id?.calle || '-'}</p>
+                  <p className="text-xs text-muted-foreground">{zona._id?.distrito || ''}</p>
+                </TableCell>
+                <TableCell className="text-center">
                   <Badge variant={obtenerVarianteSegunTotal(zona.totalAccidentes)}>
-                    {zona.totalAccidentes}
+                    {formatNumber(zona.totalAccidentes)}
                   </Badge>
                 </TableCell>
-                <TableCell>{zona.accidentesGraves || 0}</TableCell>
-                <TableCell>{zona.puntuacionGravedadPromedio ? zona.puntuacionGravedadPromedio.toFixed(1) : '-'}</TableCell>
+                <TableCell className="text-center">{formatNumber(zona.accidentesGraves || 0)}</TableCell>
+                <TableCell className="text-center font-mono text-sm">{zona.puntuacionGravedadPromedio ? zona.puntuacionGravedadPromedio.toFixed(1) : '-'}</TableCell>
               </TableRow>
             ))}
           </TableBody>

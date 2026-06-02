@@ -83,7 +83,10 @@ function PaginaAforoPeatones() {
   const { data: distribucionResult } = useAforoPeatonesDistribucionHoraria(queryParams);
   const { data: estacionesResult } = useAforoPeatonesEstaciones({ ...queryParams, limit: 10 });
   const { data: detalleEstacion, isLoading: detalleLoading } = useAforoPeatonesEstacion(estacionSeleccionada);
-  const { data: featureCollectionMapa, isLoading: cargandoMapa } = useMapaAforoPeatones();
+  // El mapa debe respetar los filtros activos (distrito/franja/mes), igual que
+  // el resto de la pagina; antes se llamaba sin params y mostraba siempre todas
+  // las estaciones (regresion vs Aforo de Bicicletas).
+  const { data: featureCollectionMapa, isLoading: cargandoMapa } = useMapaAforoPeatones(queryParams);
 
   const datos = useMemo(() => aforoResult?.data || [], [aforoResult?.data]);
   const paginacion = aforoResult?.pagination || null;
@@ -155,7 +158,12 @@ function PaginaAforoPeatones() {
   const totalMediciones = stats.totalMediciones || 0;
   const totalPeatones = stats.totalPeatones || 0;
   const promedioPorHora = stats.promedioPorHora || 0;
-  const totalEstaciones = estacionesRanking.length;
+  // El ranking se pide con limit:10, asi que su .length no es el total real de
+  // estaciones. Preferimos un conteo del backend si lo expone; si no, caemos al
+  // numero de estaciones del ranking como aproximacion.
+  const totalEstaciones = stats.totalEstaciones
+    ?? estacionesResult?.data?.totalEstaciones
+    ?? estacionesRanking.length;
   const hayFiltrosActivos = Boolean(filtros.distrito || filtros.franjaHoraria || filtros.mes);
 
   return (

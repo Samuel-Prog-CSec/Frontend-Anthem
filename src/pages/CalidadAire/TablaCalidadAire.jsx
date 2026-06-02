@@ -13,7 +13,7 @@ import {
 } from '../../components/common';
 import { AIR_QUALITY_MAGNITUDES } from '../../constants';
 import { formatDate, formatNumber } from '../../utils';
-import { calcularPromedioDiario, obtenerNivelCalidadAire } from './helpers';
+import { calcularPromedioDiario, obtenerNivelCalidadAire, obtenerUnidadMagnitud } from './helpers';
 
 function TablaCalidadAire({
   data,
@@ -85,7 +85,7 @@ function TablaCalidadAire({
                         {AIR_QUALITY_MAGNITUDES[record.magnitud] || `Magnitud ${record.magnitud}`}
                       </TableCell>
                       <TableCell className="text-right font-mono">
-                        {avg != null ? `${formatNumber(avg, 2)} μg/m³` : '-'}
+                        {avg != null ? `${formatNumber(avg, 2)} ${obtenerUnidadMagnitud(record.magnitud)}` : '-'}
                       </TableCell>
                       <TableCell>
                         <Badge variant={level.variant}>

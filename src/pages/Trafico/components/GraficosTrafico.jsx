@@ -8,6 +8,7 @@
 
 import { memo, useMemo } from 'react';
 import { BarChartCard } from '../../../components/charts';
+import { CHART_COLORS } from '../../../constants';
 
 const GraficosTrafico = memo(function GraficosTrafico({
   analisisCongestion,
@@ -43,8 +44,8 @@ const GraficosTrafico = memo(function GraficosTrafico({
         data={datosCongestion}
         xKey="name"
         bars={[
-          { key: 'congestion', name: 'Congestion', color: '#ef4444' },
-          { key: 'fluido', name: 'Fluido', color: '#10b981' }
+          { key: 'congestion', name: 'Congestion', color: CHART_COLORS.danger },
+          { key: 'fluido', name: 'Fluido', color: CHART_COLORS.secondary }
         ]}
         height={320}
         isLoading={isLoading}
@@ -54,7 +55,7 @@ const GraficosTrafico = memo(function GraficosTrafico({
         data={datosHorarios}
         xKey="name"
         bars={[
-          { key: 'intensidad', name: 'Intensidad media', color: '#06b6d4' }
+          { key: 'intensidad', name: 'Intensidad media', color: CHART_COLORS.primary }
         ]}
         height={320}
         isLoading={isLoading}

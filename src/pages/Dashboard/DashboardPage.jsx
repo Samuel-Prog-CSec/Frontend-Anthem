@@ -24,6 +24,7 @@ import {
   TarjetaEstadisticaDashboard,
   TarjetaAccesoRapido,
   BannerCabecera,
+  PanelAlertas,
   EstadoSistema
 } from './components';
 
@@ -49,6 +50,8 @@ function DashboardPage() {
       description={`Indicadores agregados de la Smart City Anthem ${DATE_CONFIG.DATASET_YEAR}. Cada modulo enlaza con su vista detallada con filtros, mapas y series temporales.`}
     >
       <BannerCabecera />
+
+      <PanelAlertas />
 
       {/* Stats: grid 3 columnas en lg con UNA tarjeta por modulo. Antes
           mostrabamos solo 3 (ubicaciones, aire, ruido) y el dashboard se

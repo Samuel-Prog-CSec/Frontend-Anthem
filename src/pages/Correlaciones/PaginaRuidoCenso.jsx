@@ -22,7 +22,7 @@ import {
 } from '../../components/common';
 import { StatCard, BarChartCard } from '../../components/charts';
 import { useRuidoRanking, useCensoResumenDistritos } from '../../api/hooks';
-import { ROUTES, DATE_CONFIG, NOISE_LIMITS } from '../../constants';
+import { ROUTES, DATE_CONFIG, NOISE_LIMITS, CHART_COLORS } from '../../constants';
 import { formatNumber, formatDecibels, formatearNombreDistrito } from '../../utils';
 
 function PaginaRuidoCenso() {
@@ -146,7 +146,7 @@ function PaginaRuidoCenso() {
         title="Top 12 distritos: poblacion en zonas con incumplimiento"
         data={datosGrafico}
         xKey="name"
-        bars={[{ key: 'poblacion', name: 'Habitantes', color: '#a855f7' }]}
+        bars={[{ key: 'poblacion', name: 'Habitantes', color: CHART_COLORS.accent }]}
         height={360}
         isLoading={cargando}
       />
@@ -183,7 +183,7 @@ function PaginaRuidoCenso() {
                   const excedeMucho = d.laeqMedio - NOISE_LIMITS.DIURNO > 5;
                   return (
                     <TableRow key={d.distrito}>
-                      <TableCell className="font-medium text-cyan-400">{formatearNombreDistrito(d.distrito)}</TableCell>
+                      <TableCell className="font-medium text-info">{formatearNombreDistrito(d.distrito)}</TableCell>
                       <TableCell className="text-right font-mono">{formatNumber(d.estacionesAfectadas)}</TableCell>
                       <TableCell className="text-right">
                         <Badge variant={excedeMucho ? 'destructive' : 'warning'}>

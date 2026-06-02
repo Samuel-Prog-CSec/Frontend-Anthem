@@ -17,49 +17,14 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
-import { cn } from '../../../utils';
 
-const VARIANTES_COLOR = {
-  cyan: {
-    accentBg: 'bg-cyan-500/10',
-    accentIcon: 'text-cyan-400',
-    underline: 'group-hover:via-cyan-400'
-  },
-  emerald: {
-    accentBg: 'bg-emerald-500/10',
-    accentIcon: 'text-emerald-400',
-    underline: 'group-hover:via-emerald-400'
-  },
-  purple: {
-    accentBg: 'bg-violet-500/10',
-    accentIcon: 'text-violet-400',
-    underline: 'group-hover:via-violet-400'
-  },
-  amber: {
-    accentBg: 'bg-amber-500/10',
-    accentIcon: 'text-amber-400',
-    underline: 'group-hover:via-amber-400'
-  },
-  rose: {
-    accentBg: 'bg-rose-500/10',
-    accentIcon: 'text-rose-400',
-    underline: 'group-hover:via-rose-400'
-  },
-  sky: {
-    accentBg: 'bg-sky-500/10',
-    accentIcon: 'text-sky-400',
-    underline: 'group-hover:via-sky-400'
-  }
-};
-
-function TarjetaAccesoRapidoImpl({ titulo, descripcion, icono, color, ruta, codigo }) {
-  const colores = VARIANTES_COLOR[color] ?? VARIANTES_COLOR.cyan;
+function TarjetaAccesoRapidoImpl({ titulo, descripcion, icono, ruta, codigo }) {
   const IconoComponente = icono;
 
   return (
     <Link
       to={ruta}
-      className="relative group block h-full rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm overflow-hidden transition-colors hover:border-border hover:bg-card/70"
+      className="relative group block h-full rounded-xl border border-border bg-card overflow-hidden transition-colors hover:border-[var(--border-emphasis)]"
       aria-label={`Ir a ${titulo}`}
     >
       <div className="p-6">
@@ -67,8 +32,8 @@ function TarjetaAccesoRapidoImpl({ titulo, descripcion, icono, color, ruta, codi
           <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
             {codigo}
           </span>
-          <div className={cn('shrink-0 size-10 rounded-lg flex items-center justify-center', colores.accentBg)}>
-            <IconoComponente className={cn('size-5', colores.accentIcon)} aria-hidden="true" />
+          <div className="shrink-0 size-10 rounded-lg flex items-center justify-center border border-border">
+            <IconoComponente className="size-5 text-muted-foreground" aria-hidden="true" />
           </div>
         </div>
 
@@ -86,13 +51,10 @@ function TarjetaAccesoRapidoImpl({ titulo, descripcion, icono, color, ruta, codi
         </div>
       </div>
 
-      {/* Hairline inferior con tinta de la variante en hover.
+      {/* Hairline inferior que se enfatiza en hover.
           Reemplaza al hover:translate-y-1 + shadow generico. */}
       <div
-        className={cn(
-          'absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent transition-colors',
-          colores.underline
-        )}
+        className="absolute bottom-0 left-0 right-0 h-px bg-border transition-colors group-hover:bg-[var(--border-strong)]"
         aria-hidden="true"
       />
     </Link>

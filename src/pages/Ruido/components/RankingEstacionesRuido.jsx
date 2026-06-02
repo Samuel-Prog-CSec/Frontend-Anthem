@@ -44,7 +44,7 @@ const RankingEstacionesRuido = memo(function RankingEstacionesRuido({ datos, car
                   <TableCell>
                     <div>
                       <p className="font-medium text-sm">{estacion.nombre}</p>
-                      <p className="text-xs text-foreground0">NMT {estacion.nmt}</p>
+                      <p className="text-xs text-muted-foreground">NMT {estacion.nmt}</p>
                     </div>
                   </TableCell>
                   <TableCell className="text-center">

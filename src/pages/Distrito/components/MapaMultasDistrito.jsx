@@ -10,7 +10,7 @@
  * Subcomponente de PaginaDistrito.
  */
 
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useEffect } from 'react';
 import { Receipt, AlertCircle } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Skeleton } from '../../../components/common';
 import { MapaClusterizado } from '../../../components/mapas';
@@ -22,7 +22,8 @@ const LIMITE_MULTAS_DISTRITO = 500;
 const MapaMultasDistrito = memo(function MapaMultasDistrito({
   codigo,
   nombreDistrito,
-  centroide
+  centroide,
+  onEstadoCambio
 }) {
   // Pasar el codigo como string ya que el endpoint acepta tanto codigo numerico
   // como nombre de distrito.
@@ -45,6 +46,13 @@ const MapaMultasDistrito = memo(function MapaMultasDistrito({
   ), []);
 
   const totalMultas = featureCollection?.features?.length || 0;
+
+  // Elevar el conteo al padre para que la tarjeta KPI "Multas en zona" muestre
+  // el dato real (antes quedaba fijo en 0 porque el conteo vivia solo aqui).
+  useEffect(() => {
+    onEstadoCambio?.({ total: totalMultas, isLoading });
+  }, [totalMultas, isLoading, onEstadoCambio]);
+
   // El centroide del backend viene como [lng, lat]; Leaflet espera [lat, lng]
   const centroLeaflet = centroide ? [centroide[1], centroide[0]] : undefined;
 

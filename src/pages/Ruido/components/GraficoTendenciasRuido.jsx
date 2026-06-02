@@ -7,10 +7,12 @@ import { memo } from 'react';
 import { LineChartCard } from '../../../components/charts';
 import { DATE_CONFIG } from '../../../constants';
 
+// Rampa de dominio de ruido (var(--color-noise-*) en index.css): minimo
+// (bajo) verde, promedio (alto) ambar, maximo (muy alto) rojo.
 const LINEAS_TENDENCIA = [
-  { key: 'promedio', name: 'Promedio', color: '#06b6d4' },
-  { key: 'maximo', name: 'Maximo', color: '#ef4444' },
-  { key: 'minimo', name: 'Minimo', color: '#10b981' }
+  { key: 'promedio', name: 'Promedio', color: '#d4a14d' },
+  { key: 'maximo', name: 'Maximo', color: '#d44d3a' },
+  { key: 'minimo', name: 'Minimo', color: '#3aa771' }
 ];
 
 const GraficoTendenciasRuido = memo(function GraficoTendenciasRuido({ datosTendencia }) {

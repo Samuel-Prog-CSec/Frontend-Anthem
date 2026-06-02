@@ -21,6 +21,7 @@ import {
   usePatinetesZonas, usePatinetesDetallesArea, useMapaPatinetes
 } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
+import { formatearNombreDistrito } from '../../utils';
 import {
   TarjetasEstadisticasPatinetes,
   MapaDistribucionPatinetes,
@@ -177,18 +178,20 @@ function PaginaPatinetes() {
     };
   }, [datos, paginacionActual.totalItems, estadisticasDistritos]);
 
-  // Opciones de distrito derivadas de estadisticasDistritos
+  // Opciones de distrito derivadas de estadisticasDistritos. El value se
+  // mantiene como viene del backend (lo usa el filtro para casar); solo la
+  // etiqueta se normaliza para no mostrar el nombre en mayusculas crudas.
   const districtOptions = useMemo(() => {
     return estadisticasDistritos.map(d => ({
       value: d._id,
-      label: d._id
+      label: formatearNombreDistrito(d._id)
     }));
   }, [estadisticasDistritos]);
 
   // Datos para grafico de barras (patinetes por distrito)
   const datosGrafico = useMemo(() => {
     return estadisticasDistritos.map(d => ({
-      name: d._id,
+      name: formatearNombreDistrito(d._id),
       totalPatinetes: d.totalPatinetes || 0
     }));
   }, [estadisticasDistritos]);

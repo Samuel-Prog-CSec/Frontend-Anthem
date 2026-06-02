@@ -5,6 +5,7 @@
 
 import { memo, useMemo } from 'react';
 import { PieChartCard, BarChartCard } from '../../../components/charts';
+import { CHART_COLORS } from '../../../constants';
 import { etiquetaTipoContenedor, colorTipoContenedor } from '../helpers';
 
 const GraficosContenedores = memo(function GraficosContenedores({
@@ -48,7 +49,7 @@ const GraficosContenedores = memo(function GraficosContenedores({
         data={datosBar}
         xKey="name"
         bars={[
-          { key: 'contenedores', name: 'Contenedores', color: '#06b6d4' }
+          { key: 'contenedores', name: 'Contenedores', color: CHART_COLORS.primary }
         ]}
         height={320}
         isLoading={isLoading}

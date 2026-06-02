@@ -7,16 +7,18 @@ import { memo } from 'react';
 import { LineChartCard } from '../../../components/charts';
 import { NOISE_LIMITS } from '../../../constants';
 
+// Rampa de dominio de ruido (var(--color-noise-*) en index.css): tonos
+// distintos para cada serie segun severidad del periodo.
 const LINEAS_NIVELES = [
-  { key: 'diurno', name: 'Diurno (dB)', color: '#f59e0b' },
-  { key: 'vespertino', name: 'Vespertino (dB)', color: '#f97316' },
-  { key: 'nocturno', name: 'Nocturno (dB)', color: '#8b5cf6' },
-  { key: 'laeq24', name: 'LAeq24 (dB)', color: '#06b6d4' }
+  { key: 'diurno', name: 'Diurno (dB)', color: '#3aa771' },
+  { key: 'vespertino', name: 'Vespertino (dB)', color: '#aabe3a' },
+  { key: 'nocturno', name: 'Nocturno (dB)', color: '#d44d3a' },
+  { key: 'laeq24', name: 'LAeq24 (dB)', color: '#d4a14d' }
 ];
 
 const REFERENCE_LINES = [
-  { y: NOISE_LIMITS.DIURNO, label: `Limite diurno (${NOISE_LIMITS.DIURNO} dB)`, color: '#f59e0b' },
-  { y: NOISE_LIMITS.NOCTURNO, label: `Limite nocturno (${NOISE_LIMITS.NOCTURNO} dB)`, color: '#8b5cf6' }
+  { y: NOISE_LIMITS.DIURNO, label: `Limite diurno (${NOISE_LIMITS.DIURNO} dB)`, color: '#d4a14d' },
+  { y: NOISE_LIMITS.NOCTURNO, label: `Limite nocturno (${NOISE_LIMITS.NOCTURNO} dB)`, color: '#d44d3a' }
 ];
 
 const GraficoNivelesRuido = memo(function GraficoNivelesRuido({ datosGrafico }) {

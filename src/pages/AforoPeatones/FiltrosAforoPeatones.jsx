@@ -32,7 +32,7 @@ function FiltrosAforoPeatones({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Filter className="size-4 text-cyan-400" />
+            <Filter className="size-4 text-muted-foreground" />
             <CardTitle className="text-base">Filtros</CardTitle>
           </div>
           <div className="flex items-center gap-2">

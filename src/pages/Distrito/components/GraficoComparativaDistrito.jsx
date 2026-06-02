@@ -10,8 +10,9 @@ import { BarChart3 } from 'lucide-react';
 import { BarChartCard } from '../../../components/charts';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../../components/common';
 
-const COLOR_DESTACADO = '#06b6d4';
-const COLOR_BASE = '#475569';
+// Resueltos desde tokens: signal (estado activo = distrito actual) y gris (--ink-muted).
+const COLOR_DESTACADO = '#d4ed3a';
+const COLOR_BASE = '#5a5e64';
 
 const GraficoComparativaDistrito = memo(function GraficoComparativaDistrito({
   distritos,
@@ -37,13 +38,16 @@ const GraficoComparativaDistrito = memo(function GraficoComparativaDistrito({
 
     return top10
       .sort((a, b) => (b.totalPoblacion || 0) - (a.totalPoblacion || 0))
-      .map(d => ({
-        nombre: d.nombre,
-        poblacion: d.totalPoblacion || 0,
-        // Recharts soporta `fill` por dato cuando la barra usa una funcion de color
-        // Lo dejamos como flag para que el wrapper lo use si quisiera
-        esActual: Number(d.codigo) === codActual
-      }));
+      .map(d => {
+        const esActual = Number(d.codigo) === codActual;
+        return {
+          nombre: d.nombre,
+          poblacion: d.totalPoblacion || 0,
+          esActual,
+          // Color por dato consumido por BarChartCard (colorByDatum)
+          barColor: esActual ? COLOR_DESTACADO : COLOR_BASE
+        };
+      });
   }, [distritos, codigoActual]);
 
   if (datos.length === 0) {
@@ -58,7 +62,7 @@ const GraficoComparativaDistrito = memo(function GraficoComparativaDistrito({
           Comparativa de poblacion - Top distritos
         </CardTitle>
         <CardDescription>
-          El distrito actual se resalta en cyan; el resto en gris para referencia.
+          El distrito actual se resalta; el resto en gris para referencia.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -69,9 +73,9 @@ const GraficoComparativaDistrito = memo(function GraficoComparativaDistrito({
             {
               key: 'poblacion',
               name: 'Poblacion',
-              // Color uniforme; en una iteracion futura se podria usar Cell
-              // para colorear solo la barra del distrito actual
-              color: datos.some(d => d.esActual) ? COLOR_DESTACADO : COLOR_BASE
+              color: COLOR_BASE,
+              // Colorea solo la barra del distrito actual (resto en gris)
+              colorByDatum: true
             }
           ]}
           height={320}

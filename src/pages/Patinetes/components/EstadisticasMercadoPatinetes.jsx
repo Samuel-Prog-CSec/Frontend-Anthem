@@ -5,8 +5,9 @@
 
 import { memo } from 'react';
 import { BarChartCard, PieChartCard } from '../../../components/charts';
+import { CHART_COLORS } from '../../../constants';
 
-const BARS_PATINETES = [{ key: 'totalPatinetes', name: 'Total Patinetes', color: '#06b6d4' }];
+const BARS_PATINETES = [{ key: 'totalPatinetes', name: 'Total Patinetes', color: CHART_COLORS.primary }];
 
 const EstadisticasMercadoPatinetes = memo(function EstadisticasMercadoPatinetes({
   datosGrafico,

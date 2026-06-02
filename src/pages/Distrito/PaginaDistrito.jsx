@@ -19,7 +19,7 @@
  *     estables, asi un loading parcial no re-renderiza los demas.
  */
 
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
@@ -56,6 +56,11 @@ const CENTROIDES_DISTRITOS = {
 function PaginaDistrito() {
   const { codigo } = useParams();
   const { aplicarDistrito } = useFiltroGeo();
+
+  // El conteo de multas se calcula dentro de MapaMultasDistrito (segun el bbox);
+  // lo recibimos por callback para alimentar la tarjeta KPI "Multas en zona".
+  const [multasEstado, setMultasEstado] = useState({ total: 0, isLoading: true });
+  const manejarEstadoMultas = useCallback((estado) => setMultasEstado(estado), []);
 
   // Hook helper que resuelve codigo a {codigo, nombre, totalPoblacion}
   const {
@@ -189,10 +194,10 @@ function PaginaDistrito() {
         totalPoblacion={distrito?.totalPoblacion}
         totalAccidentes={accidentesEnDistrito}
         totalPatinetes={totalPatinetes}
-        totalMultasEnZona={null /* se calcula dentro de MapaMultasDistrito */}
+        totalMultasEnZona={multasEstado.total}
         cargandoAccidentes={cargandoAccidentes}
         cargandoPatinetes={cargandoPatinetes}
-        cargandoMultas={false}
+        cargandoMultas={multasEstado.isLoading}
       />
 
       <GraficoComparativaDistrito
@@ -213,6 +218,7 @@ function PaginaDistrito() {
           codigo={codigoNumerico}
           nombreDistrito={nombreDistrito}
           centroide={centroide}
+          onEstadoCambio={manejarEstadoMultas}
         />
       )}
 

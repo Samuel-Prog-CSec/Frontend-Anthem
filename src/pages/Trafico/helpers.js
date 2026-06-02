@@ -8,7 +8,8 @@ import {
   CONGESTION_LEVELS,
   CONGESTION_LEVEL_LABELS,
   CONGESTION_LEVEL_COLORS,
-  TRAFICO_MAPA_MAX_DIAS
+  TRAFICO_MAPA_MAX_DIAS,
+  DATE_CONFIG
 } from '../../constants';
 
 /** Options para Select de tipoElemento (URB | M30) */
@@ -79,6 +80,13 @@ export function validarRangoMapa(startDate, endDate) {
   const hasta = new Date(endDate);
   if (isNaN(desde.getTime()) || isNaN(hasta.getTime())) {
     return { valido: false, error: 'Fechas no validas.' };
+  }
+  // El dataset es de un unico año (2051). Aunque los inputs llevan min/max,
+  // algunos navegadores permiten teclear fuera de rango: bloqueamos aqui para
+  // no lanzar queries que devolverian cero.
+  const anioDataset = DATE_CONFIG.DATASET_YEAR;
+  if (desde.getUTCFullYear() !== anioDataset || hasta.getUTCFullYear() !== anioDataset) {
+    return { valido: false, error: `Las fechas deben estar dentro de ${anioDataset}.` };
   }
   if (desde > hasta) {
     return { valido: false, error: 'La fecha de inicio debe ser anterior o igual a la de fin.' };

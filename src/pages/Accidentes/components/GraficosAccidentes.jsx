@@ -5,8 +5,9 @@
 
 import { memo } from 'react';
 import { BarChartCard, PieChartCard } from '../../../components/charts';
+import { CHART_COLORS } from '../../../constants';
 
-const BARS_TOP_DISTRITOS = [{ key: 'totalAccidentes', name: 'Total accidentes', color: '#ef4444' }];
+const BARS_TOP_DISTRITOS = [{ key: 'totalAccidentes', name: 'Total accidentes', color: CHART_COLORS.danger }];
 
 const GraficosAccidentes = memo(function GraficosAccidentes({
   datosGrafico,

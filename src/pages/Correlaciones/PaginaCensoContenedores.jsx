@@ -21,7 +21,7 @@ import {
 import { StatCard } from '../../components/charts';
 import { BarChartCard } from '../../components/charts/Charts';
 import { useCensoResumenDistritos, useContenedoresPorDistrito } from '../../api/hooks';
-import { ROUTES, DATE_CONFIG } from '../../constants';
+import { ROUTES, DATE_CONFIG, CHART_COLORS } from '../../constants';
 import { formatNumber, formatearNombreDistrito } from '../../utils';
 
 function clasificarCobertura(ratio, media) {
@@ -161,10 +161,10 @@ function PaginaCensoContenedores() {
         title="Ranking de cobertura por distrito (contenedores / 1.000 habitantes)"
         data={datosGrafico}
         xKey="name"
-        bars={[{ key: 'ratio', name: 'Cobertura', color: '#10b981' }]}
+        bars={[{ key: 'ratio', name: 'Cobertura', color: CHART_COLORS.secondary }]}
         height={360}
         isLoading={cargando}
-        referenceLines={mediaRatio > 0 ? [{ y: Number(mediaRatio.toFixed(2)), label: 'Media', color: '#06b6d4' }] : []}
+        referenceLines={mediaRatio > 0 ? [{ y: Number(mediaRatio.toFixed(2)), label: 'Media', color: CHART_COLORS.primary }] : []}
       />
 
       <Card className="mt-6">
@@ -199,7 +199,7 @@ function PaginaCensoContenedores() {
               <TableBody>
                 {filasOrdenadas.map(f => (
                   <TableRow key={f.distrito}>
-                    <TableCell className="font-medium text-cyan-400">{formatearNombreDistrito(f.distrito)}</TableCell>
+                    <TableCell className="font-medium text-info">{formatearNombreDistrito(f.distrito)}</TableCell>
                     <TableCell className="text-right font-mono">{formatNumber(f.poblacion)}</TableCell>
                     <TableCell className="text-right font-mono">{formatNumber(f.totalContenedores)}</TableCell>
                     <TableCell className="text-right font-mono text-foreground">{formatNumber(f.ratio, 2)}</TableCell>

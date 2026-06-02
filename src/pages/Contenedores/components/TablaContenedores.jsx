@@ -74,7 +74,7 @@ const TablaContenedores = memo(function TablaContenedores({
                         {c.direccion?.completa || c.direccion?.nombre || '-'}
                       </span>
                     </TableCell>
-                    <TableCell className="text-cyan-400 font-medium">
+                    <TableCell className="text-info font-medium">
                       {formatearNombreDistrito(c.distrito)}
                     </TableCell>
                     <TableCell className="text-muted-foreground">

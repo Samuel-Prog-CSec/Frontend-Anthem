@@ -23,7 +23,7 @@ function PanelDetalleDistrito({ detalle, onCerrar }) {
   const nombre = detalle.distrito || `Distrito ${detalle.codigoDistrito}`;
 
   return (
-    <Card className="mb-6 border-cyan-500/30">
+    <Card className="mb-6 border-[var(--border-emphasis)]">
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
           <CardTitle className="text-base">Detalle: {nombre}</CardTitle>

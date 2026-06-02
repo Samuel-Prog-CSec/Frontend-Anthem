@@ -19,10 +19,11 @@ import { useSincronizarFiltroGeo } from '../../context';
 import {
   useAccidentes, useAccidentesComparativa,
   useAccidentesEstadisticas, useAccidenteExpediente,
-  useAccidentesMapaCalor, useMapaAccidentes
+  useMapaAccidentes
 } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
-import { formatNumber } from '../../utils';
+import { formatNumber, formatearNombreDistrito } from '../../utils';
+import { etiquetaTipoAccidente } from './helpers';
 import {
   TarjetasEstadisticasAccidentes,
   MapaCalorAccidentes,
@@ -34,7 +35,6 @@ import {
 } from './components';
 
 const FILTROS_INICIALES = { distrito: '', tipoAccidente: '', gravedad: '', mes: '' };
-const PARAMS_HEATMAP_FIJOS = { limite: 300, precision: 100 };
 // El validator del backend (MAP_LIMITS.DEFAULT_MAX) cappea /accidentes/mapa
 // a 1000 registros por seguridad (cada feature carga geometria + props).
 // Si esto cambia en el backend, sincronizar aqui.
@@ -90,8 +90,6 @@ function PaginaAccidentes() {
     startDate: `${DATE_CONFIG.DATASET_YEAR}-01-01`,
     endDate: `${DATE_CONFIG.DATASET_YEAR}-12-31`
   });
-  const { data: heatmapResult } = useAccidentesMapaCalor(PARAMS_HEATMAP_FIJOS);
-
   // FeatureCollection GeoJSON para heatmap Leaflet.
   // Se pasan los filtros activos de distrito/gravedad/tipoAccidente.
   const parametrosMapa = useMemo(() => {
@@ -129,14 +127,13 @@ function PaginaAccidentes() {
   }, [statsResult?.data]);
   const error = mainError?.message || null;
 
-  // Procesar zonas de accidentalidad del mapa de calor (top 10)
+  // Top calles con mas accidentes (puntos negros). Vienen ya agregadas por
+  // expediente (accidentes reales, no afectados) y ordenadas desde el backend
+  // dentro de las estadisticas generales.
   const zonasAccidentalidad = useMemo(() => {
-    const rawData = heatmapResult?.data?.data || heatmapResult?.data || [];
-    if (!Array.isArray(rawData)) return [];
-    return [...rawData]
-      .sort((a, b) => b.totalAccidentes - a.totalAccidentes)
-      .slice(0, 10);
-  }, [heatmapResult]);
+    const raw = estadisticasGenerales?.puntosNegros;
+    return Array.isArray(raw) ? raw : [];
+  }, [estadisticasGenerales]);
 
   const expedienteSeleccionado = expedienteQuery ? (expedienteResult?.data || null) : null;
 
@@ -173,6 +170,7 @@ function PaginaAccidentes() {
   const estadisticas = useMemo(() => {
     if (datos.length === 0) {
       return {
+        totalAccidentes: paginacionActual.totalElementos,
         totalPersonasAfectadas: paginacionActual.totalElementos,
         accidentesGraves: 0,
         accidentesMortales: 0,
@@ -194,6 +192,7 @@ function PaginaAccidentes() {
     ).length;
 
     return {
+      totalAccidentes: paginacionActual.totalElementos,
       totalPersonasAfectadas: paginacionActual.totalElementos,
       accidentesGraves,
       accidentesMortales,
@@ -207,7 +206,7 @@ function PaginaAccidentes() {
       .sort((a, b) => (b.totalAccidentes || 0) - (a.totalAccidentes || 0))
       .slice(0, 10)
       .map(d => ({
-        distrito: d._id,
+        distrito: formatearNombreDistrito(d._id),
         totalAccidentes: d.totalAccidentes || 0
       }));
   }, [datosDistritos]);
@@ -221,7 +220,7 @@ function PaginaAccidentes() {
 
     if (distribucionTipos && Array.isArray(distribucionTipos)) {
       return distribucionTipos
-        .map(item => ({ name: item._id || item.tipo, value: item.total || item.count || 0 }))
+        .map(item => ({ name: etiquetaTipoAccidente(item._id || item.tipo), value: item.total || item.count || 0 }))
         .sort((a, b) => b.value - a.value);
     }
 
@@ -233,13 +232,15 @@ function PaginaAccidentes() {
       conteosPorTipo[tipo] = (conteosPorTipo[tipo] || 0) + 1;
     });
     return Object.entries(conteosPorTipo)
-      .map(([name, value]) => ({ name, value }))
+      .map(([name, value]) => ({ name: etiquetaTipoAccidente(name), value }))
       .sort((a, b) => b.value - a.value);
   }, [estadisticasGenerales, datos]);
 
-  // Opciones de distrito derivadas de datosDistritos
+  // Opciones de distrito derivadas de datosDistritos. El value se mantiene
+  // como viene del backend (lo usa el filtro para casar); solo la etiqueta
+  // se normaliza para no mostrar el nombre en mayusculas crudas.
   const opcionesDistrito = useMemo(() =>
-    datosDistritos.map(d => ({ value: d._id, label: d._id })),
+    datosDistritos.map(d => ({ value: d._id, label: formatearNombreDistrito(d._id) })),
   [datosDistritos]);
 
   return (

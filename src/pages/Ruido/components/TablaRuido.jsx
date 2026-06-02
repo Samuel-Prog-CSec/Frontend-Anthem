@@ -54,19 +54,19 @@ const TablaRuido = memo(function TablaRuido({
                   <TableHead>Estacion</TableHead>
                   <TableHead className="text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <Sun className="size-4 text-amber-400" />
+                      <Sun className="size-4 text-muted-foreground" />
                       Diurno
                     </div>
                   </TableHead>
                   <TableHead className="text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <Sunset className="size-4 text-orange-400" />
+                      <Sunset className="size-4 text-muted-foreground" />
                       Vespertino
                     </div>
                   </TableHead>
                   <TableHead className="text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <Moon className="size-4 text-purple-400" />
+                      <Moon className="size-4 text-muted-foreground" />
                       Nocturno
                     </div>
                   </TableHead>
@@ -82,7 +82,7 @@ const TablaRuido = memo(function TablaRuido({
                     <TableCell>
                       <div>
                         <p className="font-medium">{record.nombre || '-'}</p>
-                        <p className="text-xs text-foreground0">NMT {record.nmt}</p>
+                        <p className="text-xs text-muted-foreground">NMT {record.nmt}</p>
                       </div>
                     </TableCell>
                     <TableCell className="text-center">

@@ -69,7 +69,7 @@ const TablaPatinetes = memo(function TablaPatinetes({
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
                     onClick={() => onClickArea(item.distrito?.nombre, item.barrio?.nombre)}
                   >
-                    <TableCell className="font-medium text-cyan-400">
+                    <TableCell className="font-medium text-info">
                       {item.distrito?.nombre}
                     </TableCell>
                     <TableCell>

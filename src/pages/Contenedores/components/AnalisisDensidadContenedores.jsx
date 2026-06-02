@@ -88,7 +88,7 @@ const AnalisisDensidadContenedores = memo(function AnalisisDensidadContenedores(
                 const tipos = Object.keys(distribucion);
                 return (
                   <TableRow key={`${fila.distrito}-${fila.barrio || idx}`}>
-                    <TableCell className="font-medium text-cyan-400">
+                    <TableCell className="font-medium text-info">
                       {formatearNombreDistrito(fila.distrito)}
                     </TableCell>
                     <TableCell className="text-muted-foreground">

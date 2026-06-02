@@ -56,7 +56,7 @@ function EstadisticasMultas({
         />
         <StatCard
           title="% Graves + muy graves"
-          value={porcentajeGraves ? `${Number(porcentajeGraves).toFixed(1)}%` : '-'}
+          value={Number.isFinite(Number(porcentajeGraves)) ? `${Number(porcentajeGraves).toFixed(1)}%` : '-'}
           icon={ShieldAlert}
           accent="rose"
           isLoading={isLoading}
@@ -64,10 +64,10 @@ function EstadisticasMultas({
       </div>
 
       {distritoFiltrado ? (
-        <Card className="mb-6 border-amber-500/20">
+        <Card className="mb-6 border-warning/20 bg-warning/5">
           <CardContent className="py-3">
             <div className="flex items-start gap-3">
-              <Info className="size-4 text-amber-400 mt-0.5 flex-shrink-0" aria-hidden="true" />
+              <Info className="size-4 text-warning mt-0.5 flex-shrink-0" aria-hidden="true" />
               <p className="text-sm text-muted-foreground">
                 El dataset de multas no incluye distrito normalizado, asi que el
                 total y la metrica per capita siguen siendo de toda Anthem
@@ -78,13 +78,13 @@ function EstadisticasMultas({
           </CardContent>
         </Card>
       ) : multasPerCapita ? (
-        <Card className="mb-6 border-cyan-500/20">
+        <Card className="mb-6 border-[var(--border-emphasis)]">
           <CardContent className="py-3">
             <div className="flex items-center justify-between gap-4">
               <span className="text-sm text-muted-foreground">
                 Multas por cada 1.000 habitantes (Anthem 2051 entero, censo del ultimo mes)
               </span>
-              <span className="font-display text-lg font-bold text-cyan-400 tabular-nums">
+              <span className="font-display text-lg font-bold text-foreground tabular-nums">
                 {multasPerCapita}
               </span>
             </div>
