@@ -352,17 +352,20 @@ export const CHART_LIMITS = {
  * interfaz. Si se anaden nuevos colores aqui, mantener el mismo orden
  * (primary -> muted) y documentar su uso semantico.
  */
+// Paleta de graficos derivada de los tokens de la consola (index.css), no de
+// colores Tailwind genericos. Recharts necesita valores resueltos (no var()),
+// asi que se replican los hex de los tokens semanticos y de dominio.
 export const CHART_COLORS = {
-  primary: '#06b6d4',    // Cyan      - serie principal / metrica destacada
-  secondary: '#10b981',  // Emerald   - serie secundaria / valor positivo
-  tertiary: '#8b5cf6',   // Violeta   - serie terciaria / categoria adicional
-  quaternary: '#f59e0b', // Amber     - serie cuaternaria / advertencia leve
-  danger: '#ef4444',     // Rojo      - alerta / excedido / valor maximo
-  muted: '#64748b',      // Gris azul - serie auxiliar / baseline
-  accent: '#a855f7',     // Magenta   - resaltado especial / metrica social
-  warning: '#f97316',    // Naranja   - intermedio entre amber y danger
-  contrast: '#0f172a',   // Slate 950 - texto/lineas sobre fondo claro
-  deep: '#7c2d12'        // Marron oscuro - severidad maxima (trafico colapsado)
+  primary: '#5a8fd4',    // info       - serie principal / telemetria
+  secondary: '#3aa771',  // ok         - serie secundaria / valor positivo
+  tertiary: '#d4a14d',   // caution    - serie terciaria / ambar
+  quaternary: '#a8be2c', // signal-dim - acento amarillo atenuado
+  danger: '#d44d3a',     // alert      - alerta / excedido / valor maximo
+  muted: '#8c9197',      // ink-tertiary - serie auxiliar / baseline
+  accent: '#a44dd4',     // air-very-unhealthy - resaltado (violeta de dominio)
+  warning: '#d47a3a',    // air-unhealthy-sensitive - naranja intermedio
+  contrast: '#e8e8e3',   // ink-text   - texto/lineas sobre fondo oscuro
+  deep: '#7a2424'        // air-hazardous - severidad maxima
 };
 
 // ========================================
@@ -385,11 +388,11 @@ export const DATE_CONFIG = {
 
 export const UI_MESSAGES = {
   LOADING: 'Cargando...',
-  ERROR_GENERIC: 'Ha ocurrido un error. Por favor, intente de nuevo.',
-  ERROR_NETWORK: 'Error de conexion. Verifique su conexion a internet.',
-  ERROR_AUTH: 'Sesion expirada. Por favor, inicie sesion nuevamente.',
+  ERROR_GENERIC: 'No se pudo completar la operacion. Reintenta en unos instantes.',
+  ERROR_NETWORK: 'Sin conexion con el servidor. Revisa tu red e intentalo de nuevo.',
+  ERROR_AUTH: 'Tu sesion ha caducado. Inicia sesion de nuevo para continuar.',
   NO_DATA: 'No hay datos disponibles.',
-  EMPTY_RESULTS: 'No se encontraron resultados.'
+  EMPTY_RESULTS: 'No se encontraron resultados con los filtros aplicados.'
 };
 
 // ========================================

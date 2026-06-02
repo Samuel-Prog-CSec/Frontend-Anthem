@@ -19,7 +19,7 @@ import { cn } from '../../utils';
 /**
  * Contenedor principal de la tarjeta
  */
-const Card = memo(forwardRef(({ className, hover = false, glow: _glow = false, ...props }, ref) => (
+const Card = memo(forwardRef(({ className, hover = false, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
@@ -29,7 +29,6 @@ const Card = memo(forwardRef(({ className, hover = false, glow: _glow = false, .
       'rounded-lg border border-[var(--border-hairline)] bg-card text-card-foreground',
       'transition-colors duration-150',
       hover && 'hover:border-[var(--border-emphasis)]',
-      // glow es no-op en el nuevo sistema (queda por compat de API)
       className
     )}
     {...props}

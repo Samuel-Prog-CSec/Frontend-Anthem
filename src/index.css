@@ -415,3 +415,65 @@ a:hover {
 .animate-slide-up {
   animation: fadeIn 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* =====================================================================
+   LEAFLET - Tematizado para la consola (popups y controles oscuros)
+   ---------------------------------------------------------------------
+   Por defecto Leaflet pinta popups y controles en blanco, lo que rompe
+   la estetica oscura y deja ilegibles los textos con tokens semanticos
+   (muted-foreground sobre blanco). Los alineamos con las superficies del
+   tema para que mapas y UI sean coherentes.
+   ===================================================================== */
+
+.leaflet-container {
+  font-family: var(--font-sans);
+  background: var(--surface-inset);
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--surface-raised);
+  color: var(--ink-text);
+  border: 1px solid var(--border-emphasis);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+
+.leaflet-popup-content {
+  color: var(--ink-text);
+  margin: 10px 12px;
+}
+
+.leaflet-popup-content a {
+  color: var(--signal);
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: var(--ink-tertiary);
+}
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: var(--ink-text);
+  background: transparent;
+}
+
+/* Controles de zoom y atribucion */
+.leaflet-bar a,
+.leaflet-bar a:hover {
+  background: var(--surface-raised);
+  color: var(--ink-text);
+  border-bottom-color: var(--border-emphasis);
+}
+.leaflet-bar a:hover {
+  background: var(--surface-hover);
+}
+
+.leaflet-control-attribution {
+  background: color-mix(in oklab, var(--surface) 80%, transparent) !important;
+  color: var(--ink-tertiary);
+}
+.leaflet-control-attribution a {
+  color: var(--ink-secondary);
+}

@@ -82,7 +82,7 @@ function programarRefreshAnticipado(token) {
       refreshTimerId = null;
       refrescarAccessTokenSilencioso();
     }, delayMs);
-  } catch (_err) {
+  } catch {
     // Token malformado: el backend rechazara la primera request con 401 y se
     // activara el flujo reactivo de refresh. No es necesario hacer nada aqui.
   }
@@ -103,7 +103,7 @@ async function refrescarAccessTokenSilencioso() {
     if (nuevoToken) {
       setAuthTokens(nuevoToken);
     }
-  } catch (_err) {
+  } catch {
     // Si falla (red caida, refresh expirado, etc.), el siguiente request
     // recibira 401 y el interceptor reactivo se encargara. No spammear logs.
   }

@@ -30,6 +30,17 @@ import {
 import { Card, CardHeader, CardTitle, CardContent, Skeleton } from '../common';
 import { CHART_COLORS } from '../../constants';
 
+// Tema de los ejes/grid de Recharts derivado de los tokens de la consola.
+// Recharts pinta estos colores como atributos SVG (stroke/fill), que NO
+// resuelven var(--token) de forma fiable, asi que usamos los valores resueltos
+// equivalentes a --border-hairline / --border-emphasis / --ink-tertiary / --alert.
+const CHART_THEME = {
+  grid: 'rgba(232, 232, 227, 0.08)',
+  axis: 'rgba(232, 232, 227, 0.16)',
+  tick: '#8c9197',
+  reference: '#d44d3a'
+};
+
 // Alturas pseudoaleatorias estables para barras de placeholder.
 // Evita Math.random() en render (impuro segun React Compiler)
 const ALTURAS_PLACEHOLDER_BARRAS = [45, 72, 38, 85, 60, 50, 78, 42];
@@ -70,10 +81,10 @@ const CustomTooltip = memo(function CustomTooltip({ active, payload, label }) {
   if (!active || !payload) return null;
 
   return (
-    <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
+    <div className="bg-popover border border-[var(--border-emphasis)] rounded-md p-3">
       <p className="text-sm font-medium text-foreground mb-2">{label}</p>
       {payload.map((entry, index) => (
-        <p key={index} className="text-sm" style={{ color: entry.color }}>
+        <p key={index} className="text-sm font-mono tabular-nums" style={{ color: entry.color }}>
           {entry.name}: {entry.value}
         </p>
       ))}
@@ -109,15 +120,15 @@ const LineChartCard = memo(function LineChartCard({ data, xKey, lines, title, he
         >
         <ResponsiveContainer width="100%" height={height}>
           <RechartsLineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.grid} />
             <XAxis
               dataKey={xKey}
-              stroke="#64748b"
-              tick={{ fill: '#94a3b8', fontSize: 12 }}
+              stroke={CHART_THEME.axis}
+              tick={{ fill: CHART_THEME.tick, fontSize: 12 }}
             />
             <YAxis
-              stroke="#64748b"
-              tick={{ fill: '#94a3b8', fontSize: 12 }}
+              stroke={CHART_THEME.axis}
+              tick={{ fill: CHART_THEME.tick, fontSize: 12 }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
@@ -128,8 +139,8 @@ const LineChartCard = memo(function LineChartCard({ data, xKey, lines, title, he
               <ReferenceLine
                 key={`ref-line-${index}`}
                 y={ref.y}
-                label={{ value: ref.label, position: 'right', fill: ref.color || '#ef4444', fontSize: 11 }}
-                stroke={ref.color || '#ef4444'}
+                label={{ value: ref.label, position: 'right', fill: ref.color || CHART_THEME.reference, fontSize: 11 }}
+                stroke={ref.color || CHART_THEME.reference}
                 strokeDasharray="5 5"
                 strokeWidth={1.5}
               />
@@ -181,15 +192,15 @@ const BarChartCard = memo(function BarChartCard({ data, xKey, bars, title, heigh
         >
         <ResponsiveContainer width="100%" height={height}>
           <RechartsBarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.grid} />
             <XAxis
               dataKey={xKey}
-              stroke="#64748b"
-              tick={{ fill: '#94a3b8', fontSize: 12 }}
+              stroke={CHART_THEME.axis}
+              tick={{ fill: CHART_THEME.tick, fontSize: 12 }}
             />
             <YAxis
-              stroke="#64748b"
-              tick={{ fill: '#94a3b8', fontSize: 12 }}
+              stroke={CHART_THEME.axis}
+              tick={{ fill: CHART_THEME.tick, fontSize: 12 }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
@@ -200,21 +211,30 @@ const BarChartCard = memo(function BarChartCard({ data, xKey, bars, title, heigh
               <ReferenceLine
                 key={`ref-bar-${index}`}
                 y={ref.y}
-                label={{ value: ref.label, position: 'right', fill: ref.color || '#ef4444', fontSize: 11 }}
-                stroke={ref.color || '#ef4444'}
+                label={{ value: ref.label, position: 'right', fill: ref.color || CHART_THEME.reference, fontSize: 11 }}
+                stroke={ref.color || CHART_THEME.reference}
                 strokeDasharray="5 5"
                 strokeWidth={1.5}
               />
             ))}
-            {bars.map((bar, index) => (
-              <Bar
-                key={bar.key}
-                dataKey={bar.key}
-                name={bar.name}
-                fill={bar.color || Object.values(CHART_COLORS)[index]}
-                radius={[4, 4, 0, 0]}
-              />
-            ))}
+            {bars.map((bar, index) => {
+              const fillBase = bar.color || Object.values(CHART_COLORS)[index];
+              return (
+                <Bar
+                  key={bar.key}
+                  dataKey={bar.key}
+                  name={bar.name}
+                  fill={fillBase}
+                  radius={[4, 4, 0, 0]}
+                >
+                  {/* Color por dato: si la barra declara `colorByDatum`, cada
+                      entrada usa su propio `barColor` (p.ej. resaltar un item). */}
+                  {bar.colorByDatum && data.map((entry, i) => (
+                    <Cell key={`cell-${bar.key}-${i}`} fill={entry.barColor || fillBase} />
+                  ))}
+                </Bar>
+              );
+            })}
           </RechartsBarChart>
         </ResponsiveContainer>
         </div>

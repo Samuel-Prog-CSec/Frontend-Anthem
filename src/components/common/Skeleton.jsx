@@ -72,7 +72,7 @@ const StatsSkeleton = memo(function StatsSkeleton({ count = 4 }) {
       aria-label="Cargando estadisticas"
     >
       {Array.from({ length: count }).map((_, i) => (
-        <div key={`stat-${i}`} className="p-4 rounded-lg border border-border/60 bg-card/50">
+        <div key={`stat-${i}`} className="p-4 rounded-lg border border-border bg-card">
           <Skeleton className="h-3 w-20 mb-3" />
           <Skeleton className="h-7 w-16 mb-2" />
           <Skeleton className="h-3 w-24" />
@@ -90,7 +90,7 @@ const StatsSkeleton = memo(function StatsSkeleton({ count = 4 }) {
 const CardSkeleton = memo(function CardSkeleton({ lines = 3 }) {
   return (
     <div
-      className="p-6 rounded-2xl border border-border/60 bg-card/50"
+      className="p-6 rounded-lg border border-border bg-card"
       role="status"
       aria-live="polite"
       aria-label="Cargando contenido"
@@ -116,7 +116,7 @@ const ALTURAS_BARRAS_CHART = [42, 78, 55, 88, 36, 72, 60, 48];
 const ChartSkeleton = memo(function ChartSkeleton({ height = 320 }) {
   return (
     <div
-      className="p-6 rounded-2xl border border-border/60 bg-card/50"
+      className="p-6 rounded-lg border border-border bg-card"
       style={{ minHeight: height }}
       role="status"
       aria-live="polite"

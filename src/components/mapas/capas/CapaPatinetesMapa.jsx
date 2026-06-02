@@ -55,7 +55,7 @@ const CapaPatinetesMapa = memo(function CapaPatinetesMapa({ params }) {
         )}
         {props.topProveedores?.length > 0 && (
           <div className="mt-1">
-            <div className="text-xs text-foreground0">Top proveedores:</div>
+            <div className="text-xs text-muted-foreground">Top proveedores:</div>
             {props.topProveedores.slice(0, 3).map((p, i) => (
               <div key={i} className="text-xs">{p.nombre}: {formatNumber(p.cantidad)}</div>
             ))}
@@ -64,7 +64,7 @@ const CapaPatinetesMapa = memo(function CapaPatinetesMapa({ params }) {
         {distritoCanon && (
           <Link
             to={ROUTES.DISTRITO_PATH(distritoCanon.codigo)}
-            className="inline-flex items-center gap-1 mt-2 text-cyan-600 hover:text-cyan-500 underline text-xs font-medium"
+            className="inline-flex items-center gap-1 mt-2 text-primary hover:opacity-80 underline text-xs font-medium"
             title={`Ver perfil cross-domain de ${distritoCanon.nombre}`}
           >
             Ver perfil del distrito

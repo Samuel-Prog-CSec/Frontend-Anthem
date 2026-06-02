@@ -25,14 +25,14 @@ import { cn } from '../../utils';
  * @param {string} [props.trendValue] - Valor de la tendencia
  * @param {boolean} [props.isLoading] - Mostrar skeleton de carga
  * @param {string} [props.className] - Clases adicionales
- * @param {'cyan'|'emerald'|'amber'|'violet'|'rose'} [props.accent='cyan'] - Color del acento lateral e icono
+ * @param {'cyan'|'emerald'|'amber'|'violet'|'rose'} [props.accent='cyan'] - Acento lateral e icono. Las claves se mantienen por compatibilidad pero se mapean a tokens semanticos del tema (no a colores Tailwind crudos) para respetar la paleta de la consola.
  */
 const ACENTOS = {
-  cyan: { line: 'bg-cyan-500', iconBg: 'bg-cyan-500/10', iconColor: 'text-cyan-400' },
-  emerald: { line: 'bg-emerald-500', iconBg: 'bg-emerald-500/10', iconColor: 'text-emerald-400' },
-  amber: { line: 'bg-amber-500', iconBg: 'bg-amber-500/10', iconColor: 'text-amber-400' },
-  violet: { line: 'bg-violet-500', iconBg: 'bg-violet-500/10', iconColor: 'text-violet-400' },
-  rose: { line: 'bg-rose-500', iconBg: 'bg-rose-500/10', iconColor: 'text-rose-400' }
+  cyan: { line: 'bg-info', iconBg: 'bg-info/10', iconColor: 'text-info' },
+  emerald: { line: 'bg-success', iconBg: 'bg-success/10', iconColor: 'text-success' },
+  amber: { line: 'bg-warning', iconBg: 'bg-warning/10', iconColor: 'text-warning' },
+  violet: { line: 'bg-primary', iconBg: 'bg-primary/10', iconColor: 'text-primary' },
+  rose: { line: 'bg-destructive', iconBg: 'bg-destructive/10', iconColor: 'text-destructive' }
 };
 
 function StatCard({
@@ -60,7 +60,7 @@ function StatCard({
   }
 
   const trendColors = {
-    up: 'text-emerald-400',
+    up: 'text-success',
     down: 'text-destructive',
     neutral: 'text-muted-foreground'
   };

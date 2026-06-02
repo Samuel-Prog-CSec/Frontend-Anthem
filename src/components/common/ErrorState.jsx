@@ -18,8 +18,8 @@ import { cn } from '../../utils';
  * @param {string} [props.className] - Clases adicionales
  */
 const ErrorState = memo(function ErrorState({
-  title = 'Error',
-  message = 'Ha ocurrido un error al cargar los datos.',
+  title = 'No se pudieron cargar los datos',
+  message = 'Reintenta la consulta; si el problema persiste, vuelve a intentarlo en unos minutos.',
   onRetry,
   className
 }) {

@@ -62,11 +62,13 @@ const Select = memo(forwardRef(function Select({
         name={name}
         aria-label={ariaLabel}
         className={cn(
-          'flex h-10 w-full items-center justify-between rounded-md border border-border bg-input/60 px-3 py-2 text-sm text-foreground',
-          'placeholder:text-muted-foreground',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+          // Alineado con Input: radio pequeno, superficie inset solida, foco por
+          // cambio de borde a signal (sin ring), hover a borde de enfasis.
+          'flex h-10 w-full items-center justify-between rounded-sm border border-[var(--border-hairline)] bg-[var(--surface-inset)] px-3 py-2 text-sm text-foreground',
+          'placeholder:text-muted-foreground transition-colors duration-150',
+          'focus:outline-none focus:border-[var(--signal)]',
           'disabled:cursor-not-allowed disabled:opacity-50',
-          'hover:border-muted-foreground/40 transition-colors',
+          'hover:border-[var(--border-emphasis)]',
           'data-[placeholder]:text-muted-foreground',
           className
         )}
@@ -80,11 +82,8 @@ const Select = memo(forwardRef(function Select({
       <SelectPrimitive.Portal>
         <SelectPrimitive.Content
           className={cn(
-            'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-border bg-card text-foreground shadow-md',
-            'data-[state=open]:animate-in data-[state=closed]:animate-out',
-            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-            'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-            'data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2'
+            // borders-only: borde de enfasis en vez de sombra; superficie popover.
+            'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-[var(--border-emphasis)] bg-popover text-foreground'
           )}
           position="popper"
           sideOffset={4}
@@ -100,7 +99,7 @@ const Select = memo(forwardRef(function Select({
                 value={option.value === undefined || option.value === null ? '' : String(option.value)}
                 className={cn(
                   'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none',
-                  'focus:bg-muted focus:text-foreground',
+                  'focus:bg-[var(--surface-hover)] focus:text-foreground data-[highlighted]:bg-[var(--surface-hover)]',
                   'data-[disabled]:pointer-events-none data-[disabled]:opacity-50'
                 )}
                 disabled={option.disabled}

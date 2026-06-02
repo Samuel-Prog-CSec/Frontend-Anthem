@@ -252,6 +252,27 @@ export function capitalize(str) {
 }
 
 /**
+ * Convierte un enum del backend en una etiqueta legible para la UI.
+ *
+ * Los enums llegan en mayusculas con guion bajo como separador
+ * (p.ej. "MOTOCICLETA_HASTA_125CC", "COLISION_FRONTO-LATERAL"). Esta
+ * funcion sustituye los guiones bajos por espacios y deja solo la inicial
+ * en mayuscula, preservando tildes. Para enums con catalogo curado
+ * (tipos de accidente) usar el helper especifico de la pagina; esta es la
+ * version generica para columnas sin catalogo (tipo de vehiculo, etc.).
+ *
+ * @param {string|null|undefined} valor - Valor enum tal cual llega del backend
+ * @param {string} [vacio] - Texto a devolver cuando el valor es nulo o vacio
+ * @returns {string} Etiqueta legible
+ */
+export function formatearEtiquetaEnum(valor, vacio = '-') {
+  if (!valor || typeof valor !== 'string') return vacio;
+  const limpio = valor.replace(/_/g, ' ').toLowerCase().trim();
+  if (!limpio) return vacio;
+  return limpio.charAt(0).toUpperCase() + limpio.slice(1);
+}
+
+/**
  * Trunca un texto a una longitud maxima
  * @param {string} text - Texto a truncar
  * @param {number} maxLength - Longitud maxima
