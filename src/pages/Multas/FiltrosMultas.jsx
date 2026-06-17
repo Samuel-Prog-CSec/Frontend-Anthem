@@ -1,8 +1,12 @@
 /**
  * Sub-componente FiltrosMultas
  *
- * Card de filtros (calificacion, denunciante, mes, descuento) con
- * botones de limpiar y refrescar en la cabecera.
+ * Card de filtros (calificacion, denunciante, mes) con botones de limpiar y
+ * refrescar en la cabecera.
+ *
+ * Nota: el filtro "descuento" se retiro porque en el dataset la columna
+ * DESCUENTO es constante ("SI" en las 1.993.304 multas), de modo que el
+ * control no podia discriminar nada (filtro placebo a nivel de dato).
  */
 
 import { Filter, RefreshCw, X } from 'lucide-react';
@@ -11,7 +15,7 @@ import {
   Button, Select
 } from '../../components/common';
 import {
-  opcionesCalificacion, opcionesDenunciante, opcionesMes, opcionesDescuento
+  opcionesCalificacion, opcionesDenunciante, opcionesMes
 } from './opcionesFiltros';
 
 function FiltrosMultas({
@@ -40,7 +44,7 @@ function FiltrosMultas({
               variant="ghost"
               size="sm"
               onClick={onRefrescar}
-              aria-label="Refrescar datos"
+              aria-label="Recargar datos"
             >
               <RefreshCw className="size-4" aria-hidden="true" />
             </Button>
@@ -48,7 +52,7 @@ function FiltrosMultas({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           <Select
             options={opcionesCalificacion}
             value={filtros.calificacion}
@@ -66,12 +70,6 @@ function FiltrosMultas({
             value={filtros.mes}
             onChange={(e) => onCambioFiltro('mes', e.target.value)}
             placeholder="Todos los meses"
-          />
-          <Select
-            options={opcionesDescuento}
-            value={filtros.tieneDescuento}
-            onChange={(e) => onCambioFiltro('tieneDescuento', e.target.value)}
-            placeholder="Descuento: todos"
           />
         </div>
       </CardContent>

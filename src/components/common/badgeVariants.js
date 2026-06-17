@@ -4,10 +4,11 @@
  * Aislado del componente Badge.jsx para que ese archivo solo exporte
  * componentes (requisito de react-refresh para HMR fiable).
  *
- * Direccion estetica "Civic Operations Console":
- * - Mono uppercase tracking-wide: lectura tipo etiqueta de operacion.
- * - Sin fondo translucido + borde; superficie opaca + borde fino.
- * - Radius cero o muy pequeno: la etiqueta es marca, no pildora.
+ * Direccion "Atlas Civico":
+ * - Sans, sentence case (no mono-uppercase: eso era la marca del tell).
+ * - Fondo tenue del color + borde sutil + texto del color: doble canal.
+ * - Las variantes de ESTADO ademas llevan un punto (forma) via Badge.jsx,
+ *   para no depender solo del color (WCAG 1.4.1).
  */
 
 import { cva } from 'class-variance-authority';
@@ -15,22 +16,23 @@ import { cva } from 'class-variance-authority';
 export const badgeVariants = cva(
   [
     'inline-flex items-center gap-1.5',
-    'px-2 py-0.5 rounded-sm',
-    'font-mono text-[10px] font-medium uppercase tracking-[0.1em]',
+    'px-2 py-0.5 rounded-md',
+    'text-xs font-medium leading-tight',
     'border'
   ].join(' '),
   {
     variants: {
       variant: {
-        default: 'bg-transparent text-foreground border-[var(--border-emphasis)]',
-        signal: 'bg-primary text-primary-foreground border-primary',
-        secondary: 'bg-[var(--surface-raised)] text-muted-foreground border-[var(--border-hairline)]',
-        success: 'bg-transparent text-[var(--ok)] border-[var(--ok)]',
-        warning: 'bg-transparent text-[var(--caution)] border-[var(--caution)]',
-        destructive: 'bg-transparent text-[var(--alert)] border-[var(--alert)]',
-        info: 'bg-transparent text-[var(--info)] border-[var(--info)]',
-        // Variante legacy mantenida por compat. Reemplazada por signal.
-        purple: 'bg-transparent text-[var(--info)] border-[var(--info)]'
+        default: 'bg-secondary text-secondary-foreground border-transparent',
+        signal: 'bg-primary text-primary-foreground border-transparent',
+        secondary: 'bg-muted text-muted-foreground border-transparent',
+        dominio: 'bg-dominio-soft text-dominio border-dominio/25',
+        success: 'bg-success/12 text-success border-success/25',
+        warning: 'bg-warning/12 text-warning border-warning/25',
+        destructive: 'bg-destructive/12 text-destructive border-destructive/25',
+        info: 'bg-info/12 text-info border-info/25',
+        // Variante legacy mantenida por compat.
+        purple: 'bg-info/12 text-info border-info/25'
       }
     },
     defaultVariants: {

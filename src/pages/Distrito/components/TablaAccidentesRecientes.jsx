@@ -29,7 +29,7 @@ const TablaAccidentesRecientes = memo(function TablaAccidentesRecientes({
           Accidentes recientes en {nombreDistrito}
         </CardTitle>
         <CardDescription>
-          Los 10 accidentes mas recientes registrados en el distrito.
+          Los 10 accidentes más recientes registrados en el distrito.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -39,7 +39,7 @@ const TablaAccidentesRecientes = memo(function TablaAccidentesRecientes({
           <ErrorState message={error.message} onRetry={onRetry} />
         ) : accidentes.length === 0 ? (
           <EmptyState
-            title="Sin accidentes"
+            title="Sin resultados para estos filtros"
             description="No se encontraron accidentes registrados en este distrito."
             icon={AlertTriangle}
           />

@@ -30,9 +30,10 @@ import {
   useCensoResumenDistritos,
   useAccidentes,
   useAccidentesComparativa,
-  usePatinetes
+  usePatinetesEstadisticas
 } from '../../api/hooks';
 import { ROUTES, DATE_CONFIG } from '../../constants';
+import { formatearNombreDistritoTitulo, formatearNombreDistrito } from '../../utils';
 import {
   HeroDistrito,
   TarjetasResumenDistrito,
@@ -89,16 +90,24 @@ function PaginaDistrito() {
   const nombreDistrito = distrito?.nombre;
   const codigoNumerico = distrito?.codigo;
 
+  // Nombre canonico (MAYUSCULAS con tildes/guiones correctos). El censo emite
+  // los nombres SIN tildes ("CHAMBERI") pero accidentes/patinetes los almacenan
+  // CON tilde ("CHAMBERÍ"); normalizar evita que el join falle (tabla/KPI a 0)
+  // en Chamberi/Chamartin/Tetuan/Vicalvaro.
+  const distritoCanonico = useMemo(
+    () => (nombreDistrito ? formatearNombreDistrito(nombreDistrito) : null),
+    [nombreDistrito]
+  );
+
   // Top 10 accidentes mas recientes del distrito.
-  // El hook acepta `distrito` por nombre segun la validacion del backend.
   const {
     data: accidentesResult,
     isLoading: cargandoAccidentes,
     error: errorAccidentes,
     refetch: refetchAccidentes
   } = useAccidentes(
-    nombreDistrito
-      ? { distrito: nombreDistrito, limit: 10, sortBy: 'fecha', sortOrder: 'desc' }
+    distritoCanonico
+      ? { distrito: distritoCanonico, limit: 10, sortBy: 'fecha', sortOrder: 'desc' }
       : null
   );
   const accidentesRecientes = accidentesResult?.data || [];
@@ -119,30 +128,31 @@ function PaginaDistrito() {
     return [];
   }, [comparativaResult?.data]);
   const accidentesEnDistrito = useMemo(() => {
-    if (!nombreDistrito) return 0;
-    const upper = nombreDistrito.toUpperCase();
+    if (!distritoCanonico) return 0;
     const entry = datosComparativa.find(d =>
-      (d._id || d.distrito || '').toUpperCase() === upper
+      formatearNombreDistrito(d._id || d.distrito || '') === distritoCanonico
     );
     return entry?.totalAccidentes || entry?.total || totalAccidentesPag || 0;
-  }, [datosComparativa, nombreDistrito, totalAccidentesPag]);
+  }, [datosComparativa, distritoCanonico, totalAccidentesPag]);
 
-  // Patinetes asignados en el distrito (suma por barrio)
+  // Patinetes asignados en el distrito: usar el agregado por distrito
+  // (/patinetes/estadisticas/distritos) en vez de sumar solo la primera pagina
+  // del listado (limit:50), que infravaloraba el total en distritos con muchas
+  // areas. El agregado ya suma TODAS las areas del distrito en el backend.
   const {
-    data: patinetesResult,
+    data: patinetesStatsResult,
     isLoading: cargandoPatinetes
-  } = usePatinetes(
-    nombreDistrito
-      ? { distrito: nombreDistrito, limit: 50 }
-      : null
-  );
+  } = usePatinetesEstadisticas();
   const totalPatinetes = useMemo(() => {
-    const datos = patinetesResult?.data || [];
-    return datos.reduce(
-      (acc, item) => acc + (item.estadisticas?.totalPatinetes || 0),
-      0
-    );
-  }, [patinetesResult?.data]);
+    if (!distritoCanonico) return 0;
+    const raw = patinetesStatsResult?.data;
+    const lista = Array.isArray(raw)
+      ? raw
+      : (Array.isArray(raw?.estadisticas) ? raw.estadisticas
+        : (Array.isArray(raw?.data) ? raw.data : []));
+    const entry = lista.find(d => formatearNombreDistrito((d._id || d.distrito || '') + '') === distritoCanonico);
+    return entry?.totalPatinetes || 0;
+  }, [patinetesStatsResult?.data, distritoCanonico]);
 
   // ----- Estados especiales -----
 
@@ -174,8 +184,8 @@ function PaginaDistrito() {
 
   return (
     <PageLayout
-      title={distrito ? `Distrito ${distrito.nombre}` : 'Distrito'}
-      description="Vista cross-domain: censo, accidentalidad, patinetes y multas en una sola pagina"
+      title={distrito ? `Distrito ${formatearNombreDistritoTitulo(distrito.nombre)}` : 'Distrito'}
+      description="Censo, accidentalidad, patinetes y multas del distrito en una sola página."
     >
       <HeroDistrito distrito={distrito} isLoading={cargandoDistrito} />
 
@@ -185,7 +195,7 @@ function PaginaDistrito() {
             distrito={nombreDistrito}
             codigoDistrito={codigoNumerico}
             modulosExcluidos={['distrito', 'censo']}
-            titulo="Explorar este distrito en otros modulos:"
+            titulo="Ver este distrito en otras áreas:"
           />
         </div>
       )}

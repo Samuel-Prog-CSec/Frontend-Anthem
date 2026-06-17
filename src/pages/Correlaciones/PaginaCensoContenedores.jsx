@@ -19,10 +19,10 @@ import {
   Badge, Button, EmptyState, TableSkeleton
 } from '../../components/common';
 import { StatCard } from '../../components/charts';
-import { BarChartCard } from '../../components/charts/Charts';
+import { BarChartCard, ScatterChartCard } from '../../components/charts/Charts';
 import { useCensoResumenDistritos, useContenedoresPorDistrito } from '../../api/hooks';
 import { ROUTES, DATE_CONFIG, CHART_COLORS } from '../../constants';
-import { formatNumber, formatearNombreDistrito } from '../../utils';
+import { formatNumber, formatearNombreDistritoTitulo } from '../../utils';
 
 function clasificarCobertura(ratio, media) {
   if (!Number.isFinite(ratio) || !Number.isFinite(media) || media === 0) {return 'desconocida';}
@@ -103,8 +103,24 @@ function PaginaCensoContenedores() {
 
   const datosGrafico = useMemo(() => {
     return filasOrdenadas.map(f => ({
-      name: f.distrito,
+      name: formatearNombreDistritoTitulo(f.distrito),
       ratio: Number(f.ratio.toFixed(2))
+    }));
+  }, [filasOrdenadas]);
+
+  // Datos del scatter de RELACION: un punto por distrito (poblacion vs
+  // contenedores), coloreado por clasificacion de cobertura. Revela si los
+  // contenedores escalan con la poblacion y que distritos se desvian.
+  const datosScatter = useMemo(() => {
+    return filasOrdenadas.map(f => ({
+      nombre: formatearNombreDistritoTitulo(f.distrito),
+      poblacion: f.poblacion,
+      contenedores: f.totalContenedores,
+      color: f.clasificacion === 'infra'
+        ? CHART_COLORS.danger
+        : f.clasificacion === 'sobre'
+          ? CHART_COLORS.quaternary
+          : CHART_COLORS.secondary
     }));
   }, [filasOrdenadas]);
 
@@ -157,6 +173,23 @@ function PaginaCensoContenedores() {
         />
       </div>
 
+      <ScatterChartCard
+        title="Relación: población vs. contenedores por distrito"
+        data={datosScatter}
+        xKey="poblacion"
+        yKey="contenedores"
+        xName="Población"
+        yName="Contenedores"
+        nameKey="nombre"
+        height={380}
+        isLoading={cargando}
+      />
+      <p className="mt-2 mb-6 text-xs leading-relaxed text-muted-foreground">
+        Cada punto es un distrito. Rojo: infra-cubierto; violeta: sobre-cubierto;
+        teal: cobertura normal. Los puntos por encima de la nube tienen más
+        contenedores de los que su población sugeriría, y al revés.
+      </p>
+
       <BarChartCard
         title="Ranking de cobertura por distrito (contenedores / 1.000 habitantes)"
         data={datosGrafico}
@@ -171,7 +204,7 @@ function PaginaCensoContenedores() {
         <CardHeader>
           <CardTitle>Detalle por distrito</CardTitle>
           <CardDescription>
-            Distritos con clasificacion de cobertura. Los distritos infra-cubiertos pueden necesitar refuerzo del servicio.
+            Distritos con clasificación de cobertura. Los distritos infra-cubiertos pueden necesitar refuerzo del servicio.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -189,17 +222,17 @@ function PaginaCensoContenedores() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Distrito</TableHead>
-                  <TableHead className="text-right">Poblacion</TableHead>
+                  <TableHead className="text-right">Población</TableHead>
                   <TableHead className="text-right">Contenedores</TableHead>
                   <TableHead className="text-right">Por 1.000 hab.</TableHead>
-                  <TableHead className="text-center">Clasificacion</TableHead>
+                  <TableHead className="text-center">Clasificación</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filasOrdenadas.map(f => (
                   <TableRow key={f.distrito}>
-                    <TableCell className="font-medium text-info">{formatearNombreDistrito(f.distrito)}</TableCell>
+                    <TableCell className="font-medium text-info">{formatearNombreDistritoTitulo(f.distrito)}</TableCell>
                     <TableCell className="text-right font-mono">{formatNumber(f.poblacion)}</TableCell>
                     <TableCell className="text-right font-mono">{formatNumber(f.totalContenedores)}</TableCell>
                     <TableCell className="text-right font-mono text-foreground">{formatNumber(f.ratio, 2)}</TableCell>

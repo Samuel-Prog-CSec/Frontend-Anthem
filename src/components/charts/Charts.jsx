@@ -25,21 +25,53 @@ import {
   ReferenceLine,
   PieChart as RechartsPieChart,
   Pie,
-  Cell
+  Cell,
+  ScatterChart as RechartsScatterChart,
+  Scatter
 } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent, Skeleton } from '../common';
 import { CHART_COLORS } from '../../constants';
+import { useTheme } from '../../context';
+import { formatNumber } from '../../utils';
 
-// Tema de los ejes/grid de Recharts derivado de los tokens de la consola.
-// Recharts pinta estos colores como atributos SVG (stroke/fill), que NO
-// resuelven var(--token) de forma fiable, asi que usamos los valores resueltos
-// equivalentes a --border-hairline / --border-emphasis / --ink-tertiary / --alert.
-const CHART_THEME = {
-  grid: 'rgba(232, 232, 227, 0.08)',
-  axis: 'rgba(232, 232, 227, 0.16)',
-  tick: '#8c9197',
-  reference: '#d44d3a'
-};
+// Formateo de ticks del eje Y. Antes los ejes mostraban el numero crudo
+// ("600000") o un "/1000 + k" que producia "7000k" para millones. Abreviamos
+// en es-ES: 600000 -> "600 mil", 7000000 -> "7 M", y agrupamos por debajo de
+// 10 mil ("8.450"). Mantiene la lectura corta sin romper el locale.
+function formatearTickEje(valor) {
+  const n = Number(valor);
+  if (!Number.isFinite(n)) { return valor; }
+  const abs = Math.abs(n);
+  if (abs >= 1_000_000) { return `${formatNumber(n / 1_000_000, abs % 1_000_000 === 0 ? 0 : 1)} M`; }
+  if (abs >= 10_000) { return `${formatNumber(Math.round(n / 1000))} mil`; }
+  return formatNumber(n);
+}
+
+// Valor de tooltip con locale es-ES (separador de millar + coma decimal),
+// con precision completa (a diferencia del eje, que abrevia).
+function formatearValorTooltip(valor) {
+  return Number.isFinite(Number(valor)) ? Number(valor).toLocaleString('es-ES') : valor;
+}
+
+// Tema de ejes/grid REACTIVO al tema (claro/oscuro). Recharts pinta estos
+// colores como atributos SVG, asi que usamos valores resueltos (oklch) que
+// equivalen a los tokens --border / --border-emphasis / --ink-tertiary / --alert.
+// Al ser un hook de contexto dentro de un componente memo, el chart se re-pinta
+// al alternar el tema.
+function obtenerTemaChart(esOscuro) {
+  return esOscuro
+    ? { grid: 'oklch(0.34 0.014 250 / 0.55)', axis: 'oklch(0.42 0.016 250)', tick: 'oklch(0.70 0.014 250)', reference: 'oklch(0.66 0.18 27)' }
+    : { grid: 'oklch(0.86 0.008 245 / 0.9)', axis: 'oklch(0.80 0.010 245)', tick: 'oklch(0.44 0.020 252)', reference: 'oklch(0.55 0.19 28)' };
+}
+
+// Recharts anima por JS (no por CSS), asi que el bloque global de
+// prefers-reduced-motion no lo cubre. Gateamos la animacion de dibujo aqui
+// para respetar la preferencia de accesibilidad.
+function prefiereReduccionMovimiento() {
+  return typeof window !== 'undefined'
+    && window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
 
 // Alturas pseudoaleatorias estables para barras de placeholder.
 // Evita Math.random() en render (impuro segun React Compiler)
@@ -85,7 +117,7 @@ const CustomTooltip = memo(function CustomTooltip({ active, payload, label }) {
       <p className="text-sm font-medium text-foreground mb-2">{label}</p>
       {payload.map((entry, index) => (
         <p key={index} className="text-sm font-mono tabular-nums" style={{ color: entry.color }}>
-          {entry.name}: {entry.value}
+          {entry.name}: {formatearValorTooltip(entry.value)}
         </p>
       ))}
     </div>
@@ -103,6 +135,8 @@ const CustomTooltip = memo(function CustomTooltip({ active, payload, label }) {
  * @param {Array} [props.referenceLines] - Lineas de referencia [{y, label, color}]
  */
 const LineChartCard = memo(function LineChartCard({ data, xKey, lines, title, height = 300, referenceLines = [], isLoading }) {
+  const { esOscuro } = useTheme();
+  const CHART_THEME = obtenerTemaChart(esOscuro);
   if (isLoading) return <ChartSkeleton title={title} height={height} />;
 
   return (
@@ -129,6 +163,7 @@ const LineChartCard = memo(function LineChartCard({ data, xKey, lines, title, he
             <YAxis
               stroke={CHART_THEME.axis}
               tick={{ fill: CHART_THEME.tick, fontSize: 12 }}
+              tickFormatter={formatearTickEje}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
@@ -155,6 +190,9 @@ const LineChartCard = memo(function LineChartCard({ data, xKey, lines, title, he
                 strokeWidth={2}
                 dot={{ fill: line.color || Object.values(CHART_COLORS)[index], r: 3 }}
                 activeDot={{ r: 5 }}
+                isAnimationActive={!prefiereReduccionMovimiento()}
+                animationDuration={900}
+                animationEasing="ease-out"
               />
             ))}
           </RechartsLineChart>
@@ -176,6 +214,8 @@ const LineChartCard = memo(function LineChartCard({ data, xKey, lines, title, he
  * @param {Array} [props.referenceLines] - Lineas de referencia [{y, label, color}]
  */
 const BarChartCard = memo(function BarChartCard({ data, xKey, bars, title, height = 300, referenceLines = [], isLoading }) {
+  const { esOscuro } = useTheme();
+  const CHART_THEME = obtenerTemaChart(esOscuro);
   if (isLoading) return <ChartSkeleton title={title} height={height} />;
   return (
     <Card>
@@ -201,6 +241,7 @@ const BarChartCard = memo(function BarChartCard({ data, xKey, bars, title, heigh
             <YAxis
               stroke={CHART_THEME.axis}
               tick={{ fill: CHART_THEME.tick, fontSize: 12 }}
+              tickFormatter={formatearTickEje}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
@@ -226,6 +267,9 @@ const BarChartCard = memo(function BarChartCard({ data, xKey, bars, title, heigh
                   name={bar.name}
                   fill={fillBase}
                   radius={[4, 4, 0, 0]}
+                  isAnimationActive={!prefiereReduccionMovimiento()}
+                  animationDuration={800}
+                  animationEasing="ease-out"
                 >
                   {/* Color por dato: si la barra declara `colorByDatum`, cada
                       entrada usa su propio `barColor` (p.ej. resaltar un item). */}
@@ -280,6 +324,8 @@ const PieChartCard = memo(function PieChartCard({ data, title, height = 300, don
               dataKey="value"
               label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
               labelLine={false}
+              isAnimationActive={!prefiereReduccionMovimiento()}
+              animationDuration={800}
             >
               {data.map((entry, index) => (
                 <Cell
@@ -297,4 +343,93 @@ const PieChartCard = memo(function PieChartCard({ data, title, height = 300, don
   );
 });
 
-export { LineChartCard, BarChartCard, PieChartCard, CustomTooltip };
+/**
+ * Tooltip del scatter: muestra el nombre de la entidad (p.ej. distrito) + los
+ * dos valores cruzados. Recibe las claves via props (Recharts clona el content
+ * inyectando active/payload y preserva el resto de props).
+ */
+const ScatterTooltip = memo(function ScatterTooltip({ active, payload, nameKey, xKey, yKey, xName, yName }) {
+  if (!active || !payload || !payload.length) return null;
+  const punto = payload[0]?.payload || {};
+  return (
+    <div className="bg-popover border border-[var(--border-emphasis)] rounded-md p-3">
+      <p className="text-sm font-medium text-foreground mb-1">{punto[nameKey]}</p>
+      <p className="text-sm font-mono tabular-nums text-muted-foreground">
+        {xName}: {Number(punto[xKey]).toLocaleString('es-ES')}
+      </p>
+      <p className="text-sm font-mono tabular-nums text-muted-foreground">
+        {yName}: {Number(punto[yKey]).toLocaleString('es-ES')}
+      </p>
+    </div>
+  );
+});
+
+/**
+ * Grafico de dispersion (scatter): un punto por entidad (p.ej. distrito) que
+ * cruza dos magnitudes (xKey vs yKey). Revela la RELACION (correlacion, outliers)
+ * que dos rankings paralelos no muestran. Cada dato puede llevar su `color`.
+ * @param {Object} props
+ * @param {Array} props.data - [{ [nameKey], [xKey], [yKey], color? }]
+ */
+const ScatterChartCard = memo(function ScatterChartCard({
+  data, xKey, yKey, xName, yName, nameKey = 'name', title, height = 360, isLoading
+}) {
+  const { esOscuro } = useTheme();
+  const CHART_THEME = obtenerTemaChart(esOscuro);
+  if (isLoading) return <ChartSkeleton title={title} height={height} />;
+
+  return (
+    <Card>
+      {title && (
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+        </CardHeader>
+      )}
+      <CardContent>
+        <div
+          role="img"
+          aria-label={title ? `Grafico de dispersion: ${title}` : 'Grafico de dispersion'}
+          style={{ width: '100%', height }}
+        >
+          <ResponsiveContainer width="100%" height={height}>
+            <RechartsScatterChart margin={{ top: 10, right: 24, bottom: 28, left: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.grid} />
+              <XAxis
+                type="number"
+                dataKey={xKey}
+                name={xName}
+                stroke={CHART_THEME.axis}
+                tick={{ fill: CHART_THEME.tick, fontSize: 12 }}
+                tickFormatter={(v) => Number(v).toLocaleString('es-ES')}
+              />
+              <YAxis
+                type="number"
+                dataKey={yKey}
+                name={yName}
+                stroke={CHART_THEME.axis}
+                tick={{ fill: CHART_THEME.tick, fontSize: 12 }}
+                tickFormatter={(v) => Number(v).toLocaleString('es-ES')}
+              />
+              <Tooltip
+                cursor={{ strokeDasharray: '3 3' }}
+                content={<ScatterTooltip nameKey={nameKey} xKey={xKey} yKey={yKey} xName={xName} yName={yName} />}
+              />
+              <Scatter
+                data={data}
+                fill={CHART_COLORS.primary}
+                isAnimationActive={!prefiereReduccionMovimiento()}
+                animationDuration={700}
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`punto-${index}`} fill={entry.color || CHART_COLORS.primary} />
+                ))}
+              </Scatter>
+            </RechartsScatterChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
+  );
+});
+
+export { LineChartCard, BarChartCard, PieChartCard, ScatterChartCard, CustomTooltip };

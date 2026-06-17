@@ -61,14 +61,36 @@ const TableFooter = memo(function TableFooter({ className, ...props }) {
 
 /**
  * Fila de tabla
+ *
+ * Si recibe `onClick`, se vuelve operable por teclado (focusable + Enter/Espacio)
+ * y muestra un ring de foco. Resuelve el problema de accesibilidad de las filas
+ * clicables (drill-down) que antes solo respondian al raton (WCAG 2.1.1).
  */
-const TableRow = memo(function TableRow({ className, ...props }) {
+const TableRow = memo(function TableRow({ className, onClick, onKeyDown, ...props }) {
+  const interactiva = typeof onClick === 'function';
+
+  const manejarTecla = interactiva
+    ? (e) => {
+        if (onKeyDown) { onKeyDown(e); }
+        if (e.defaultPrevented) { return; }
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick(e);
+        }
+      }
+    : onKeyDown;
+
   return (
     <tr
       className={cn(
         'border-b border-border/60 transition-colors hover:bg-muted/30',
+        interactiva &&
+          'cursor-pointer focus-visible:outline-none focus-visible:bg-[var(--surface-hover)] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--marca)]',
         className
       )}
+      onClick={onClick}
+      onKeyDown={manejarTecla}
+      tabIndex={interactiva ? 0 : undefined}
       {...props}
     />
   );

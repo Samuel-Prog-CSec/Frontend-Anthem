@@ -5,11 +5,11 @@
  * distrito se calculan en la pagina padre desde las estadisticas y se
  * inyectan por props (porque dependen del conjunto de distritos cargado).
  *
- * El dataset Anthem 2051 trae 12 snapshots mensuales: el censo tiene una
- * fila por persona-edad-seccion y mes (~237k personas x 12 = 2.85 M
- * filas). Cuando el usuario no aplica filtros se le muestra ese total y
- * el listado paginado lo hace inmanejable; el banner explica por que el
- * conteo es tan alto y sugiere acotar para una "foto" puntual.
+ * Los datos de Anthem 2051 traen doce fotos mensuales: el censo tiene una
+ * fila por persona, edad y seccion en cada mes. Cuando el usuario no aplica
+ * filtros se le muestra ese total y el listado paginado se hace inmanejable;
+ * el banner explica por que el conteo es tan alto y sugiere acotar para una
+ * foto puntual.
  */
 
 import { Filter, RefreshCw, X, Info } from 'lucide-react';
@@ -46,7 +46,7 @@ function FiltrosCenso({
               variant="ghost"
               size="sm"
               onClick={onRefrescar}
-              aria-label="Refrescar datos"
+              aria-label="Recargar datos"
             >
               <RefreshCw className="size-4" aria-hidden="true" />
             </Button>
@@ -58,10 +58,10 @@ function FiltrosCenso({
           <div className="flex items-start gap-3 mb-4 p-3 rounded-md bg-info/5 border border-info/20">
             <Info className="size-4 text-info mt-0.5 flex-shrink-0" aria-hidden="true" />
             <p className="text-sm text-muted-foreground">
-              El censo tiene una fila por persona, edad, seccion y mes (12 snapshots
-              al año). Por eso ves <span className="font-mono text-foreground">2,85 M</span> registros
-              sin filtros. Aplica un mes concreto para una "foto" mensual (~237k filas) o
-              acota tambien por grupo de edad para granularidades manejables.
+              El censo tiene una fila por persona, edad y sección en cada mes, y hay
+              doce meses. Por eso, sin filtros, ves todos los registros del año a la vez.
+              Aplica un mes concreto para ver una foto mensual, o acota también por grupo
+              de edad para manejar mejor el listado.
             </p>
           </div>
         )}

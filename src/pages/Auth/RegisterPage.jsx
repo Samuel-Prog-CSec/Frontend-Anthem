@@ -1,44 +1,49 @@
 /**
- * Pagina de Registro - "Civic Operations Console"
+ * Pagina de Registro - identidad "Atlas Civico"
  *
- * Misma direccion estetica que LoginPage: branding tecnico a la izquierda,
- * formulario sobrio a la derecha. Sin gradients, sin blobs, sin shadow-2xl.
+ * Mismo lenguaje que LoginPage: marca + contexto a la izquierda, formulario
+ * sobrio a la derecha. Sin roleplay de consola ni numeracion decorativa.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus, AlertCircle, Check, ArrowLeft } from 'lucide-react';
 import { Button, Input } from '../../components/common';
+import { MarcaGlifo } from '../../components/layout/Wordmark';
 import { register } from '../../api/authService';
-import { ROUTES } from '../../constants';
+import { ROUTES, DATE_CONFIG } from '../../constants';
 
 const REQUISITOS_PASSWORD = [
-  { key: 'length',    label: '8 caracteres minimo',           regex: (v) => v.length >= 8 },
-  { key: 'uppercase', label: 'Una letra mayuscula',           regex: (v) => /[A-Z]/.test(v) },
-  { key: 'lowercase', label: 'Una letra minuscula',           regex: (v) => /[a-z]/.test(v) },
-  { key: 'number',    label: 'Un digito numerico',            regex: (v) => /[0-9]/.test(v) },
-  { key: 'special',   label: 'Un caracter @ $ ! % * ? &',     regex: (v) => /[@$!%*?&]/.test(v) }
+  { key: 'length',    label: '8 caracteres mínimo',       regex: (v) => v.length >= 8 },
+  { key: 'uppercase', label: 'Una letra mayúscula',       regex: (v) => /[A-Z]/.test(v) },
+  { key: 'lowercase', label: 'Una letra minúscula',       regex: (v) => /[a-z]/.test(v) },
+  { key: 'number',    label: 'Un dígito numérico',        regex: (v) => /[0-9]/.test(v) },
+  { key: 'special',   label: 'Un carácter @ $ ! % * ? &', regex: (v) => /[@$!%*?&]/.test(v) }
+];
+
+const POLITICA_ACCESO = [
+  'Tu sesión se guarda de forma segura y se renueva sin pedirte la contraseña en cada visita.',
+  'Puedes cerrar la sesión en cualquier momento y revocar el acceso.',
+  'Tras cinco intentos fallidos la cuenta se bloquea dos horas. Tu contraseña se guarda siempre cifrada.'
 ];
 
 function ListaRequisitosPassword({ password }) {
   return (
     <ul
-      className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mt-3 list-none"
-      aria-label="Requisitos de contrasena"
+      className="mt-3 grid list-none grid-cols-1 gap-1.5 sm:grid-cols-2"
+      aria-label="Requisitos de contraseña"
     >
       {REQUISITOS_PASSWORD.map(({ key, label, regex }) => {
         const cumple = regex(password);
         return (
           <li key={key} className="flex items-center gap-2">
             <span
-              className={`size-3 border ${cumple ? 'border-[var(--ok)] bg-[var(--ok)]' : 'border-[var(--border-emphasis)]'} flex items-center justify-center transition-colors`}
+              className={`flex size-3.5 items-center justify-center rounded-sm border transition-colors ${cumple ? 'border-[var(--ok)] bg-[var(--ok)]' : 'border-[var(--border-emphasis)]'}`}
               aria-hidden="true"
             >
-              {cumple && <Check className="size-2 text-[var(--ink)]" strokeWidth={3} />}
+              {cumple && <Check className="size-2.5 text-[var(--on-status)]" strokeWidth={3} />}
             </span>
-            <span
-              className={`font-mono text-[10px] uppercase tracking-[0.1em] transition-colors ${cumple ? 'text-[var(--ok)]' : 'text-[var(--ink-tertiary)]'}`}
-            >
+            <span className={`text-xs transition-colors ${cumple ? 'text-foreground' : 'text-muted-foreground'}`}>
               {label}
             </span>
           </li>
@@ -49,14 +54,15 @@ function ListaRequisitosPassword({ password }) {
 }
 
 function RegisterPage() {
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: ''
-  });
+  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Limpia cualquier error que persista entre navegaciones al montar la vista.
+  useEffect(() => {
+    setError('');
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -66,157 +72,163 @@ function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!formData.username.trim()) {
+      setError('Indica un nombre de usuario para continuar.');
+      return;
+    }
+    if (!formData.email.trim()) {
+      setError('Indica un correo de contacto para continuar.');
+      return;
+    }
+    if (!REQUISITOS_PASSWORD.every((requisito) => requisito.regex(formData.password))) {
+      setError('La contraseña no cumple todos los requisitos de seguridad indicados.');
+      return;
+    }
+
     setIsLoading(true);
     try {
       await register(formData);
       navigate(ROUTES.DASHBOARD);
     } catch (err) {
-      setError(err.message || 'No se pudo crear el operador. Revisa los datos o intenta de nuevo.');
+      if (err?.isNetworkError) {
+        setError('No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.');
+      } else if (err?.status === 409) {
+        setError('Ese usuario o correo ya está registrado. Prueba con otro o inicia sesión.');
+      } else {
+        setError(err?.message || 'No se pudo crear la cuenta. Revisa los datos o inténtalo de nuevo.');
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-background flex">
-      {/* Panel izquierdo - Contexto editorial */}
-      <aside className="hidden lg:flex lg:w-1/2 relative border-r border-[var(--border-hairline)]">
-        <div className="relative z-10 flex flex-col justify-between w-full px-12 xl:px-20 py-16">
-          <div className="space-y-4">
-            <p className="eyebrow">ANTHEM // CTC // ALTA DE OPERADOR</p>
-            <h1 className="font-display italic text-5xl xl:text-6xl text-foreground leading-[0.95]">
-              Un nuevo <span className="text-[var(--signal)]">turno</span><br />
-              en la consola.
-            </h1>
-            <p className="text-base text-muted-foreground max-w-md leading-relaxed">
-              Crea tus credenciales para acceder a las 14 superficies de la
-              Smart City. El sistema queda anclado a tu identidad y registra
-              toda actividad como huella auditable.
-            </p>
+    <main className="flex min-h-screen bg-background">
+      {/* Panel izquierdo - contexto */}
+      <aside className="relative hidden border-r border-border lg:flex lg:w-1/2">
+        <div className="coord-grid pointer-events-none absolute inset-0 opacity-50" aria-hidden="true" />
+        <div className="relative z-10 flex w-full flex-col justify-between px-12 py-16 xl:px-20">
+          <div className="flex items-center gap-2.5">
+            <MarcaGlifo className="size-7" />
+            <span className="font-display text-lg font-semibold tracking-tight text-foreground">Anthem</span>
           </div>
 
-          <div className="space-y-4">
-            <p className="eyebrow">Politica de acceso</p>
-            <ul className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-              <li className="flex gap-3">
-                <span className="font-mono text-[var(--signal)] flex-shrink-0">01</span>
-                Tu sesion vive en memoria. El token de refresco se guarda en una cookie httpOnly que JavaScript no puede leer.
-              </li>
-              <li className="flex gap-3">
-                <span className="font-mono text-[var(--signal)] flex-shrink-0">02</span>
-                Cada token incluye identificador unico (jti) que permite revocacion individual desde el panel de auditoria.
-              </li>
-              <li className="flex gap-3">
-                <span className="font-mono text-[var(--signal)] flex-shrink-0">03</span>
-                Tras cinco intentos fallidos la cuenta se bloquea dos horas. Las contrasenas se cifran con bcrypt cost 12.
-              </li>
+          <div className="space-y-5">
+            <h1 className="font-display text-5xl font-semibold leading-[1.02] text-foreground xl:text-6xl">
+              Crea tu <span className="text-[var(--marca)]">cuenta</span><br />
+              en Anthem.
+            </h1>
+            <p className="max-w-md text-base leading-relaxed text-muted-foreground">
+              Accede a las áreas del atlas urbano: aire, ruido, movilidad,
+              seguridad vial, residuos y demografía de los 21 distritos.
+            </p>
+            <ul className="space-y-2.5 pt-2">
+              {POLITICA_ACCESO.map((punto) => (
+                <li key={punto} className="flex gap-3 text-sm leading-relaxed text-muted-foreground">
+                  <span className="mt-2 size-1.5 shrink-0 rounded-full bg-[var(--marca)]" aria-hidden="true" />
+                  {punto}
+                </li>
+              ))}
             </ul>
           </div>
 
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--ink-tertiary)]">
-            BACKEND // EXPRESS 5 + MONGOOSE 9 // NODE 22
+          <p className="text-xs text-muted-foreground">
+            Atlas urbano de Madrid. Datos simulados del año {DATE_CONFIG.DATASET_YEAR}.
           </p>
         </div>
       </aside>
 
-      {/* Panel derecho - Formulario */}
+      {/* Panel derecho - formulario */}
       <section
-        className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12"
+        className="flex w-full items-center justify-center p-6 sm:p-12 lg:w-1/2"
         aria-label="Formulario de registro"
       >
         <div className="w-full max-w-md">
           <Link
             to={ROUTES.LOGIN}
-            className="inline-flex items-center gap-2 mb-8 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors group"
+            className="group mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            <ArrowLeft className="size-3 transition-transform group-hover:-translate-x-0.5" aria-hidden="true" />
-            Volver al acceso
+            <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" aria-hidden="true" />
+            Volver a iniciar sesión
           </Link>
 
-          {/* Wordmark movil */}
-          <div className="lg:hidden mb-10 space-y-2">
-            <p className="eyebrow">ANTHEM // CTC</p>
-            <h1 className="font-display italic text-3xl text-foreground leading-tight">
-              Un nuevo <span className="text-[var(--signal)]">turno</span> en la consola.
-            </h1>
+          <div className="mb-10 flex items-center gap-2.5 lg:hidden">
+            <MarcaGlifo className="size-7" />
+            <span className="font-display text-lg font-semibold tracking-tight text-foreground">Anthem</span>
           </div>
 
           <div className="space-y-8">
             <header className="space-y-2">
-              <p className="eyebrow">Alta de operador</p>
-              <h2 className="font-display italic text-3xl text-foreground leading-tight">
-                Crear credenciales
+              <h2 className="font-display text-3xl font-semibold leading-tight text-foreground">
+                Crear cuenta
               </h2>
               <p className="text-sm text-muted-foreground">
-                El usuario quedara activo de inmediato.
+                Tu cuenta quedará activa de inmediato.
               </p>
             </header>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
                 <div
-                  className="flex items-start gap-3 p-4 border border-[var(--alert)] bg-[var(--surface-raised)]"
+                  className="flex items-start gap-3 rounded-md border border-[var(--alert)] bg-[var(--surface-raised)] p-4"
                   role="alert"
                 >
-                  <AlertCircle className="size-4 text-[var(--alert)] flex-shrink-0 mt-0.5" aria-hidden="true" />
-                  <p className="text-sm text-foreground leading-snug">{error}</p>
+                  <AlertCircle className="mt-0.5 size-4 flex-shrink-0 text-[var(--alert)]" aria-hidden="true" />
+                  <p className="text-sm leading-snug text-foreground">{error}</p>
                 </div>
               )}
 
               <div className="space-y-2">
-                <label
-                  htmlFor="username"
-                  className="font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--ink-secondary)] block"
-                >
-                  Identificador del operador
+                <label htmlFor="username" className="block text-sm font-medium text-foreground">
+                  Usuario
                 </label>
                 <Input
                   id="username"
                   name="username"
                   type="text"
-                  placeholder="operador.04"
+                  placeholder="tu.usuario"
                   value={formData.username}
                   onChange={handleChange}
                   required
+                  disabled={isLoading}
                   autoComplete="username"
+                  spellCheck={false}
                 />
               </div>
 
               <div className="space-y-2">
-                <label
-                  htmlFor="email"
-                  className="font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--ink-secondary)] block"
-                >
+                <label htmlFor="email" className="block text-sm font-medium text-foreground">
                   Correo de contacto
                 </label>
                 <Input
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="operador.04@anthem.es"
+                  placeholder="tu.correo@anthem.es"
                   value={formData.email}
                   onChange={handleChange}
                   required
+                  disabled={isLoading}
                   autoComplete="email"
+                  spellCheck={false}
                 />
               </div>
 
               <div className="space-y-2">
-                <label
-                  htmlFor="password"
-                  className="font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--ink-secondary)] block"
-                >
-                  Clave de acceso
+                <label htmlFor="password" className="block text-sm font-medium text-foreground">
+                  Contraseña
                 </label>
                 <Input
                   id="password"
                   name="password"
                   type="password"
-                  placeholder="Diseña una clave robusta"
+                  placeholder="Crea una contraseña segura"
                   value={formData.password}
                   onChange={handleChange}
                   required
                   minLength={8}
+                  disabled={isLoading}
                   autoComplete="new-password"
                 />
                 <ListaRequisitosPassword password={formData.password} />
@@ -224,25 +236,25 @@ function RegisterPage() {
 
               <Button type="submit" className="w-full" isLoading={isLoading}>
                 {!isLoading && <UserPlus className="size-4" />}
-                Activar operador
+                Crear cuenta
               </Button>
             </form>
 
             <hr className="hairline" />
 
-            <p className="text-sm text-muted-foreground text-center">
-              ¿Ya tienes credenciales?{' '}
+            <p className="text-center text-sm text-muted-foreground">
+              ¿Ya tienes cuenta?{' '}
               <Link
                 to={ROUTES.LOGIN}
-                className="text-foreground underline underline-offset-4 hover:text-[var(--signal)]"
+                className="font-medium text-foreground underline underline-offset-4 hover:text-[var(--marca)]"
               >
-                Entrar a la consola
+                Entrar
               </Link>
             </p>
 
-            <p className="text-center font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--ink-tertiary)] leading-relaxed">
-              Al activar tu cuenta aceptas los terminos de uso de la consola
-              y la politica de auditoria de Anthem City.
+            <p className="text-center text-xs leading-relaxed text-muted-foreground">
+              Proyecto académico con datos simulados; tu cuenta solo habilita el
+              acceso a este atlas de demostración.
             </p>
           </div>
         </div>

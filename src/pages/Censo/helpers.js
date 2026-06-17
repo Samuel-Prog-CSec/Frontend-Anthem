@@ -5,6 +5,7 @@
  */
 
 import { GRUPOS_EDAD_CENSO } from '../../constants';
+import { formatNumber } from '../../utils';
 
 /**
  * Variante semantica del Badge segun el grupo de edad.
@@ -26,5 +27,6 @@ export function obtenerVarianteBadgeEdad(grupoEdad) {
  */
 export function formatearPorcentaje(valor, decimales = 1) {
   if (valor === null || valor === undefined || isNaN(valor)) return '-';
-  return `${Number(valor).toFixed(decimales)}%`;
+  // formatNumber aplica locale es-ES (coma decimal): "12,5%", no "12.5%".
+  return `${formatNumber(valor, decimales)}%`;
 }

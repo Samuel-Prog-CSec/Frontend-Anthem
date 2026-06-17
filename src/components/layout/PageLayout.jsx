@@ -1,134 +1,174 @@
 /**
- * Componente PageLayout
+ * PageLayout - shell de la aplicacion "Atlas Civico"
  *
- * Layout base "Civic Operations Console". Compone Navbar fija, area
- * principal con jerarquia editorial y un footer monoespacial.
+ * Sidebar agrupada por familia (desktop) + drawer (movil), area principal con
+ * cabecera limpia y footer sobrio. Cada pagina declara su `dominio` (o se
+ * infiere de la ruta) para tenir el acento via el token --dominio.
  *
- * Decisiones (Fase 4 - reset bold):
- *   - Fondo: solo el color ink solido + sutil ruido SVG. Eliminados los
- *     blobs decorativos cyan/violet que evocaban template de SaaS.
- *   - Header: eyebrow mono + display serif italic + lead + actions.
- *     Hairline con tick marks como signature (regla metrica de plano
- *     tecnico).
- *   - Footer: wordmark mono + identificadores tecnicos (fecha, version).
+ * Cambios frente al shell anterior ("Civic Operations Console"):
+ *   - Fuera el grain feTurbulence, la regla de ticks, el eyebrow universal y
+ *     el StatusStrip de reloj/coordenadas falsas.
+ *   - Navbar de 14 iconos sin label -> sidebar con icono + texto.
+ *   - Cabecera: titulo (que nombra la cosa) + bajada con dato + hairline de
+ *     acento del dominio. El filtro geografico activo se muestra como chip
+ *     real y retirable.
+ *
+ * Compat: se siguen aceptando props antiguas (eyebrow, statusArea, ...) para
+ * no romper las 16 paginas; las relativas al StatusStrip ya no se renderizan.
  */
 
-import { Navbar } from './Navbar';
-import { StatusStrip } from '../common/StatusStrip';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Menu, Filter, X } from 'lucide-react';
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from '../common';
+import { useFiltroGeo } from '../../context';
+import { BarraLateral, SidebarContenido } from './Sidebar';
+import { Wordmark } from './Wordmark';
+import { ThemeToggle } from './ThemeToggle';
+import { dominioDeRuta } from './navegacion';
+import { formatearNombreDistritoTitulo, aTituloCase } from '../../utils';
+
+/**
+ * Chip del filtro geografico global. Solo se renderiza si hay filtro activo.
+ * Tinte segun el dominio de la pagina.
+ */
+function ChipFiltroGeo() {
+  const { distrito, barrio, tieneFiltro, limpiarFiltro } = useFiltroGeo();
+  if (!tieneFiltro) { return null; }
+
+  return (
+    <div className="mb-6 flex items-center gap-2">
+      <span className="text-xs text-muted-foreground">Filtro geográfico</span>
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-dominio/40 bg-dominio-soft px-2.5 py-1 text-xs font-medium text-foreground">
+        <Filter className="size-3 text-dominio" aria-hidden="true" />
+        <span className="max-w-[200px] truncate">
+          {formatearNombreDistritoTitulo(distrito)}{barrio ? ` / ${aTituloCase(barrio)}` : ''}
+        </span>
+        <button
+          type="button"
+          onClick={limpiarFiltro}
+          aria-label="Quitar filtro geográfico"
+          className="-mr-1 ml-0.5 rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        >
+          <X className="size-3" aria-hidden="true" />
+        </button>
+      </span>
+    </div>
+  );
+}
 
 /**
  * Layout base de pagina
- * @param {Object} props - Props del componente
- * @param {React.ReactNode} props.children - Contenido de la pagina
- * @param {string} [props.title] - Titulo de la pagina
- * @param {string} [props.description] - Descripcion de la pagina
- * @param {string} [props.eyebrow] - Texto pequeno sobre el titulo (ej. "Modulo / Submodulo")
- * @param {React.ReactNode} [props.actions] - Acciones de cabecera (botones, filtros)
- * @param {string} [props.statusArea] - Texto del area mostrado en StatusStrip (ej. "Aire")
- * @param {string} [props.statusExtra] - Texto auxiliar para StatusStrip
- * @param {'ok'|'caution'|'alert'} [props.statusEstado='ok'] - Indicador del StatusStrip
- * @param {boolean} [props.hideStatusStrip=false] - Ocultar el StatusStrip integrado
+ * @param {Object} props
+ * @param {React.ReactNode} props.children
+ * @param {string} [props.title]
+ * @param {string} [props.description]
+ * @param {React.ReactNode} [props.actions]
+ * @param {'movilidad'|'ambiente'|'ruido'|'seguridad'|'demografia'|'bi'} [props.dominio]
+ *        Dominio para el token de color. Si se omite, se infiere de la ruta.
  */
-function PageLayout({
-  children,
-  title,
-  description,
-  eyebrow,
-  actions,
-  statusArea,
-  statusExtra,
-  statusEstado = 'ok',
-  hideStatusStrip = false
-}) {
+function PageLayout({ children, title, description, actions, dominio }) {
+  const { pathname } = useLocation();
+  const [menuAbierto, setMenuAbierto] = useState(false);
+  const dominioEfectivo = dominio || dominioDeRuta(pathname);
+
+  // Titulo del documento por ruta (pestana / marcador / historial), en vez del
+  // generico estatico. El titulo de cada pagina nombra la cosa: "Censo - Anthem".
+  useEffect(() => {
+    document.title = title ? `${title} · Anthem` : 'Anthem · Atlas urbano de Madrid';
+    return () => { document.title = 'Anthem · Atlas urbano de Madrid'; };
+  }, [title]);
+
   return (
-    <div className="relative min-h-screen bg-background">
-      {/* Skip-link para accesibilidad de teclado (WCAG 2.4.1) */}
+    <div
+      data-dominio={dominioEfectivo}
+      className="min-h-screen bg-background text-foreground"
+    >
       <a
         href="#contenido-principal"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded focus:outline-none"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none"
       >
         Saltar al contenido principal
       </a>
 
-      {/* Fondo: solo grano sutil para romper la planitud. Sin blobs
-          decorativos. La textura es papel/asfalto, no nube. */}
-      <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
-        <div
-          className="absolute inset-0 opacity-[0.025]"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")"
-          }}
-        />
+      <BarraLateral />
+
+      {/* Barra superior solo en movil (en desktop la sidebar la sustituye) */}
+      <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur lg:hidden">
+        <button
+          type="button"
+          onClick={() => setMenuAbierto(true)}
+          aria-label="Abrir navegación"
+          className="-ml-1 inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        >
+          <Menu className="size-5" aria-hidden="true" />
+        </button>
+        <Wordmark />
+        <ThemeToggle />
       </div>
 
-      <Navbar />
+      <div className="lg:pl-[248px]">
+        <main
+          id="contenido-principal"
+          tabIndex="-1"
+          className="flex min-h-[calc(100vh-3.5rem)] flex-col lg:min-h-screen"
+        >
+          <div className="mx-auto w-full max-w-[1400px] flex-1 animate-fade-up px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
+            <ChipFiltroGeo />
 
-      <main id="contenido-principal" className="relative z-10 pt-16" tabIndex="-1">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
-          {(title || actions) && (
-            <header className="mb-10 lg:mb-12">
-              <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-                <div className="space-y-3">
-                  {eyebrow && (
-                    <p className="eyebrow">
-                      {eyebrow}
-                    </p>
-                  )}
-                  {title && (
-                    <h1 className="font-display italic text-4xl sm:text-5xl lg:text-6xl text-foreground tracking-tight leading-[1]">
-                      {title}
-                    </h1>
-                  )}
-                  {description && (
-                    <p className="text-base text-muted-foreground max-w-2xl leading-relaxed">
-                      {description}
-                    </p>
+            {(title || actions) && (
+              <header className="mb-8 lg:mb-10">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="min-w-0 space-y-2.5">
+                    {title && (
+                      <h1 className="font-display text-[2rem] font-semibold leading-[1.05] tracking-tight text-foreground sm:text-4xl lg:text-[2.75rem]">
+                        {title}
+                      </h1>
+                    )}
+                    {description && (
+                      <p className="max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
+                        {description}
+                      </p>
+                    )}
+                  </div>
+                  {actions && (
+                    <div className="flex shrink-0 flex-wrap items-center gap-2">
+                      {actions}
+                    </div>
                   )}
                 </div>
-                {actions && (
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {actions}
-                  </div>
-                )}
-              </div>
 
-              {/* Hairline con tick marks como signature: regla metrica de
-                  un plano tecnico. Marca el limite entre cabecera y
-                  contenido. */}
-              <div className="mt-8 tick-marks" />
-            </header>
-          )}
+                {/* Hairline de acento del dominio (firma sobria, sustituye los tick-marks) */}
+                <div
+                  className="mt-6 h-px w-full"
+                  style={{ background: 'linear-gradient(to right, var(--dominio) 0%, var(--border) 30%, var(--border) 100%)' }}
+                  aria-hidden="true"
+                />
+              </header>
+            )}
 
-          {/* StatusStrip integrado por defecto: signature de la consola.
-              Las paginas pueden ocultarlo con hideStatusStrip=true cuando
-              estorbe en layouts compactos. */}
-          {!hideStatusStrip && (
-            <div className="mb-8">
-              <StatusStrip area={statusArea || title} extra={statusExtra} estado={statusEstado} />
-            </div>
-          )}
-
-          {/* Sin animacion de entrada a nivel de contenedor (bug historico
-              de "elementos bajan en fondo negro" tras re-render). */}
-          <div>
             {children}
           </div>
-        </div>
-      </main>
 
-      <footer className="relative z-10 border-t border-[var(--border-hairline)] mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              ANTHEM // CTC // SISTEMA DE OPERACIONES URBANAS
-            </p>
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--ink-tertiary)]">
-              2051 / v0.1 / PROYECTO UNIVERSITARIO
-            </p>
-          </div>
-        </div>
-      </footer>
+          <footer className="border-t border-border">
+            <div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-10">
+              <p className="text-xs text-muted-foreground">
+                Anthem, atlas urbano de Madrid. Datos simulados del año 2051.
+              </p>
+            </div>
+          </footer>
+        </main>
+      </div>
+
+      <Sheet open={menuAbierto} onOpenChange={setMenuAbierto}>
+        <SheetContent side="left" className="w-[280px] p-0 lg:hidden">
+          <SheetTitle className="sr-only">Navegación principal</SheetTitle>
+          <SheetDescription className="sr-only">
+            Menú de navegación entre las áreas del atlas urbano.
+          </SheetDescription>
+          <SidebarContenido onNavegar={() => setMenuAbierto(false)} />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

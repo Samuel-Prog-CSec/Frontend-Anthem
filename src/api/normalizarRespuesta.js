@@ -49,7 +49,11 @@ export function normalizarRespuestaLista(response, dataKey = 'data') {
     message: envelope.message,
     data,
     pagination: inner.pagination || null,
-    filters: inner.filters || null
+    filters: inner.filters || null,
+    // `stats` lo emiten los listados de gran volumen (/accidentes, /trafico,
+    // /multas) dentro del mismo $facet. Conservarlo permite a los hooks exponer
+    // los totales por-filtro sin una segunda peticion al endpoint /estadisticas.
+    stats: inner.stats || null
   };
 }
 

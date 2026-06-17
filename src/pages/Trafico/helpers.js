@@ -79,7 +79,7 @@ export function validarRangoMapa(startDate, endDate) {
   const desde = new Date(startDate);
   const hasta = new Date(endDate);
   if (isNaN(desde.getTime()) || isNaN(hasta.getTime())) {
-    return { valido: false, error: 'Fechas no validas.' };
+    return { valido: false, error: 'Fechas no válidas.' };
   }
   // El dataset es de un unico año (2051). Aunque los inputs llevan min/max,
   // algunos navegadores permiten teclear fuera de rango: bloqueamos aqui para
@@ -93,7 +93,7 @@ export function validarRangoMapa(startDate, endDate) {
   }
   const dias = Math.ceil((hasta - desde) / (24 * 60 * 60 * 1000));
   if (dias > TRAFICO_MAPA_MAX_DIAS) {
-    return { valido: false, error: `El rango maximo es ${TRAFICO_MAPA_MAX_DIAS} dias (solicitado: ${dias}).` };
+    return { valido: false, error: `El rango máximo es ${TRAFICO_MAPA_MAX_DIAS} días (solicitado: ${dias}).` };
   }
   return { valido: true, dias };
 }

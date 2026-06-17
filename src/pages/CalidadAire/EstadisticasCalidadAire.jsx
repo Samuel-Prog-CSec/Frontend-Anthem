@@ -7,17 +7,25 @@
  * la pagina principal con esa logica.
  */
 
-import { Activity, Wind, TrendingUp, BarChart3, AlertTriangle } from 'lucide-react';
+import { Activity, Wind, TrendingUp, TrendingDown } from 'lucide-react';
 import { StatCard } from '../../components/charts';
 import { formatNumber } from '../../utils';
+import { obtenerUnidadMagnitud } from './helpers';
 
 function EstadisticasCalidadAire({
   estadisticasApi,
   estadisticasLocales,
   totalDocumentos,
-  cargandoStats
+  cargandoStats,
+  serieTendenciaPromedio,
+  magnitudFiltro
 }) {
   const hasApi = !!estadisticasApi;
+  // Cada contaminante tiene su unidad (CO en mg/m3, resto ug/m3). Solo se rotula
+  // la unidad cuando hay un contaminante filtrado; sin filtro los KPIs mezclan
+  // magnitudes con escalas distintas y una unica unidad seria incorrecta.
+  const unidad = magnitudFiltro ? obtenerUnidadMagnitud(parseInt(magnitudFiltro, 10)) : '';
+  const sufijoUnidad = unidad ? ` ${unidad}` : '';
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -35,36 +43,35 @@ function EstadisticasCalidadAire({
           : (hasApi ? formatNumber(estadisticasApi.totalRegistros) : '-')}
         subtitle={cargandoStats ? 'Cargando...' : undefined}
         icon={Activity}
-        accent="cyan"
+        accent="dominio"
       />
       <StatCard
         title="Promedio general"
         value={hasApi
-          ? `${formatNumber(estadisticasApi.promedio, 1)} μg/m³`
-          : `${formatNumber(estadisticasLocales.avg, 1)} μg/m³`}
-        subtitle={hasApi ? 'todas las estaciones' : 'en pagina actual'}
+          ? `${formatNumber(estadisticasApi.promedio, 1)}${sufijoUnidad}`
+          : `${formatNumber(estadisticasLocales.avg, 1)}${sufijoUnidad}`}
+        subtitle={hasApi ? 'todas las estaciones' : 'en página actual'}
         icon={Wind}
-        accent="emerald"
+        accent="dominio"
+        serie={serieTendenciaPromedio}
       />
       <StatCard
-        title="Valor maximo"
+        title="Valor máximo"
         value={hasApi
-          ? `${formatNumber(estadisticasApi.maximo, 1)} μg/m³`
-          : `${formatNumber(estadisticasLocales.max, 1)} μg/m³`}
-        subtitle={hasApi ? 'registrado' : 'en pagina actual'}
+          ? `${formatNumber(estadisticasApi.maximo, 1)}${sufijoUnidad}`
+          : `${formatNumber(estadisticasLocales.max, 1)}${sufijoUnidad}`}
+        subtitle={hasApi ? 'registrado' : 'en página actual'}
         icon={TrendingUp}
-        accent="amber"
+        accent="dominio"
       />
       <StatCard
-        title={estadisticasApi?.diasConExcedencias != null ? 'Dias con excedencias' : 'Datos validos'}
-        value={estadisticasApi?.diasConExcedencias != null
-          ? formatNumber(estadisticasApi.diasConExcedencias)
-          : (estadisticasApi?.medicionesValidas
-            ? formatNumber(estadisticasApi.medicionesValidas)
-            : estadisticasLocales.valid)}
-        subtitle={estadisticasApi?.diasConExcedencias != null ? 'sobre limite' : 'en pagina actual'}
-        icon={estadisticasApi?.diasConExcedencias != null ? AlertTriangle : BarChart3}
-        accent={estadisticasApi?.diasConExcedencias != null ? 'rose' : 'violet'}
+        title="Valor mínimo"
+        value={hasApi
+          ? `${formatNumber(estadisticasApi.minimo, 1)}${sufijoUnidad}`
+          : `${formatNumber(estadisticasLocales.min, 1)}${sufijoUnidad}`}
+        subtitle={hasApi ? 'registrado' : 'en página actual'}
+        icon={TrendingDown}
+        accent="dominio"
       />
     </div>
   );

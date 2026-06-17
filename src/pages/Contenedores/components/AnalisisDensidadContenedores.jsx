@@ -51,7 +51,7 @@ const AnalisisDensidadContenedores = memo(function AnalisisDensidadContenedores(
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <BarChart3 className="size-5" aria-hidden="true" />
-          Analisis de densidad
+          Análisis de densidad
         </CardTitle>
         <CardDescription>
           Densidad de contenedores por distrito y barrio
@@ -61,15 +61,15 @@ const AnalisisDensidadContenedores = memo(function AnalisisDensidadContenedores(
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <TableSkeleton rows={6} columns={5} aria-label="Cargando analisis" />
+          <TableSkeleton rows={6} columns={5} aria-label="Cargando análisis" />
         ) : filas.length === 0 ? (
           <EmptyState
-            title="Sin datos de densidad"
-            description="No hay datos para los filtros seleccionados."
+            title="Sin resultados para estos filtros"
+            description="No hay datos de densidad para los filtros seleccionados."
             icon={BarChart3}
           />
         ) : (
-          <Table label="Analisis de densidad" rowCount={filas.length}>
+          <Table label="Análisis de densidad" rowCount={filas.length}>
             <TableCaption className="sr-only">
               Tabla con densidad de contenedores por zona
             </TableCaption>

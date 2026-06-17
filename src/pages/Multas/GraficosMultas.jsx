@@ -17,7 +17,7 @@ function GraficosMultas({ datosGraficoCalificacion, datosGraficoRanking }) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       {datosGraficoCalificacion.length > 0 && (
         <BarChartCard
-          title="Distribucion por calificacion"
+          title="Distribución por calificación"
           data={datosGraficoCalificacion}
           xKey="nombre"
           bars={[{ key: 'total', name: 'Total multas', color: CHART_COLORS.primary }]}
@@ -25,7 +25,7 @@ function GraficosMultas({ datosGraficoCalificacion, datosGraficoRanking }) {
       )}
       {datosGraficoRanking.length > 0 && (
         <BarChartCard
-          title="Top 10 ubicaciones con mas multas"
+          title="Top 10 ubicaciones con más multas"
           data={datosGraficoRanking}
           xKey="nombre"
           bars={[{ key: 'total', name: 'Total multas', color: CHART_COLORS.quaternary }]}

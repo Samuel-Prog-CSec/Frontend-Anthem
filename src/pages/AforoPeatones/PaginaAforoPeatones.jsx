@@ -72,7 +72,7 @@ function PaginaAforoPeatones() {
     if (filtros.mes) {
       const fecha = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes) - 1, 1);
       params.startDate = fecha.toISOString();
-      const fechaFin = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes), 0);
+      const fechaFin = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes, 10), 0, 23, 59, 59, 999);
       params.endDate = fechaFin.toISOString();
     }
     return params;
@@ -105,6 +105,12 @@ function PaginaAforoPeatones() {
       total: h.totalPeatones || 0
     }));
   }, [distribucionResult]);
+
+  // Serie plana (promedio de peatones por hora, orden cronologico 0-23h) para
+  // la sparkline inline de la tarjeta "Promedio/hora".
+  const seriePatronHorario = useMemo(() => {
+    return datosPatronHorario.map(h => h.promedio);
+  }, [datosPatronHorario]);
 
   const estacionesRanking = useMemo(() => {
     return estacionesResult?.data?.estaciones || estacionesResult?.data?.data || [];
@@ -168,15 +174,15 @@ function PaginaAforoPeatones() {
 
   return (
     <PageLayout
-      eyebrow="Movilidad / Aforo de peatones"
-      title="Pisada urbana"
-      description="Recuento de peatones por estaciones de aforo. Patrones horarios, comparativa entre puntos y distribucion temporal en 2051."
+      title="Aforo de peatones"
+      description="Recuento de peatones por estaciones de aforo. Patrones horarios, comparativa entre puntos y distribución temporal en 2051."
     >
       <EstadisticasAforoPeatones
         totalMediciones={totalMediciones}
         totalPeatones={totalPeatones}
         promedioPorHora={promedioPorHora}
         totalEstaciones={totalEstaciones}
+        seriePatronHorario={seriePatronHorario}
         estadisticasCargando={!estadisticas}
         estacionesCargando={!estacionesResult}
       />
@@ -185,10 +191,10 @@ function PaginaAforoPeatones() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Radio className="size-5" aria-hidden="true" />
-            Estaciones de Aforo Peatonal en el Mapa
+            Estaciones de aforo peatonal en el mapa
           </CardTitle>
           <CardDescription>
-            Puntos clusterizados con volumen agregado de peatones por estacion.
+            Puntos clusterizados con volumen agregado de peatones por estación.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -204,7 +210,7 @@ function PaginaAforoPeatones() {
                   <div>Total peatones: {formatNumber(props.totalPeatones)}</div>
                   <div>Registros: {formatNumber(props.registros)}</div>
                   {props.distrito && <div>Distrito: {props.distrito}</div>}
-                  {props.nombreVial && <div>Via: {props.nombreVial}</div>}
+                  {props.nombreVial && <div>Vía: {props.nombreVial}</div>}
                 </div>
               )}
             />

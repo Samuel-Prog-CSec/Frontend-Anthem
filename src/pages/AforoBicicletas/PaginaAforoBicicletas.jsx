@@ -51,7 +51,7 @@ function PaginaAforoBicicletas() {
     if (filtros.mes) {
       const fecha = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes) - 1, 1);
       params.startDate = fecha.toISOString();
-      const fechaFin = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes), 0);
+      const fechaFin = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes, 10), 0, 23, 59, 59, 999);
       params.endDate = fechaFin.toISOString();
     }
     return params;
@@ -99,6 +99,12 @@ function PaginaAforoBicicletas() {
       || [];
   }, [estacionesResult]);
 
+  // Serie plana del patron horario (promedio por hora, orden cronologico
+  // 0-23h) para la sparkline inline del StatCard "Promedio/hora".
+  const seriePatronHorario = useMemo(() => {
+    return datosPatronHorario.map(h => h.promedio);
+  }, [datosPatronHorario]);
+
   const datosTopEstaciones = useMemo(() => {
     return estacionesRanking
       .slice(0, 10)
@@ -120,7 +126,8 @@ function PaginaAforoBicicletas() {
       (sum, d) => sum + (d.totalPoblacion || 0), 0
     );
     if (poblacionTotal === 0) return null;
-    return ((totalBicis / poblacionTotal) * 1000).toFixed(1);
+    // formatNumber -> coma decimal es-ES ("1363,9"), no "1363.9".
+    return formatNumber((totalBicis / poblacionTotal) * 1000, 1);
   }, [estadisticas, resumenCenso]);
 
   const manejarCambioFiltro = useCallback((nombre, valor) => {
@@ -159,12 +166,11 @@ function PaginaAforoBicicletas() {
 
   return (
     <PageLayout
-      eyebrow="Movilidad / Aforo de bicicletas"
-      title="Trafico ciclista por estacion"
+      title="Aforo de bicicletas"
       description={
         totalMediciones > 0
-          ? `${formatNumber(totalMediciones)} mediciones horarias de bicicletas en circulacion, agregadas por estacion fija con franja temporal. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`
-          : `Mediciones horarias de bicicletas en circulacion, agregadas por estacion fija con franja temporal. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`
+          ? `${formatNumber(totalMediciones)} mediciones horarias de bicicletas en circulación, agregadas por estación fija con franja temporal. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`
+          : `Mediciones horarias de bicicletas en circulación, agregadas por estación fija con franja temporal. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`
       }
     >
       <EstadisticasAforoBicicletas
@@ -173,6 +179,7 @@ function PaginaAforoBicicletas() {
         promedioPorHora={promedioPorHora}
         totalEstaciones={totalEstaciones}
         bicicletasPerCapita={bicicletasPerCapita}
+        seriePatronHorario={seriePatronHorario}
         estadisticasCargando={!estadisticas}
         estacionesCargando={!estacionesResult}
       />
@@ -184,7 +191,7 @@ function PaginaAforoBicicletas() {
             Estaciones de aforo en el mapa
           </CardTitle>
           <CardDescription>
-            Puntos clusterizados con volumen agregado de bicicletas por estacion.
+            Puntos clusterizados con volumen agregado de bicicletas por estación.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -200,7 +207,7 @@ function PaginaAforoBicicletas() {
                   <div>Total bicicletas: {formatNumber(props.totalBicicletas)}</div>
                   <div>Registros: {formatNumber(props.registros)}</div>
                   {props.distrito && <div>Distrito: {props.distrito}</div>}
-                  {props.nombreVial && <div>Via: {props.nombreVial}</div>}
+                  {props.nombreVial && <div>Vía: {props.nombreVial}</div>}
                 </div>
               )}
             />

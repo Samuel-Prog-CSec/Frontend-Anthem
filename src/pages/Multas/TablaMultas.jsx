@@ -12,7 +12,7 @@ import {
   ErrorState, EmptyState, Pagination, TableSkeleton
 } from '../../components/common';
 import { ETIQUETAS_CALIFICACION_MULTA, DATE_CONFIG, PAGINATION } from '../../constants';
-import { formatNumber, formatDate } from '../../utils';
+import { formatNumber, formatDate, aTituloCase } from '../../utils';
 import { obtenerVarianteBadgeCalificacion, formatearImporte, formatearLugar } from './helpers';
 
 function TablaMultas({
@@ -46,18 +46,18 @@ function TablaMultas({
           <>
             <div className="overflow-x-auto">
               <Table
-                label="Listado de multas de trafico"
+                label="Listado de multas de tráfico"
                 rowCount={paginacion?.totalDocuments}
               >
                 <TableCaption>
-                  Multas de trafico - Anthem City {DATE_CONFIG.DATASET_YEAR}
+                  Multas de tráfico - Anthem City {DATE_CONFIG.DATASET_YEAR}
                 </TableCaption>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Fecha</TableHead>
                     <TableHead>Hora</TableHead>
                     <TableHead>Lugar</TableHead>
-                    <TableHead>Calificacion</TableHead>
+                    <TableHead>Calificación</TableHead>
                     <TableHead className="text-right">Importe</TableHead>
                     <TableHead>Descuento</TableHead>
                     <TableHead className="text-right">Puntos</TableHead>
@@ -89,13 +89,13 @@ function TablaMultas({
                       </TableCell>
                       <TableCell>
                         <Badge variant={multa.tieneDescuento ? 'success' : 'secondary'}>
-                          {multa.tieneDescuento ? 'Si' : 'No'}
+                          {multa.tieneDescuento ? 'Sí' : 'No'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right font-mono">
                         {multa.puntosDetraídos || 0}
                       </TableCell>
-                      <TableCell className="text-sm">{multa.denunciante || '-'}</TableCell>
+                      <TableCell className="text-sm">{multa.denunciante ? aTituloCase(multa.denunciante) : '-'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

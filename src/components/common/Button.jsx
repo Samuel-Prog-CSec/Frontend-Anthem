@@ -63,16 +63,17 @@ const Button = memo(forwardRef(({
       className={cn(buttonVariants({ variant, size, className }))}
       ref={ref}
       disabled={disabled || isLoading}
-      aria-busy={isLoading || undefined}
+      aria-busy={isLoading ? 'true' : undefined}
       {...props}
     >
       {isLoading ? (
         <>
           <svg
-            className="animate-spin size-4"
+            className="motion-safe:animate-spin size-4"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <circle
               className="opacity-25"

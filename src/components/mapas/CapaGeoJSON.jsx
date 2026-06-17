@@ -26,6 +26,12 @@ export function CapaGeoJSON({
     return null;
   }
 
+  // react-leaflet <GeoJSON> ignora cambios de `data` tras montar. Una `key`
+  // derivada del contenido fuerza el remount cuando cambia la coleccion (numero
+  // de features + identificador del primero), evitando que el mapa muestre datos
+  // obsoletos al cambiar de filtro.
+  const featureKey = `${featureCollection.features.length}:${featureCollection.features[0]?.id ?? featureCollection.features[0]?.properties?.id ?? ''}`;
+
   const bindPopup = (feature, layer) => {
     if (onEachFeature) {onEachFeature(feature, layer);}
     if (renderPopup) {
@@ -42,6 +48,7 @@ export function CapaGeoJSON({
 
   return (
     <GeoJSON
+      key={featureKey}
       data={featureCollection}
       style={style}
       onEachFeature={bindPopup}

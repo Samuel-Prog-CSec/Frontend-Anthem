@@ -22,14 +22,14 @@ const TarjetasResumenDistrito = memo(function TarjetasResumenDistrito({
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       <StatCard
-        title="Poblacion total"
+        title="Población total"
         value={formatNumber(totalPoblacion || 0)}
         icon={Users}
       />
       <StatCard
         title="Accidentes registrados"
         value={cargandoAccidentes ? '…' : formatNumber(totalAccidentes || 0)}
-        subtitle="dataset completo"
+        subtitle="datos completos"
         icon={AlertTriangle}
       />
       <StatCard
@@ -39,9 +39,9 @@ const TarjetasResumenDistrito = memo(function TarjetasResumenDistrito({
         icon={Zap}
       />
       <StatCard
-        title="Multas en zona"
+        title="Multas geolocalizadas"
         value={cargandoMultas ? '…' : formatNumber(totalMultasEnZona || 0)}
-        subtitle="aproximado por bbox"
+        subtitle="solo con coordenadas (~2%)"
         icon={Receipt}
       />
     </div>

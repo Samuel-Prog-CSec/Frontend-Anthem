@@ -8,7 +8,30 @@
 
 import { memo, useMemo } from 'react';
 import { BarChartCard } from '../../../components/charts';
+import { Card, CardHeader, CardTitle, CardContent, EmptyState } from '../../../components/common';
 import { CHART_COLORS } from '../../../constants';
+
+/**
+ * Placeholder para un slot de grafico sin datos tras cargar.
+ * Mantiene el marco (titulo + tarjeta) del grafico que sustituye y evita
+ * el skeleton infinito cuando la carga ha terminado sin resultados.
+ */
+function PlaceholderGraficoVacio({ title }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <EmptyState
+          title="Sin datos"
+          description="No hay datos para mostrar con los filtros actuales."
+          className="py-10"
+        />
+      </CardContent>
+    </Card>
+  );
+}
 
 const GraficosTrafico = memo(function GraficosTrafico({
   analisisCongestion,
@@ -39,27 +62,35 @@ const GraficosTrafico = memo(function GraficosTrafico({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <BarChartCard
-        title="Top 12 zonas por congestion (%)"
-        data={datosCongestion}
-        xKey="name"
-        bars={[
-          { key: 'congestion', name: 'Congestion', color: CHART_COLORS.danger },
-          { key: 'fluido', name: 'Fluido', color: CHART_COLORS.secondary }
-        ]}
-        height={320}
-        isLoading={isLoading}
-      />
-      <BarChartCard
-        title="Intensidad por periodo del dia"
-        data={datosHorarios}
-        xKey="name"
-        bars={[
-          { key: 'intensidad', name: 'Intensidad media', color: CHART_COLORS.primary }
-        ]}
-        height={320}
-        isLoading={isLoading}
-      />
+      {!isLoading && datosCongestion.length === 0 ? (
+        <PlaceholderGraficoVacio title="Top 12 zonas por congestión (%)" />
+      ) : (
+        <BarChartCard
+          title="Top 12 zonas por congestión (%)"
+          data={datosCongestion}
+          xKey="name"
+          bars={[
+            { key: 'congestion', name: 'Congestión', color: CHART_COLORS.danger },
+            { key: 'fluido', name: 'Fluido', color: CHART_COLORS.secondary }
+          ]}
+          height={320}
+          isLoading={isLoading}
+        />
+      )}
+      {!isLoading && datosHorarios.length === 0 ? (
+        <PlaceholderGraficoVacio title="Intensidad por periodo del día" />
+      ) : (
+        <BarChartCard
+          title="Intensidad por periodo del día"
+          data={datosHorarios}
+          xKey="name"
+          bars={[
+            { key: 'intensidad', name: 'Intensidad media', color: CHART_COLORS.primary }
+          ]}
+          height={320}
+          isLoading={isLoading}
+        />
+      )}
     </div>
   );
 });

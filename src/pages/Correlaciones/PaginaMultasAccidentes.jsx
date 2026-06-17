@@ -14,7 +14,7 @@
 
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, FileWarning, AlertTriangle, TrendingUp, Info } from 'lucide-react';
+import { ArrowLeft, FileWarning, AlertTriangle, Info } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
 import {
   Card, CardHeader, CardTitle, CardDescription, CardContent, Button,
@@ -24,7 +24,7 @@ import {
 import { StatCard, BarChartCard } from '../../components/charts';
 import { useAccidentesComparativa, useMultasRanking } from '../../api/hooks';
 import { ROUTES, CHART_COLORS } from '../../constants';
-import { formatNumber } from '../../utils';
+import { formatNumber, formatearNombreDistritoTitulo, aTituloCase } from '../../utils';
 
 function PaginaMultasAccidentes() {
   const {
@@ -72,22 +72,24 @@ function PaginaMultasAccidentes() {
   const totales = useMemo(() => {
     const totalAccidentes = accidentesPorDistrito.reduce((s, f) => s + f.total, 0);
     const totalMultas = multasPorLugar.reduce((s, f) => s + f.total, 0);
-    const ratioGlobal = totalAccidentes > 0 ? totalMultas / totalAccidentes : 0;
-    return { totalAccidentes, totalMultas, ratioGlobal };
+    return { totalAccidentes, totalMultas };
   }, [accidentesPorDistrito, multasPorLugar]);
 
   const datosGraficoAccidentes = useMemo(() => {
     return accidentesPorDistrito.slice(0, 12).map(r => ({
-      name: r.nombre,
+      name: formatearNombreDistritoTitulo(r.nombre),
       accidentes: r.total
     }));
   }, [accidentesPorDistrito]);
 
   const datosGraficoMultas = useMemo(() => {
-    return multasPorLugar.slice(0, 12).map(r => ({
-      name: r.nombre.length > 24 ? `${r.nombre.slice(0, 22)}...` : r.nombre,
-      multas: r.total
-    }));
+    return multasPorLugar.slice(0, 12).map(r => {
+      const etiqueta = aTituloCase(r.nombre);
+      return {
+        name: etiqueta.length > 24 ? `${etiqueta.slice(0, 22)}...` : etiqueta,
+        multas: r.total
+      };
+    });
   }, [multasPorLugar]);
 
   const sinDatos = !cargando
@@ -97,7 +99,7 @@ function PaginaMultasAccidentes() {
   return (
     <PageLayout
       title="Multas vs. Accidentes"
-      description="Indicadores agregados por dataset. La cruzada distrito-a-distrito no es posible porque la base de multas se indexa por calle, no por distrito."
+      description="Indicadores agregados de cada área. La comparación distrito a distrito no es posible porque las multas se registran por calle, no por distrito."
       actions={
         <Button asChild variant="outline" size="sm">
           <Link to={ROUTES.CORRELACIONES}>
@@ -107,7 +109,10 @@ function PaginaMultasAccidentes() {
         </Button>
       }
     >
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      {/* Sin "ratio multas/accidente": seria mezclar el numerador (multas del
+          top-50 lugares) con un denominador del total de accidentes -- ademas de
+          contradecir la tesis de esta pagina (granularidades no comparables). */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <StatCard
           title="Total accidentes"
           value={formatNumber(totales.totalAccidentes)}
@@ -122,25 +127,18 @@ function PaginaMultasAccidentes() {
           icon={FileWarning}
           isLoading={cargando}
         />
-        <StatCard
-          title="Ratio multas/accidente"
-          value={formatNumber(totales.ratioGlobal, 2)}
-          subtitle="global del corpus"
-          icon={TrendingUp}
-          isLoading={cargando}
-        />
       </div>
 
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Info className="size-4" aria-hidden="true" />
-            Por que dos rankings paralelos
+            Por qué dos rankings paralelos
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            El CSV de multas no incluye distrito; solo registra el lugar de la denuncia (calle o punto kilometrico). Solo el 1.8% trae coordenadas UTM, insuficiente para reverse-geocoding fiable. Por integridad mostramos cada dataset en su granularidad real: accidentes por distrito (21 unidades) y multas por lugar (top 50 calles).
+            Los datos de multas no incluyen distrito; solo registran el lugar de la denuncia (calle o punto kilométrico). Solo el 1.8% trae coordenadas, insuficiente para ubicarlas en un distrito de forma fiable. Por eso mostramos cada área en su nivel de detalle real: accidentes por distrito (21 unidades) y multas por lugar (top 50 calles).
           </p>
         </CardContent>
       </Card>
@@ -179,9 +177,9 @@ function PaginaMultasAccidentes() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <Card>
           <CardHeader>
-            <CardTitle>Distritos con mas accidentes</CardTitle>
+            <CardTitle>Distritos con más accidentes</CardTitle>
             <CardDescription>
-              Ranking municipal por distrito. Util para asignar recursos de patrullaje y mejora de infraestructura.
+              Ranking municipal por distrito. Útil para asignar recursos de patrullaje y mejora de infraestructura.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -190,12 +188,12 @@ function PaginaMultasAccidentes() {
             ) : accidentesPorDistrito.length === 0 ? (
               <EmptyState
                 title="Sin datos"
-                description="No hay accidentes en la consulta."
+                description="No hay accidentes disponibles."
                 icon={AlertTriangle}
               />
             ) : (
               <Table label="Top distritos por accidentes" rowCount={Math.min(20, accidentesPorDistrito.length)}>
-                <TableCaption className="sr-only">Top 20 distritos con mas accidentes</TableCaption>
+                <TableCaption className="sr-only">Top 20 distritos con más accidentes</TableCaption>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-12">#</TableHead>
@@ -207,7 +205,7 @@ function PaginaMultasAccidentes() {
                   {accidentesPorDistrito.slice(0, 20).map((r, idx) => (
                     <TableRow key={r.nombre}>
                       <TableCell className="font-mono text-muted-foreground">{idx + 1}</TableCell>
-                      <TableCell className="font-medium">{r.nombre}</TableCell>
+                      <TableCell className="font-medium">{formatearNombreDistritoTitulo(r.nombre)}</TableCell>
                       <TableCell className="text-right font-mono">{formatNumber(r.total)}</TableCell>
                     </TableRow>
                   ))}
@@ -219,9 +217,9 @@ function PaginaMultasAccidentes() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Lugares con mas multas</CardTitle>
+            <CardTitle>Lugares con más multas</CardTitle>
             <CardDescription>
-              Calles y puntos kilometricos con mayor numero de denuncias. Permite identificar focos sancionadores.
+              Calles y puntos kilométricos con mayor número de denuncias. Permite identificar focos sancionadores.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -230,12 +228,12 @@ function PaginaMultasAccidentes() {
             ) : multasPorLugar.length === 0 ? (
               <EmptyState
                 title="Sin datos"
-                description="No hay multas en la consulta."
+                description="No hay multas disponibles."
                 icon={FileWarning}
               />
             ) : (
               <Table label="Top lugares por multas" rowCount={Math.min(20, multasPorLugar.length)}>
-                <TableCaption className="sr-only">Top 20 lugares con mas multas</TableCaption>
+                <TableCaption className="sr-only">Top 20 lugares con más multas</TableCaption>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-12">#</TableHead>
@@ -247,7 +245,7 @@ function PaginaMultasAccidentes() {
                   {multasPorLugar.slice(0, 20).map((r, idx) => (
                     <TableRow key={r.nombre}>
                       <TableCell className="font-mono text-muted-foreground">{idx + 1}</TableCell>
-                      <TableCell className="font-medium">{r.nombre}</TableCell>
+                      <TableCell className="font-medium">{aTituloCase(r.nombre)}</TableCell>
                       <TableCell className="text-right font-mono">{formatNumber(r.total)}</TableCell>
                     </TableRow>
                   ))}

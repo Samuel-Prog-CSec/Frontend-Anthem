@@ -25,10 +25,10 @@ const TablaZonasAccidentalidad = memo(function TablaZonasAccidentalidad({ zonas 
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <MapPin className="size-5" />
-          Calles con mas accidentes
+          Calles con más accidentes
         </CardTitle>
         <CardDescription>
-          Top 10 calles por numero de accidentes registrados (expedientes unicos)
+          Top 10 calles por número de accidentes registrados (expedientes únicos)
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -43,7 +43,7 @@ const TablaZonasAccidentalidad = memo(function TablaZonasAccidentalidad({ zonas 
           </TableHeader>
           <TableBody>
             {zonas.map((zona, idx) => (
-              <TableRow key={`${zona._id?.calle || 'zona'}-${idx}`}>
+              <TableRow key={zona._id?.calle ? `${zona._id.calle}-${zona._id?.distrito || ''}` : `zona-${idx}`}>
                 <TableCell>
                   <p className="font-medium text-sm">{zona._id?.calle || '-'}</p>
                   <p className="text-xs text-muted-foreground">{zona._id?.distrito || ''}</p>
@@ -54,7 +54,7 @@ const TablaZonasAccidentalidad = memo(function TablaZonasAccidentalidad({ zonas 
                   </Badge>
                 </TableCell>
                 <TableCell className="text-center">{formatNumber(zona.accidentesGraves || 0)}</TableCell>
-                <TableCell className="text-center font-mono text-sm">{zona.puntuacionGravedadPromedio ? zona.puntuacionGravedadPromedio.toFixed(1) : '-'}</TableCell>
+                <TableCell className="text-center font-mono text-sm">{zona.puntuacionGravedadPromedio ? formatNumber(zona.puntuacionGravedadPromedio, 1) : '-'}</TableCell>
               </TableRow>
             ))}
           </TableBody>

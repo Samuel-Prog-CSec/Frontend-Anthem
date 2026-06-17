@@ -36,8 +36,7 @@ function PaginaMultas() {
   const [filtros, setFiltros] = useState({
     calificacion: '',
     denunciante: '',
-    mes: '',
-    tieneDescuento: ''
+    mes: ''
   });
   const [paginaActual, setPaginaActual] = useState(1);
   const [multaSeleccionada, setMultaSeleccionada] = useState(null);
@@ -49,11 +48,10 @@ function PaginaMultas() {
     };
     if (filtros.calificacion) params.calificacion = filtros.calificacion;
     if (filtros.denunciante) params.denunciante = filtros.denunciante;
-    if (filtros.tieneDescuento) params.tieneDescuento = filtros.tieneDescuento;
     if (filtros.mes) {
       const fecha = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes) - 1, 1);
       params.startDate = fecha.toISOString();
-      const fechaFin = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes), 0);
+      const fechaFin = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes, 10), 0, 23, 59, 59, 999);
       params.endDate = fechaFin.toISOString();
     }
     return params;
@@ -66,11 +64,10 @@ function PaginaMultas() {
     const params = { periodo: 'year' };
     if (filtros.calificacion) params.calificacion = filtros.calificacion;
     if (filtros.denunciante) params.denunciante = filtros.denunciante;
-    if (filtros.tieneDescuento) params.tieneDescuento = filtros.tieneDescuento;
     if (filtros.mes) {
       const fecha = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes) - 1, 1);
       params.startDate = fecha.toISOString();
-      const fechaFin = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes), 0);
+      const fechaFin = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes, 10), 0, 23, 59, 59, 999);
       params.endDate = fechaFin.toISOString();
     }
     return params;
@@ -78,16 +75,18 @@ function PaginaMultas() {
 
   // Distribucion real por calificacion (LEVE / GRAVE / MUY_GRAVE) via
   // /multas/estadisticas?groupBy=severity. Una distribucion no debe filtrarse
-  // por calificacion (se colapsaria a una sola barra), pero si respeta el mes.
+  // por calificacion (se colapsaria a una sola barra), pero si respeta el mes,
+  // el denunciante y el descuento (deben acotar el universo de multas).
   const distribucionParams = useMemo(() => {
     const params = { groupBy: 'severity' };
+    if (filtros.denunciante) params.denunciante = filtros.denunciante;
     if (filtros.mes) {
       const fecha = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes) - 1, 1);
       params.startDate = fecha.toISOString();
       params.endDate = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes), 0, 23, 59, 59).toISOString();
     }
     return params;
-  }, [filtros.mes]);
+  }, [filtros.denunciante, filtros.mes]);
 
   const { data: multasResult, isLoading, error, refetch } = useMultas(queryParams);
   const { data: dashboardResult } = useMultasDashboard(filtroAggParams);
@@ -161,7 +160,8 @@ function PaginaMultas() {
       (sum, d) => sum + (d.totalPoblacion || 0), 0
     );
     if (poblacionTotal === 0) return null;
-    return ((totalMultas / poblacionTotal) * 1000).toFixed(1);
+    // formatNumber -> coma decimal es-ES ("598,4"), no "598.4".
+    return formatNumber((totalMultas / poblacionTotal) * 1000, 1);
   }, [totalMultas, resumenCenso]);
 
   const manejarCambioFiltro = useCallback((nombre, valor) => {
@@ -170,7 +170,7 @@ function PaginaMultas() {
   }, []);
 
   const limpiarFiltros = useCallback(() => {
-    setFiltros({ calificacion: '', denunciante: '', mes: '', tieneDescuento: '' });
+    setFiltros({ calificacion: '', denunciante: '', mes: '' });
     setPaginaActual(1);
   }, []);
 
@@ -201,12 +201,11 @@ function PaginaMultas() {
 
   return (
     <PageLayout
-      eyebrow="Movilidad / Multas"
-      title="Disuasion circulatoria"
+      title="Multas"
       description={
         paginacion?.totalDocuments
-          ? `${formatNumber(paginacion.totalDocuments)} boletines con calificacion, importe, descuento aplicado y puntos detraidos durante ${DATE_CONFIG.DATASET_YEAR}.`
-          : `Boletines con calificacion, importe, descuento aplicado y puntos detraidos durante ${DATE_CONFIG.DATASET_YEAR}.`
+          ? `${formatNumber(paginacion.totalDocuments)} boletines con calificación, importe, descuento aplicado y puntos detraídos durante ${DATE_CONFIG.DATASET_YEAR}.`
+          : `Boletines con calificación, importe, descuento aplicado y puntos detraídos durante ${DATE_CONFIG.DATASET_YEAR}.`
       }
     >
       <EstadisticasMultas

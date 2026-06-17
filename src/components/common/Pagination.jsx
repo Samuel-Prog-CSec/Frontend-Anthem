@@ -37,7 +37,7 @@ function PaginationCursor({
   return (
     <nav
       role="navigation"
-      aria-label="Paginacion"
+      aria-label="Paginación"
       className={cn('flex items-center justify-between px-2 py-4', className)}
     >
       <div className="text-sm text-muted-foreground" aria-live="polite">
@@ -51,12 +51,12 @@ function PaginationCursor({
         size="sm"
         onClick={handleClick}
         disabled={!hasNextPage || isLoadingMore}
-        aria-label="Cargar mas registros"
+        aria-label="Cargar más registros"
       >
         {isLoadingMore && (
           <Loader2 className="size-4 mr-2 animate-spin" aria-hidden="true" />
         )}
-        {hasNextPage ? 'Cargar mas' : 'No hay mas registros'}
+        {hasNextPage ? 'Cargar más' : 'No hay más registros'}
       </Button>
     </nav>
   );
@@ -118,7 +118,7 @@ const Pagination = memo(function Pagination(props) {
   return (
     <nav
       role="navigation"
-      aria-label="Paginacion"
+      aria-label="Paginación"
       className={cn('flex items-center justify-between px-2 py-4', className)}
     >
       <div className="text-sm text-muted-foreground" aria-live="polite">
@@ -134,7 +134,7 @@ const Pagination = memo(function Pagination(props) {
           size="icon"
           onClick={() => onPageChange(1)}
           disabled={!canGoPrevious}
-          aria-label="Primera pagina"
+          aria-label="Primera página"
         >
           <ChevronsLeft className="size-4" aria-hidden="true" />
         </Button>
@@ -144,13 +144,13 @@ const Pagination = memo(function Pagination(props) {
           size="icon"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={!canGoPrevious}
-          aria-label="Pagina anterior"
+          aria-label="Página anterior"
         >
           <ChevronLeft className="size-4" aria-hidden="true" />
         </Button>
 
         <span className="px-4 text-sm text-foreground" aria-current="page">
-          Pagina {currentPage} de {totalPages}
+          Página {currentPage} de {totalPages}
         </span>
 
         <Button
@@ -158,7 +158,7 @@ const Pagination = memo(function Pagination(props) {
           size="icon"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={!canGoNext}
-          aria-label="Pagina siguiente"
+          aria-label="Página siguiente"
         >
           <ChevronRight className="size-4" aria-hidden="true" />
         </Button>
@@ -168,7 +168,7 @@ const Pagination = memo(function Pagination(props) {
           size="icon"
           onClick={() => onPageChange(totalPages)}
           disabled={!canGoNext}
-          aria-label="Ultima pagina"
+          aria-label="Última página"
         >
           <ChevronsRight className="size-4" aria-hidden="true" />
         </Button>

@@ -27,8 +27,7 @@ const TablaContenedores = memo(function TablaContenedores({
       <CardHeader>
         <CardTitle>Listado de contenedores</CardTitle>
         <CardDescription>
-          Distribucion individual por punto de aportacion. Click en una fila
-          para ver mas detalle (proximamente).
+          Distribución individual por punto de aportación.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -41,7 +40,7 @@ const TablaContenedores = memo(function TablaContenedores({
           />
         ) : datos.length === 0 ? (
           <EmptyState
-            title="Sin contenedores"
+            title="Sin resultados para estos filtros"
             description="No se encontraron contenedores con los filtros seleccionados."
             icon={Recycle}
           />
@@ -54,7 +53,7 @@ const TablaContenedores = memo(function TablaContenedores({
               <TableHeader>
                 <TableRow>
                   <TableHead>Tipo</TableHead>
-                  <TableHead>Direccion</TableHead>
+                  <TableHead>Dirección</TableHead>
                   <TableHead>Distrito</TableHead>
                   <TableHead>Barrio</TableHead>
                   <TableHead className="text-center">Lote</TableHead>

@@ -25,8 +25,9 @@ const FiltrosPatinetes = memo(function FiltrosPatinetes({
       <CardContent>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
-            <label className="text-sm text-muted-foreground mb-1 block">Distrito</label>
+            <label htmlFor="filtro-distrito" className="text-sm text-muted-foreground mb-1 block">Distrito</label>
             <Select
+              id="filtro-distrito"
               value={filtros.distrito}
               onChange={(e) => manejarCambioFiltro('distrito', e.target.value)}
               options={districtOptions}
@@ -34,8 +35,9 @@ const FiltrosPatinetes = memo(function FiltrosPatinetes({
             />
           </div>
           <div className="flex-1">
-            <label className="text-sm text-muted-foreground mb-1 block">Densidad</label>
+            <label htmlFor="filtro-densidad" className="text-sm text-muted-foreground mb-1 block">Densidad</label>
             <Select
+              id="filtro-densidad"
               value={filtros.densidad}
               onChange={(e) => manejarCambioFiltro('densidad', e.target.value)}
               options={densityOptions}
@@ -43,8 +45,9 @@ const FiltrosPatinetes = memo(function FiltrosPatinetes({
             />
           </div>
           <div className="flex-1">
-            <label className="text-sm text-muted-foreground mb-1 block">Tipo de Zona</label>
+            <label htmlFor="filtro-tipo-zona" className="text-sm text-muted-foreground mb-1 block">Tipo de zona</label>
             <Select
+              id="filtro-tipo-zona"
               value={filtros.tipoZona}
               onChange={(e) => manejarCambioFiltro('tipoZona', e.target.value)}
               options={zoneTypeOptions}

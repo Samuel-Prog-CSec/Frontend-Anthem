@@ -1,181 +1,239 @@
-/* PostCSS exige que TODOS los @import vayan antes de cualquier otra regla
-   (excepto @charset/@layer vacio). Por eso las fuentes van primero.
+/* PostCSS exige que TODOS los @import vayan antes de cualquier otra regla.
+   Por eso las fuentes van primero.
 
-   Tipografias del proyecto "Civic Operations Console":
-   - Instrument Serif (italic 400): display, headlines, valores hero.
-     Editorial, distintivo, evoca senaletica de ciudad/cartografia.
-   - Geist (400/500/600): sans UI, body, navegacion. Geometrico moderno
-     sin sentirse generico.
-   - Geist Mono / JetBrains Mono: datos, IDs, timestamps, eyebrows.
-     Caracter tecnico de telemetria. */
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+   Tipografias "Atlas Civico":
+   - Bricolage Grotesque (400-800, opsz): display, titulares, cifras hero.
+     Grotesca con caracter, "disenada" sin caer en el serif-italica generico.
+   - Geist (400-700): sans de UI, body, navegacion. Limpio y moderno.
+   - Geist Mono (400/500): datos, IDs, coordenadas reales, codigos. Tabular. */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Geist:wght@400..700&family=Geist+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
 /* =====================================================================
-   CIVIC OPERATIONS CONSOLE - Smart City Anthem 2051
+   ATLAS CIVICO - Anthem Smart City 2051
    ---------------------------------------------------------------------
-   Sistema de diseno inspirado en consolas de operacion ciudadana reales:
-   paneles de control de trafico, terminales de telemetria, planos
-   tecnicos. Lejos del "AI slop" generico (gradientes morados, glows
-   neon, cards con backdrop-blur por defecto, stats grandes con icono).
+   La ciudad como atlas vivo, no como terminal. Identidad cartografica:
+   tinta cobalto, plano nocturno azul-pizarra (dark) y blanco tecnico
+   frio (light). Profundidad por capas de superficie + bordes legibles
+   (no hairlines fantasma, no glows neon, no grain feTurbulence).
 
-   Principios:
-   - Borders-only depth: jerarquia con hairlines en lugar de sombras.
-   - Paleta restringida: ink (asfalto), paper (modo claro), signal
-     (acento amarillo de senaletica vial), semantica desaturada.
-   - Tipografia editorial-tecnica: serif para hero, sans geometrico
-     para body, mono para datos.
-   - Spacing y radius pequenos: tecnico, no marshmallow.
+   Token clave: --dominio. Cada familia de paginas (ambiente, movilidad,
+   seguridad, demografia, bi) tine su acento via [data-dominio] sin
+   romper la coherencia. La cobalto --marca es el cromo global.
    ===================================================================== */
 
-/* @theme inline expone tokens a las utilities de Tailwind v4 y a los
-   primitives shadcn (bg-primary, text-foreground, border-border, etc.). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* @theme inline expone los tokens a las utilities de Tailwind v4 y a los
+   primitives shadcn (bg-primary, text-foreground, border-border, etc.).
+   Como son referencias var(), cambian en runtime al alternar .dark. */
 @theme inline {
-  --color-background: var(--ink);
-  --color-foreground: var(--ink-text);
+  --color-background: var(--bg);
+  --color-foreground: var(--ink);
 
   --color-card: var(--surface);
-  --color-card-foreground: var(--ink-text);
+  --color-card-foreground: var(--ink);
 
   --color-popover: var(--surface-raised);
-  --color-popover-foreground: var(--ink-text);
+  --color-popover-foreground: var(--ink);
 
-  /* Primary = signal (uso muy parsimonioso, solo CTAs y estado activo) */
-  --color-primary: var(--signal);
-  --color-primary-foreground: var(--ink);
+  /* Primary = marca cobalto (cromo global: CTAs, foco, enlaces) */
+  --color-primary: var(--marca);
+  --color-primary-foreground: var(--marca-ink);
 
   --color-secondary: var(--surface-raised);
-  --color-secondary-foreground: var(--ink-text);
+  --color-secondary-foreground: var(--ink);
 
   --color-muted: var(--surface-inset);
   --color-muted-foreground: var(--ink-secondary);
 
-  --color-accent: var(--signal-dim);
+  /* Accent neutro para hovers de superficie (shadcn) */
+  --color-accent: var(--surface-hover);
   --color-accent-foreground: var(--ink);
 
+  /* Dominio: acento variable por familia de pagina */
+  --color-dominio: var(--dominio);
+  --color-dominio-foreground: var(--dominio-ink);
+  --color-dominio-soft: var(--dominio-soft);
+
+  --color-terracota: var(--terracota);
+
   --color-destructive: var(--alert);
-  --color-destructive-foreground: var(--ink-text);
+  --color-destructive-foreground: var(--on-status);
 
   --color-success: var(--ok);
-  --color-success-foreground: var(--ink);
+  --color-success-foreground: var(--on-status);
 
   --color-warning: var(--caution);
-  --color-warning-foreground: var(--ink);
+  --color-warning-foreground: var(--on-status);
 
   --color-info: var(--info);
-  --color-info-foreground: var(--ink-text);
+  --color-info-foreground: var(--on-status);
 
-  --color-border: var(--border-hairline);
+  --color-border: var(--border);
   --color-input: var(--surface-inset);
-  --color-ring: var(--signal);
+  --color-ring: var(--marca);
 
   --font-sans: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Instrument Serif', 'Times New Roman', Georgia, serif;
-  --font-mono: 'Geist Mono', 'JetBrains Mono', 'SF Mono', monospace;
+  --font-display: 'Bricolage Grotesque', 'Geist', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'SF Mono', ui-monospace, monospace;
 
-  /* Radios pequeños, técnicos. Sin "marshmallow" */
-  --radius-sm: 2px;
-  --radius: 4px;
-  --radius-md: 4px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  /* Radios: tecnicos pero no marshmallow */
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 18px;
+
+  /* Motion tokens (referenciables como animate-*) */
+  --animate-fade-in: fade-in 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fade-up: fade-up 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
 }
 
+/* =====================================================================
+   TEMA CLARO (default) - "blanco tecnico" frio (NO crema calida)
+   ===================================================================== */
 :root {
-  /* === SUPERFICIES (asfalto / hormigon) === */
-  --ink: #0b0d10;                  /* asfalto profundo, casi negro pero no */
-  --ink-deep: #06080a;              /* nivel mas bajo, pie de pagina */
-  --surface: #14161a;               /* hormigon claro, paneles base */
-  --surface-raised: #1a1d22;        /* paneles elevados, dropdowns */
-  --surface-inset: #0f1115;         /* inputs, areas de entrada */
-  --surface-hover: #1f2227;         /* hover de superficie */
+  --bg: oklch(0.967 0.006 246);
+  --bg-deep: oklch(0.945 0.008 246);
+  --surface: oklch(1 0 0);
+  --surface-raised: oklch(1 0 0);
+  --surface-inset: oklch(0.965 0.005 240);
+  --surface-hover: oklch(0.955 0.006 240);
 
-  /* === TINTA (texto) === */
-  --ink-text: #e8e8e3;              /* primario, contraste ~13:1 sobre ink */
-  --ink-secondary: #b8bcc2;         /* secundario, contraste ~7.4:1 (AAA) */
-  --ink-tertiary: #8c9197;          /* metadata, timestamps, labels: ~4.6:1 (AA grande) */
-  --ink-muted: #5a5e64;             /* placeholder, disabled */
+  --ink: oklch(0.27 0.02 252);
+  --ink-secondary: oklch(0.44 0.02 252);
+  --ink-tertiary: oklch(0.44 0.018 252);   /* >=12px; AA ~5:1 sobre blanco */
+  --ink-muted: oklch(0.68 0.012 252);
 
-  /* === BORDES (hairlines) === */
-  --border-hairline: rgba(232, 232, 227, 0.08);  /* standard, casi invisible */
-  --border-soft: rgba(232, 232, 227, 0.05);       /* separacion ligera */
-  --border-emphasis: rgba(232, 232, 227, 0.16);   /* focus, hover de panel */
-  --border-strong: rgba(232, 232, 227, 0.24);     /* maxima emfasis */
+  --border: oklch(0.88 0.008 245);
+  --border-soft: oklch(0.92 0.006 245);
+  --border-emphasis: oklch(0.82 0.01 245);
+  --border-strong: oklch(0.74 0.012 245);
 
-  /* === SIGNAL (acento amarillo: senaletica vial) === */
-  --signal: #d4ed3a;                 /* amarillo highway/Hi-Vis */
-  --signal-dim: #a8be2c;             /* version atenuada */
-  --signal-bright: #e5fc4c;          /* hover */
+  --marca: oklch(0.50 0.155 248);
+  --marca-soft: oklch(0.93 0.052 248);
+  --marca-ink: oklch(0.99 0 0);
 
-  /* === SEMANTICOS (desaturados, no neon) === */
-  --ok: #3aa771;                     /* verde verificacion */
-  --caution: #d4a14d;                /* ambar warning */
-  --alert: #d44d3a;                  /* rojo alerta */
-  --info: #5a8fd4;                   /* azul telemetria */
+  --terracota: oklch(0.56 0.145 42);
 
-  /* === DOMINIO: calidad del aire (mantenido por compatibilidad) === */
-  --color-air-good: #3aa771;
-  --color-air-moderate: #d4a14d;
-  --color-air-unhealthy-sensitive: #d47a3a;
-  --color-air-unhealthy: #d44d3a;
-  --color-air-very-unhealthy: #a44dd4;
-  --color-air-hazardous: #7a2424;
+  --ok: oklch(0.52 0.11 155);
+  --caution: oklch(0.62 0.12 75);
+  --alert: oklch(0.55 0.19 28);
+  --info: oklch(0.52 0.11 240);
+  --on-status: oklch(0.99 0 0);
 
-  /* === DOMINIO: ruido === */
-  --color-noise-low: #3aa771;
-  --color-noise-moderate: #aabe3a;
-  --color-noise-high: #d4a14d;
-  --color-noise-very-high: #d44d3a;
+  /* Dominio por defecto = marca. Lo sobreescribe [data-dominio]. */
+  --dominio: var(--marca);
+  --dominio-soft: oklch(0.94 0.04 245);
+  --dominio-ink: oklch(0.99 0 0);
 
-  /* === MOTION === */
-  --transition-fast: 120ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 120ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 220ms cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Compat: tokens antiguos mapeados a los nuevos para no romper componentes
-     legacy que los usen directamente. */
-  --color-primary-50: #f7fbd0;
-  --color-primary-100: #eef7a0;
-  --color-primary-200: #e5f47a;
-  --color-primary-300: #ddf25b;
-  --color-primary-400: #d6ee4a;
-  --color-primary-500: var(--signal);
-  --color-primary-600: var(--signal-dim);
-  --color-primary-700: #899a23;
-  --color-primary-800: #6c781a;
-  --color-primary-900: #4a5311;
-  --color-primary-950: #2a300a;
+  color-scheme: light;
+}
 
-  --color-accent-50: #d9f5e8;
-  --color-accent-500: var(--ok);
-  --color-accent-600: #2e885a;
+/* =====================================================================
+   TEMA OSCURO - "plano nocturno" (azul-pizarra, NO asfalto neutro)
+   ===================================================================== */
+.dark {
+  --bg: oklch(0.205 0.012 250);
+  --bg-deep: oklch(0.165 0.012 250);
+  --surface: oklch(0.245 0.014 250);
+  --surface-raised: oklch(0.285 0.016 252);
+  --surface-inset: oklch(0.180 0.012 250);
+  --surface-hover: oklch(0.305 0.016 252);
 
-  --color-success: var(--ok);
-  --color-warning: var(--caution);
-  --color-error: var(--alert);
-  --color-info: var(--info);
+  --ink: oklch(0.955 0.006 250);
+  --ink-secondary: oklch(0.80 0.012 250);
+  --ink-tertiary: oklch(0.73 0.014 250);    /* >=12px; AA tambien sobre surface-inset */
+  --ink-muted: oklch(0.52 0.012 250);
 
-  --color-bg-primary: var(--ink);
-  --color-bg-secondary: var(--surface-inset);
-  --color-bg-tertiary: var(--surface);
-  --color-bg-card: var(--surface);
-  --color-bg-elevated: var(--surface-raised);
+  --border: oklch(0.32 0.014 250);
+  --border-soft: oklch(0.27 0.012 250);
+  --border-emphasis: oklch(0.40 0.016 250);
+  --border-strong: oklch(0.48 0.018 250);
 
-  --color-text-primary: var(--ink-text);
-  --color-text-secondary: var(--ink-secondary);
-  --color-text-muted: var(--ink-secondary);
-  --color-text-muted-decorative: var(--ink-tertiary);
+  --marca: oklch(0.68 0.148 242);
+  --marca-soft: oklch(0.42 0.10 242);
+  --marca-ink: oklch(0.16 0.02 250);
 
-  --color-border-hover: var(--border-emphasis);
+  --terracota: oklch(0.74 0.14 47);
+
+  --ok: oklch(0.72 0.12 155);
+  --caution: oklch(0.81 0.12 80);
+  --alert: oklch(0.66 0.18 27);
+  --info: oklch(0.70 0.10 230);
+  --on-status: oklch(0.16 0.02 250);
+
+  --dominio: var(--marca);
+  --dominio-soft: color-mix(in oklab, var(--marca) 22%, transparent);
+  --dominio-ink: oklch(0.16 0.02 250);
+
+  color-scheme: dark;
+}
+
+/* =====================================================================
+   COLOR POR DOMINIO
+   ---------------------------------------------------------------------
+   PageLayout pone data-dominio en el contenedor. --dominio tine acentos,
+   borde activo de cabecera, marcador de mapa y serie principal de chart.
+   Un solo valor por dominio, elegido para leer bien en ambos temas.
+   ===================================================================== */
+[data-dominio="ambiente"]   { --dominio: oklch(0.64 0.12 185); --dominio-soft: color-mix(in oklab, oklch(0.64 0.12 185) 18%, transparent); --dominio-ink: oklch(0.16 0.02 200); }
+[data-dominio="ruido"]      { --dominio: oklch(0.62 0.14 300); --dominio-soft: color-mix(in oklab, oklch(0.62 0.14 300) 18%, transparent); --dominio-ink: oklch(0.99 0 0); }
+[data-dominio="movilidad"]  { --dominio: oklch(0.78 0.13 92);  --dominio-soft: color-mix(in oklab, oklch(0.78 0.13 92) 20%, transparent);  --dominio-ink: oklch(0.20 0.03 90); }
+[data-dominio="seguridad"]  { --dominio: oklch(0.64 0.18 27);  --dominio-soft: color-mix(in oklab, oklch(0.64 0.18 27) 18%, transparent);  --dominio-ink: oklch(0.99 0 0); }
+[data-dominio="demografia"] { --dominio: oklch(0.62 0.12 268); --dominio-soft: color-mix(in oklab, oklch(0.62 0.12 268) 18%, transparent); --dominio-ink: oklch(0.99 0 0); }
+[data-dominio="bi"]         { --dominio: oklch(0.64 0.16 320); --dominio-soft: color-mix(in oklab, oklch(0.64 0.16 320) 18%, transparent); --dominio-ink: oklch(0.99 0 0); }
+
+/* En claro, los dominios oscurecen un punto para mantener contraste de texto. */
+:root:not(.dark) [data-dominio="ambiente"]   { --dominio: oklch(0.55 0.11 185); }
+:root:not(.dark) [data-dominio="ruido"]      { --dominio: oklch(0.52 0.14 300); }
+:root:not(.dark) [data-dominio="movilidad"]  { --dominio: oklch(0.62 0.12 80);  --dominio-ink: oklch(0.20 0.03 90); }
+:root:not(.dark) [data-dominio="seguridad"]  { --dominio: oklch(0.54 0.19 28); }
+:root:not(.dark) [data-dominio="demografia"] { --dominio: oklch(0.50 0.13 268); }
+:root:not(.dark) [data-dominio="bi"]         { --dominio: oklch(0.52 0.16 320); }
+
+/* =====================================================================
+   DOMINIO: escalas de color semanticas (aire / ruido)
+   Mantenidas para leyendas y badges; alineadas a la nueva paleta.
+   ===================================================================== */
+:root {
+  --color-air-good: oklch(0.62 0.12 155);
+  --color-air-moderate: oklch(0.72 0.13 95);
+  --color-air-unhealthy-sensitive: oklch(0.66 0.15 55);
+  --color-air-unhealthy: oklch(0.58 0.18 30);
+  --color-air-very-unhealthy: oklch(0.55 0.17 350);
+  --color-air-hazardous: oklch(0.45 0.15 20);
+
+  --color-noise-low: oklch(0.62 0.12 155);
+  --color-noise-moderate: oklch(0.74 0.13 100);
+  --color-noise-high: oklch(0.68 0.14 60);
+  --color-noise-very-high: oklch(0.58 0.18 30);
 }
 
 /* =====================================================================
    RESET Y BASE
    ===================================================================== */
-
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
 html {
   font-family: var(--font-sans);
@@ -183,54 +241,53 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
 body {
   min-height: 100vh;
-  background-color: var(--ink);
-  color: var(--ink-text);
-  /* Pequeno grano: rompe la planitud sin ser ruido AI-slop tipico. */
-  background-image:
-    radial-gradient(ellipse at top, rgba(255, 255, 255, 0.012), transparent 70%),
-    radial-gradient(ellipse at bottom right, rgba(212, 237, 58, 0.02), transparent 60%);
+  background-color: var(--bg);
+  color: var(--ink);
 }
 
 /* =====================================================================
    TIPOGRAFIA
-   --------------------------------------------------------------------- */
-
+   ---------------------------------------------------------------------
+   Display = Bricolage Grotesque (peso fuerte, SIN italica). Jerarquia
+   por tamano + peso, no por color. Sin serif-italica generica.
+   ===================================================================== */
 h1, h2 {
   font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  line-height: 1.05;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.04;
+  text-wrap: balance;
 }
 
 h3, h4, h5, h6 {
   font-family: var(--font-sans);
-  font-weight: 500;
-  letter-spacing: -0.005em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
 }
+
+p { text-wrap: pretty; }
 
 .font-display {
   font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  font-style: normal;       /* el display nunca es italica (anti-tell) */
+  letter-spacing: -0.02em;
 }
 
-.font-mono {
-  font-family: var(--font-mono);
-}
+.font-mono { font-family: var(--font-mono); }
 
-/* Eyebrows: mono uppercase tracking-wide. Marca de la consola. */
+/* Eyebrow: etiqueta mono breve. Uso PARSIMONIOSO (max ~1 por pagina),
+   ya no como scaffolding sobre cada seccion. */
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 0.6875rem;       /* 11px */
+  font-size: 0.6875rem;
   font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-tertiary);
   line-height: 1.2;
@@ -245,127 +302,121 @@ h3, h4, h5, h6 {
   letter-spacing: -0.01em;
 }
 
-/* Hero numbers: display serif para impacto editorial */
+/* Cifras hero: display grotesca, tabular, sin italica. */
 .stat-hero {
   font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 400;
+  font-weight: 600;
   font-feature-settings: 'tnum' on, 'lnum' on;
   font-variant-numeric: tabular-nums lining-nums;
   letter-spacing: -0.02em;
-  line-height: 0.95;
+  line-height: 0.98;
 }
 
 /* =====================================================================
    LINKS
    ===================================================================== */
-
 a {
-  color: var(--ink-text);
+  color: inherit;
   text-decoration: none;
   transition: color var(--transition-fast);
 }
+a:hover { color: var(--marca); }
 
-a:hover {
-  color: var(--signal);
+/* =====================================================================
+   FOCUS RING ACCESIBLE (2px, visible en ambos temas y sobre marca)
+   ===================================================================== */
+:focus-visible {
+  outline: 2px solid var(--marca);
+  outline-offset: 2px;
+  border-radius: 3px;
 }
 
 /* =====================================================================
-   FOCUS RING ACCESIBLE
-   --------------------------------------------------------------------- */
-
-:focus-visible {
-  outline: 1px solid var(--signal);
-  outline-offset: 2px;
-  border-radius: 2px;
+   FIRMA: reticula de coordenadas funcional (utilidad reutilizable)
+   ---------------------------------------------------------------------
+   Sustituye al grain feTurbulence. Lineas finas tipo plano tecnico.
+   Aplicar en heroes/cabeceras, no global.
+   ===================================================================== */
+.coord-grid {
+  background-image:
+    linear-gradient(to right, var(--border-soft) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border-soft) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.coord-grid-fine {
+  background-image:
+    linear-gradient(to right, var(--border-soft) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border-soft) 1px, transparent 1px);
+  background-size: 16px 16px;
 }
 
 /* =====================================================================
    SCROLLBAR DISCRETO
-   --------------------------------------------------------------------- */
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+   ===================================================================== */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--border-emphasis);
-  border-radius: 0;
+  border-radius: 999px;
+  border: 2px solid var(--bg);
 }
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--border-strong);
-}
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
 
 /* =====================================================================
    UTILITIES
    ===================================================================== */
+.hairline { border: 0; border-top: 1px solid var(--border); height: 0; }
+.hairline-strong { border-top: 1px solid var(--border-emphasis); }
 
-/* Hairline divisor: una sola pixel-line con gradiente sutil */
-.hairline {
-  border: 0;
-  border-top: 1px solid var(--border-hairline);
-  height: 0;
-}
-
-.hairline-strong {
-  border-top: 1px solid var(--border-emphasis);
-}
-
-/* Tick marks decorativos (estilo regla metrica) */
-.tick-marks::before {
-  content: '';
-  display: block;
-  height: 8px;
-  background-image: linear-gradient(
-    to right,
-    var(--border-emphasis) 1px,
-    transparent 1px
-  );
-  background-size: 12px 100%;
-  background-position: 0 100%;
-  background-repeat: repeat-x;
-  margin-bottom: 8px;
-  opacity: 0.5;
-}
-
-/* No-scrollbar: para navs horizontales que pueden desbordar */
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
 /* =====================================================================
    ANIMACIONES
    ---------------------------------------------------------------------
-   Politica: animaciones minimas. Solo fade-in al cargar pagina y
-   transitions de hover/focus. NO entradas con slide-up staggered (causaban
-   el bug "elementos bajan en negro" reportado en QA). NO glows pulsantes
-   por defecto (AI-slop heredado).
+   .animate-fade-in / .animate-fade-up disponibles. El reveal escalonado
+   parte SIEMPRE de contenido visible por defecto (no se oculta detras de
+   una clase) para evitar el bug historico de "elementos en negro".
    ===================================================================== */
+.animate-fade-in { animation: var(--animate-fade-in); }
+.animate-fade-up { animation: var(--animate-fade-up); }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* "El plano se dibuja": trazo que se dibuja solo (sparklines, lineas de firma).
+   El elemento debe declarar pathLength="1" para normalizar la longitud. En
+   reduced-motion el trazo aparece completo (sin parpadeo ni linea invisible). */
+@keyframes dibujar-trazo {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+.trazo-dibujado {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: dibujar-trazo 1100ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .trazo-dibujado { animation: none; stroke-dashoffset: 0; }
 }
 
-.animate-fade-in {
-  animation: fadeIn 250ms cubic-bezier(0.4, 0, 0.2, 1);
+/* Elevacion sutil tintada de marca para piezas interactivas (cards/enlaces
+   clicables). En oscuro lee como un halo cobalto discreto; en claro como una
+   sombra azulada. Refuerza la identidad en vez de una sombra gris generica. */
+.hover-lift {
+  transition: box-shadow var(--transition-normal), border-color var(--transition-fast), transform var(--transition-normal);
+}
+.hover-lift:hover {
+  box-shadow: 0 8px 26px -12px color-mix(in oklab, var(--marca) 38%, transparent);
 }
 
-/* `.stagger-children` queda como no-op intencional (ver historia en
-   index.css legacy). */
-.stagger-children > * {
-  opacity: 1;
-  transform: none;
+/* Skeleton shimmer reutilizable */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-inset) 25%,
+    var(--surface-hover) 50%,
+    var(--surface-inset) 75%
+  );
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
 }
 
 /* =====================================================================
@@ -381,99 +432,136 @@ a:hover {
 }
 
 /* =====================================================================
-   COMPATIBILIDAD CON UTILITIES LEGACY
+   COMPAT LEGACY (mapeada a la nueva paleta, no rota componentes)
    ---------------------------------------------------------------------
-   .glass-effect, .glow-*, .card-hover-sweep y .animate-pulse-glow
-   se mantienen como NO-OP para no romper componentes que aun los
-   referencien hasta que la Fase 4 los reemplace por completo.
+   Tokens y clases que aun referencian componentes antiguos. Se remapean
+   a los nuevos tokens para que resuelvan a la identidad Atlas Civico.
+   Se retiraran al migrar cada componente en fases posteriores.
    ===================================================================== */
+:root, .dark {
+  --signal: var(--dominio);
+  --signal-dim: var(--dominio);
+  --signal-bright: var(--dominio);
+
+  --color-primary-500: var(--marca);
+  --color-primary-600: var(--marca);
+  --color-primary-400: var(--marca);
+
+  --color-success: var(--ok);
+  --color-warning: var(--caution);
+  --color-error: var(--alert);
+  --color-info: var(--info);
+
+  --color-bg-primary: var(--bg);
+  --color-bg-secondary: var(--surface-inset);
+  --color-bg-tertiary: var(--surface);
+  --color-bg-card: var(--surface);
+  --color-bg-elevated: var(--surface-raised);
+
+  --color-text-primary: var(--ink);
+  --color-text-secondary: var(--ink-secondary);
+  --color-text-muted: var(--ink-secondary);
+  --color-text-muted-decorative: var(--ink-tertiary);
+
+  --border-hairline: var(--border);
+  --border-color-hover: var(--border-emphasis);
+}
 
 .glass-effect {
   background: var(--surface);
-  border: 1px solid var(--border-hairline);
-  /* sin backdrop-blur */
+  border: 1px solid var(--border);
 }
-
-.glow-primary,
-.glow-accent {
-  box-shadow: none;
-  border-color: var(--border-emphasis);
-}
-
-.card-hover-sweep {
-  position: relative;
-}
-.card-hover-sweep:hover {
-  border-color: var(--border-strong);
-}
-
-.animate-pulse-glow {
-  /* no-op intencional */
-  animation: none;
-}
-
-.animate-slide-up {
-  animation: fadeIn 250ms cubic-bezier(0.4, 0, 0.2, 1);
-}
+.glow-primary, .glow-accent { box-shadow: none; border-color: var(--border-emphasis); }
+.card-hover-sweep:hover { border-color: var(--border-strong); }
+.animate-pulse-glow { animation: none; }
+.animate-slide-up { animation: var(--animate-fade-up); }
+.stagger-children > * { opacity: 1; transform: none; }
 
 /* =====================================================================
-   LEAFLET - Tematizado para la consola (popups y controles oscuros)
-   ---------------------------------------------------------------------
-   Por defecto Leaflet pinta popups y controles en blanco, lo que rompe
-   la estetica oscura y deja ilegibles los textos con tokens semanticos
-   (muted-foreground sobre blanco). Los alineamos con las superficies del
-   tema para que mapas y UI sean coherentes.
+   LEAFLET - Tematizado cartografico (popups y controles)
    ===================================================================== */
-
 .leaflet-container {
   font-family: var(--font-sans);
   background: var(--surface-inset);
 }
 
+/* Clusters tematizados Atlas Civico.
+   react-leaflet-cluster no incluye su CSS por defecto; sin esto los recuentos
+   salian como numeros sueltos sin circulo. El color sale de --dominio (cascada
+   desde el contenedor [data-dominio] de la pagina), asi cada dominio tine sus
+   clusters. El tamano lo fija iconCreateFunction segun el volumen agrupado. */
+.cluster-atlas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--dominio);
+  color: var(--dominio-ink);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-weight: 600;
+  line-height: 1;
+  border: 2px solid var(--surface);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--dominio) 55%, transparent),
+    0 4px 14px -6px color-mix(in oklab, var(--dominio) 60%, transparent);
+  transition: transform var(--transition-fast);
+}
+.cluster-atlas:hover { transform: scale(1.08); }
+.cluster-atlas--sm { font-size: 11px; }
+.cluster-atlas--md { font-size: 12px; }
+.cluster-atlas--lg { font-size: 12.5px; }
+.cluster-atlas--xl { font-size: 13px; }
+
+/* Marcador suelto (sin color por categoria): punto del color del dominio, para
+   que los marcadores individuales sean coherentes con los clusters tematizados
+   en vez del pin azul generico de Leaflet. */
+.punto-dominio span {
+  display: block;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--dominio);
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--dominio) 50%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cluster-atlas { transition: none; }
+  .cluster-atlas:hover { transform: none; }
+}
+
+/* Basemap cartografico: usamos tiles dark/light nativos de CARTO (dark matter /
+   positron) configurados en MapaInteractivo, en vez del truco de invertir por
+   CSS los tiles claros de OSM (que dejaba vias rosaceas y etiquetas espejadas).
+   Por eso ya NO hay filtro sobre .leaflet-tile. */
+
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip {
   background: var(--surface-raised);
-  color: var(--ink-text);
+  color: var(--ink);
   border: 1px solid var(--border-emphasis);
 }
-
 .leaflet-popup-content-wrapper {
   border-radius: var(--radius);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  box-shadow: none;
 }
+.leaflet-popup-content { color: var(--ink); margin: 10px 12px; }
+.leaflet-popup-content a { color: var(--marca); }
 
-.leaflet-popup-content {
-  color: var(--ink-text);
-  margin: 10px 12px;
-}
+.leaflet-container a.leaflet-popup-close-button { color: var(--ink-tertiary); }
+.leaflet-container a.leaflet-popup-close-button:hover { color: var(--ink); background: transparent; }
 
-.leaflet-popup-content a {
-  color: var(--signal);
-}
-
-.leaflet-container a.leaflet-popup-close-button {
-  color: var(--ink-tertiary);
-}
-.leaflet-container a.leaflet-popup-close-button:hover {
-  color: var(--ink-text);
-  background: transparent;
-}
-
-/* Controles de zoom y atribucion */
 .leaflet-bar a,
 .leaflet-bar a:hover {
   background: var(--surface-raised);
-  color: var(--ink-text);
+  color: var(--ink);
   border-bottom-color: var(--border-emphasis);
 }
-.leaflet-bar a:hover {
-  background: var(--surface-hover);
-}
+.leaflet-bar a:hover { background: var(--surface-hover); }
 
 .leaflet-control-attribution {
   background: color-mix(in oklab, var(--surface) 80%, transparent) !important;
   color: var(--ink-tertiary);
 }
-.leaflet-control-attribution a {
-  color: var(--ink-secondary);
-}
+.leaflet-control-attribution a { color: var(--ink-secondary); }

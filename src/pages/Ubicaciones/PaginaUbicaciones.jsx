@@ -49,14 +49,17 @@ function PaginaUbicaciones() {
   const { data: puntosApi, isLoading: cargandoPuntos } = usePuntosMedicion(tipoMedicion);
 
   const paramsPorCapa = useMemo(() => ({
-    ubicaciones: filtros.tipo ? { type: filtros.tipo } : {}
+    // limite alto: el mapa clusteriza TODOS los puntos (~20k estaciones, puntos
+    // de trafico y waypoints de rutas), por lo que pedimos el maximo del backend
+    // para no recortar ubicaciones en el mapa.
+    ubicaciones: { limite: 30000, ...(filtros.tipo ? { type: filtros.tipo } : {}) }
   }), [filtros.tipo]);
 
   const locations = locationsData?.data || [];
   const paginacion = locationsData?.pagination || null;
 
   const datosRutas = useMemo(() => {
-    const rutasData = rutasApi?.data?.data || rutasApi?.data || [];
+    const rutasData = rutasApi?.data?.rutas || rutasApi?.data?.data || [];
     if (!Array.isArray(rutasData)) return [];
     return rutasData.slice(0, 20).map(r => ({
       nombre: r.nombre || r.name || '-',
@@ -67,7 +70,7 @@ function PaginaUbicaciones() {
   }, [rutasApi, filtros.tipo]);
 
   const datosPuntos = useMemo(() => {
-    const puntosData = puntosApi?.data?.data || puntosApi?.data || [];
+    const puntosData = puntosApi?.data?.puntos || puntosApi?.data?.data || [];
     if (!Array.isArray(puntosData)) return [];
     return puntosData.slice(0, 20).map(p => ({
       nombre: p.nombre || p.name || '-',
@@ -100,30 +103,20 @@ function PaginaUbicaciones() {
   // el numero anterior a la deduplicacion del dataset de ubicaciones).
   const totalUbicaciones = stats?.total ?? null;
   const subtituloUbicaciones = totalUbicaciones != null
-    ? `${totalUbicaciones.toLocaleString('es-ES')} estaciones acusticas, puntos de medicion de trafico y rutas de transporte georreferenciados sobre Madrid.`
-    : 'Estaciones acusticas, puntos de medicion de trafico y rutas de transporte georreferenciados sobre Madrid.';
+    ? `${totalUbicaciones.toLocaleString('es-ES')} estaciones acústicas, puntos de medición de tráfico y rutas de transporte georreferenciados sobre Madrid.`
+    : 'Estaciones acústicas, puntos de medición de tráfico y rutas de transporte georreferenciados sobre Madrid.';
 
   return (
     <PageLayout
-      eyebrow="Infraestructura / Ubicaciones"
-      title="Anatomia de la malla sensorizada"
+      title="Ubicaciones"
       description={subtituloUbicaciones}
       actions={
         <Button variant="outline" onClick={refrescar}>
           <RefreshCw className="size-4 mr-2" aria-hidden="true" />
-          Actualizar
+          Recargar datos
         </Button>
       }
     >
-      <EstadisticasUbicaciones stats={stats} />
-
-      <FiltrosUbicaciones
-        filtros={filtros}
-        onCambioTipo={manejarCambioTipo}
-        onCambioBusqueda={manejarCambioBusqueda}
-        onLimpiar={limpiarFiltros}
-      />
-
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -131,9 +124,9 @@ function PaginaUbicaciones() {
             Mapa interactivo
           </CardTitle>
           <CardDescription>
-            Visualizacion cross-domain. Activa o desactiva capas en el panel
+            Visualización entre áreas. Activa o desactiva capas en el panel
             lateral para superponer estaciones, accidentes, multas, patinetes,
-            aforo de bicicletas y monitoreo acustico.
+            aforo de bicicletas y monitoreo acústico.
             {filtros.tipo
               ? ` Capa "Estaciones y rutas" filtrada por: ${LOCATION_TYPE_LABELS[filtros.tipo] || filtros.tipo}.`
               : ''}
@@ -143,6 +136,15 @@ function PaginaUbicaciones() {
           <MapaUnificado altura="600px" paramsPorCapa={paramsPorCapa} />
         </CardContent>
       </Card>
+
+      <EstadisticasUbicaciones stats={stats} />
+
+      <FiltrosUbicaciones
+        filtros={filtros}
+        onCambioTipo={manejarCambioTipo}
+        onCambioBusqueda={manejarCambioBusqueda}
+        onLimpiar={limpiarFiltros}
+      />
 
       <DetalleRutasTransporte
         tipo={tipoTransporte}

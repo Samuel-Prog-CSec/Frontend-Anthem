@@ -26,9 +26,9 @@ const TablaRuido = memo(function TablaRuido({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Mediciones de Ruido</CardTitle>
+        <CardTitle>Mediciones de ruido</CardTitle>
         <CardDescription>
-          Niveles de presion acustica por periodo del dia
+          Niveles de presión acústica por periodo del día
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -41,17 +41,17 @@ const TablaRuido = memo(function TablaRuido({
           />
         ) : data.length === 0 ? (
           <EmptyState
-            title="Sin mediciones"
+            title="Sin resultados para estos filtros"
             description="No se encontraron mediciones con los filtros seleccionados."
             icon={Volume2}
           />
         ) : (
           <>
-            <Table label="Mediciones de contaminacion acustica" rowCount={pagination?.totalDocuments}>
+            <Table label="Mediciones de contaminación acústica" rowCount={pagination?.totalDocuments}>
               <TableHeader>
                 <TableRow>
                   <TableHead>Fecha</TableHead>
-                  <TableHead>Estacion</TableHead>
+                  <TableHead>Estación</TableHead>
                   <TableHead className="text-center">
                     <div className="flex items-center justify-center gap-1">
                       <Sun className="size-4 text-muted-foreground" />

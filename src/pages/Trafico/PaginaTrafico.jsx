@@ -60,11 +60,12 @@ function PaginaTrafico() {
     return fromUrl.startDate && fromUrl.endDate ? fromUrl : FILTROS_INICIALES;
   });
 
-  // Estado "aplicado". Solo cambia cuando el usuario aplica filtros en la barra.
-  // Si arrancamos con filtros validos en la URL, los activamos al montar.
+  // Estado "aplicado". Si la URL trae un rango valido lo usamos; si no, se
+  // auto-aplica el rango por defecto (FILTROS_INICIALES) para que la pagina no
+  // abra vacia. El rango por defecto ya es valido y acotado (<=7 dias).
   const [aplicados, setAplicados] = useState(() => {
     const fromUrl = leerFiltrosDesdeUrl(searchParams);
-    return validarRangoMapa(fromUrl.startDate, fromUrl.endDate).valido ? fromUrl : null;
+    return validarRangoMapa(fromUrl.startDate, fromUrl.endDate).valido ? fromUrl : FILTROS_INICIALES;
   });
 
   const aplicarFiltros = useCallback((nuevos) => {
@@ -99,7 +100,9 @@ function PaginaTrafico() {
   // El usuario explicitamente pidio analisis -> habilitamos heavy query.
   const {
     data: statsResult,
-    isLoading: cargandoStats
+    isLoading: cargandoStats,
+    isError: errorStats,
+    refetch: refrescarStats
   } = useEstadisticasTrafico(queryParams || {}, { enabled: Boolean(queryParams) });
 
   const {
@@ -119,11 +122,23 @@ function PaginaTrafico() {
   const distribucionHoraria = statsResult?.data?.porPeriodoDia || [];
   const analisisCongestion = congestionResult?.data?.analisis || [];
 
+  // Tendencia diaria real de intensidad media (porDia, ordenada por fecha en el
+  // backend), aplanada a numeros para la sparkline inline del KPI "Intensidad
+  // media". Es una serie cronologica dia a dia, no la distribucion por franja
+  // del dia (que ya tiene su propio grafico de barras debajo).
+  const serieIntensidad = useMemo(() => {
+    const dias = statsResult?.data?.porDia;
+    if (!Array.isArray(dias)) {return [];}
+    return dias
+      .map((d) => Number(d?.intensidadPromedio))
+      .filter((n) => Number.isFinite(n))
+      .slice(0, 30);
+  }, [statsResult]);
+
   return (
     <PageLayout
-      eyebrow="Movilidad / Trafico"
-      title="Latido de la malla vial"
-      description={`Intensidad, ocupacion y nivel de congestion por punto de medicion. Selecciona un rango de fechas para activar el analisis sobre ${DATE_CONFIG.DATASET_YEAR}.`}
+      title="Tráfico"
+      description={`Intensidad, ocupación y nivel de congestión por punto de medición. Selecciona un rango de fechas para ver el análisis de ${DATE_CONFIG.DATASET_YEAR}.`}
     >
       <BarraFiltrosTrafico
         filtrosActivos={borrador}
@@ -135,14 +150,14 @@ function PaginaTrafico() {
           <CardHeader>
             <CardTitle>Sin filtros aplicados</CardTitle>
             <CardDescription>
-              Por el volumen del dataset (~132M mediciones) se requiere un
-              rango de fechas para arrancar el analisis.
+              Por el gran volumen de mediciones se necesita un rango de
+              fechas para empezar el análisis.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <EmptyState
               title="Aplica filtros para empezar"
-              description="Selecciona un rango de fechas (maximo 7 dias) y opcionalmente un tipo de via en el panel superior, y pulsa Aplicar."
+              description="Selecciona un rango de fechas (máximo 7 días) y opcionalmente un tipo de vía en el panel superior, y pulsa Aplicar."
               icon={TrafficCone}
             />
           </CardContent>
@@ -151,7 +166,10 @@ function PaginaTrafico() {
         <>
           <TarjetasResumenTrafico
             resumen={resumen}
+            serieIntensidad={serieIntensidad}
             isLoading={cargandoStats}
+            error={errorStats}
+            onReintentar={refrescarStats}
           />
 
           <MapaTrafico

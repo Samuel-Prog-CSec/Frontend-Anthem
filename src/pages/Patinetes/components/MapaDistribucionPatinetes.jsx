@@ -20,8 +20,8 @@ const MapaDistribucionPatinetes = memo(function MapaDistribucionPatinetes({
       {props.topProveedores?.length > 0 && (
         <div className="mt-1">
           <div className="text-xs text-muted-foreground">Top proveedores:</div>
-          {props.topProveedores.slice(0, 3).map((p, i) => (
-            <div key={i} className="text-xs">
+          {props.topProveedores.slice(0, 3).map((p) => (
+            <div key={p.nombre} className="text-xs">
               {p.nombre}: {formatNumber(p.cantidad)}
             </div>
           ))}
@@ -35,7 +35,7 @@ const MapaDistribucionPatinetes = memo(function MapaDistribucionPatinetes({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <MapPin className="size-5" />
-          Distribucion por Distrito
+          Distribución por distrito
         </CardTitle>
         <CardDescription>
           Total de patinetes agregado por distrito; cada punto se posiciona

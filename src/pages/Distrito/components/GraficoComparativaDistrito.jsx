@@ -9,6 +9,7 @@ import { memo, useMemo } from 'react';
 import { BarChart3 } from 'lucide-react';
 import { BarChartCard } from '../../../components/charts';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../../components/common';
+import { formatearNombreDistritoTitulo } from '../../../utils';
 
 // Resueltos desde tokens: signal (estado activo = distrito actual) y gris (--ink-muted).
 const COLOR_DESTACADO = '#d4ed3a';
@@ -41,7 +42,7 @@ const GraficoComparativaDistrito = memo(function GraficoComparativaDistrito({
       .map(d => {
         const esActual = Number(d.codigo) === codActual;
         return {
-          nombre: d.nombre,
+          nombre: formatearNombreDistritoTitulo(d.nombre),
           poblacion: d.totalPoblacion || 0,
           esActual,
           // Color por dato consumido por BarChartCard (colorByDatum)
@@ -59,7 +60,7 @@ const GraficoComparativaDistrito = memo(function GraficoComparativaDistrito({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <BarChart3 className="size-5" />
-          Comparativa de poblacion - Top distritos
+          Comparativa de población - Distritos más habitados
         </CardTitle>
         <CardDescription>
           El distrito actual se resalta; el resto en gris para referencia.
@@ -72,7 +73,7 @@ const GraficoComparativaDistrito = memo(function GraficoComparativaDistrito({
           bars={[
             {
               key: 'poblacion',
-              name: 'Poblacion',
+              name: 'Población',
               color: COLOR_BASE,
               // Colorea solo la barra del distrito actual (resto en gris)
               colorByDatum: true

@@ -19,7 +19,7 @@ const RankingEstacionesRuido = memo(function RankingEstacionesRuido({ datos, car
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Award className="size-5" />
-          Ranking de Estaciones
+          Ranking de estaciones
         </CardTitle>
         <CardDescription>
           Estaciones ordenadas por nivel de ruido
@@ -32,15 +32,15 @@ const RankingEstacionesRuido = memo(function RankingEstacionesRuido({ datos, car
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Estacion</TableHead>
+                <TableHead>Estación</TableHead>
                 <TableHead className="text-center">LAeq24</TableHead>
                 <TableHead className="text-center">Diurno</TableHead>
                 <TableHead className="text-center">Nocturno</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {datos.map((estacion, index) => (
-                <TableRow key={`ranking-${estacion.nmt}-${index}`}>
+              {datos.map((estacion) => (
+                <TableRow key={`ranking-${estacion.nmt}`}>
                   <TableCell>
                     <div>
                       <p className="font-medium text-sm">{estacion.nombre}</p>

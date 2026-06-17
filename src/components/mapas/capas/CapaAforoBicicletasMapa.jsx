@@ -16,7 +16,7 @@ const CapaAforoBicicletasMapa = memo(function CapaAforoBicicletasMapa({ params }
 
   const renderPopup = useCallback((props) => (
     <div className="text-sm">
-      <div className="font-semibold mb-1">{props.nombre || `Estacion ${props.identificador || ''}`}</div>
+      <div className="font-semibold mb-1">{props.nombre || `Estación ${props.identificador || ''}`}</div>
       {props.identificador && <div>ID: {props.identificador}</div>}
       {props.distrito && <div>Distrito: {props.distrito}</div>}
       {props.volumenTotal != null && (

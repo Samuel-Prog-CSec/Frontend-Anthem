@@ -1,29 +1,19 @@
 /**
  * Componente BannerCabecera
  *
- * Hero editorial del dashboard. Sustituye al banner generico "Bienvenido a +
- * gradient text + sparkles + SVG pattern" (patron tipico de plantillas IA)
- * por un bloque con voz: titulo declarativo, parrafo de contexto y una
- * columna lateral de metricas estructurales del dataset.
- *
- * Estructura:
- *   - Eyebrow mono uppercase como marcador editorial.
- *   - Titulo display con una palabra resaltada (mismo color del foreground,
- *     pero font-weight 800 + underline accent) en lugar de gradient text.
- *   - Sidebar: 4 metricas "duras" (escala) en grid 2x2.
- *
- * Las cifras de la sidebar son estructurales del dataset (no requieren
- * peticiones extra) -- el dashboard ya tiene 3 hooks live para totales por
- * subsistema. Aqui se busca dar contexto narrativo, no duplicar metricas.
+ * Hero del dashboard: una afirmacion clara sobre el alcance del atlas + cuatro
+ * cifras estructurales HONESTAS del conjunto (sin metricas inventadas). El
+ * fondo lleva la reticula de coordenadas como firma cartografica sutil.
  */
 
 import { DATE_CONFIG } from '../../../constants';
 
+// Cifras estructurales reales del conjunto (no requieren peticiones).
 const METRICAS_ESCALA = [
-  { valor: '14', etiqueta: 'modulos monitorizados' },
   { valor: '21', etiqueta: 'distritos cubiertos' },
-  { valor: '12', etiqueta: 'meses de datos' },
-  { valor: '~24M', etiqueta: 'registros analizados' }
+  { valor: '12', etiqueta: 'áreas de datos' },
+  { valor: '12', etiqueta: 'meses completos' },
+  { valor: `${DATE_CONFIG.DATASET_YEAR}`, etiqueta: 'horizonte temporal' }
 ];
 
 export function BannerCabecera() {
@@ -32,52 +22,35 @@ export function BannerCabecera() {
       className="relative mb-12 overflow-hidden rounded-xl border border-border bg-card"
       aria-labelledby="banner-dashboard-titulo"
     >
-      {/* Acento vertical izquierdo (signal vial) - reemplaza el SVG pattern decorativo */}
-      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/40" />
+      {/* Reticula de coordenadas: firma cartografica de "Atlas Civico" */}
+      <div className="coord-grid pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
+      <div className="pointer-events-none absolute left-0 top-0 h-full w-1 bg-dominio/70" aria-hidden="true" />
 
-      <div className="grid gap-10 px-8 py-10 md:px-12 md:py-14 lg:grid-cols-[1.5fr_1fr] lg:gap-16">
+      <div className="relative grid gap-10 px-8 py-10 md:px-12 md:py-14 lg:grid-cols-[1.5fr_1fr] lg:gap-16">
         <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-primary mb-5">
-            Anthem City / Vista general
-          </p>
-
           <h2
             id="banner-dashboard-titulo"
-            className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-[1.1] mb-6"
+            className="mb-5 font-display text-3xl font-semibold leading-[1.08] text-foreground md:text-4xl lg:text-5xl"
           >
-            El pulso de la ciudad,
-            <br />
-            <span className="relative inline-block">
-              <span className="relative z-10">visualizado en datos</span>
-              <span
-                className="absolute bottom-1 left-0 right-0 h-3 bg-primary/20 -skew-x-6"
-                aria-hidden="true"
-              />
-            </span>
-            .
+            Una ciudad,<br />doce capas de datos.
           </h2>
 
-          <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-xl">
-            Plataforma integral de monitorizacion urbana para Anthem City
-            <span className="text-foreground font-medium"> {DATE_CONFIG.DATASET_YEAR}</span>.
-            Calidad del aire, ruido, movilidad, censo, accidentalidad y mas, sobre un
-            unico modelo de datos.
+          <p className="max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
+            Anthem reúne calidad del aire, ruido, movilidad, seguridad vial,
+            residuos y demografía de los 21 distritos sobre un único modelo, con
+            el año
+            <span className="font-medium text-foreground"> {DATE_CONFIG.DATASET_YEAR}</span> como horizonte.
           </p>
         </div>
 
-        {/* Columna derecha: grid 2x2 de metricas duras del dataset.
-            Tabular-nums + font-display para que los digitos esten alineados. */}
-        <div className="relative">
-          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-border/40">
+        <div className="relative self-center">
+          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
             {METRICAS_ESCALA.map((metrica) => (
-              <div
-                key={metrica.etiqueta}
-                className="bg-card/80 px-5 py-6"
-              >
-                <p className="stat-number text-3xl md:text-4xl text-foreground mb-1">
+              <div key={metrica.etiqueta} className="bg-card px-5 py-6">
+                <p className="stat-hero mb-1.5 text-3xl text-foreground md:text-4xl">
                   {metrica.valor}
                 </p>
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground leading-snug">
+                <p className="text-xs leading-snug text-muted-foreground">
                   {metrica.etiqueta}
                 </p>
               </div>

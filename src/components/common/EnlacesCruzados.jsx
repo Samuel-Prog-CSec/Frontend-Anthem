@@ -40,7 +40,7 @@ const MODULOS = [
   { clave: 'ruido', label: 'Ruido', icon: Volume2, ruta: ROUTES.RUIDO },
   { clave: 'bicicletas', label: 'Bicicletas', icon: Bike, ruta: ROUTES.BICICLETAS },
   { clave: 'aforo-bicicletas', label: 'Aforo bicis', icon: Activity, ruta: ROUTES.AFORO_BICICLETAS },
-  { clave: 'trafico', label: 'Trafico', icon: TrafficCone, ruta: ROUTES.TRAFICO },
+  { clave: 'trafico', label: 'Tráfico', icon: TrafficCone, ruta: ROUTES.TRAFICO },
   { clave: 'censo', label: 'Censo', icon: Users, ruta: ROUTES.CENSO }
 ];
 
@@ -61,15 +61,21 @@ const EnlacesCruzados = memo(function EnlacesCruzados({
   barrio,
   codigoDistrito,
   modulosExcluidos = [],
-  titulo = 'Ver tambien en:',
+  titulo = 'Ver también en:',
   className,
   compacto = false
 }) {
   const { aplicarDistrito } = useFiltroGeo();
 
+  // Clave estable por VALOR: los call sites pasan un array literal nuevo en
+  // cada render (modulosExcluidos={['accidentes']}). Derivar un string permite
+  // que el useMemo (y el comparador de memo, abajo) dependan del CONTENIDO y no
+  // de la referencia, evitando recomputar/re-renderizar sin cambios reales.
+  const clavesExcluidas = modulosExcluidos.join('|');
+
   const enlaces = useMemo(() => {
     if (!distrito) {return [];}
-    const excluidos = new Set(modulosExcluidos);
+    const excluidos = new Set(clavesExcluidas ? clavesExcluidas.split('|') : []);
     return MODULOS
       .filter(m => !excluidos.has(m.clave))
       // Solo mostrar drill-down distrito si tenemos codigo
@@ -86,7 +92,7 @@ const EnlacesCruzados = memo(function EnlacesCruzados({
         }
         return { ...m, to };
       });
-  }, [distrito, barrio, codigoDistrito, modulosExcluidos]);
+  }, [distrito, barrio, codigoDistrito, clavesExcluidas]);
 
   if (!distrito || enlaces.length === 0) {return null;}
 
@@ -122,6 +128,23 @@ const EnlacesCruzados = memo(function EnlacesCruzados({
       })}
     </div>
   );
-});
+}, sonPropsIguales);
+
+/**
+ * Comparador de props por VALOR para React.memo. `modulosExcluidos` se compara
+ * por contenido (no por referencia) para que un array literal nuevo con las
+ * mismas claves no provoque un re-render.
+ */
+function sonPropsIguales(prev, next) {
+  return (
+    prev.distrito === next.distrito &&
+    prev.barrio === next.barrio &&
+    prev.codigoDistrito === next.codigoDistrito &&
+    prev.titulo === next.titulo &&
+    prev.className === next.className &&
+    prev.compacto === next.compacto &&
+    (prev.modulosExcluidos || []).join('|') === (next.modulosExcluidos || []).join('|')
+  );
+}
 
 export { EnlacesCruzados };

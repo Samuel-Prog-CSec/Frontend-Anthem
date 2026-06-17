@@ -36,29 +36,29 @@ function EstadisticasMultas({
           title="Total multas"
           value={formatNumber(totalMultas)}
           icon={FileWarning}
-          accent="cyan"
+          accent="dominio"
           isLoading={isLoading}
         />
         <StatCard
           title="Importe medio"
           value={formatearImporte(importeMedio)}
           icon={Banknote}
-          accent="emerald"
+          accent="dominio"
           isLoading={isLoading}
         />
         <StatCard
           title="Puntos totales"
           value={formatNumber(puntosTotales)}
-          subtitle="Puntos detraidos"
+          subtitle="Puntos detraídos"
           icon={AlertOctagon}
-          accent="amber"
+          accent="dominio"
           isLoading={isLoading}
         />
         <StatCard
           title="% Graves + muy graves"
           value={Number.isFinite(Number(porcentajeGraves)) ? `${Number(porcentajeGraves).toFixed(1)}%` : '-'}
           icon={ShieldAlert}
-          accent="rose"
+          accent="dominio"
           isLoading={isLoading}
         />
       </div>
@@ -69,10 +69,10 @@ function EstadisticasMultas({
             <div className="flex items-start gap-3">
               <Info className="size-4 text-warning mt-0.5 flex-shrink-0" aria-hidden="true" />
               <p className="text-sm text-muted-foreground">
-                El dataset de multas no incluye distrito normalizado, asi que el
-                total y la metrica per capita siguen siendo de toda Anthem
+                El dataset de multas no incluye distrito normalizado, así que el
+                total y la métrica per cápita siguen siendo de toda Anthem
                 aunque tengas el filtro <strong className="text-foreground">{distritoFiltrado}</strong> activo.
-                Para distrito ver la pagina del distrito con la aproximacion por bbox.
+                Para datos por distrito consulta la página del distrito con la estimación por zona.
               </p>
             </div>
           </CardContent>
@@ -82,7 +82,7 @@ function EstadisticasMultas({
           <CardContent className="py-3">
             <div className="flex items-center justify-between gap-4">
               <span className="text-sm text-muted-foreground">
-                Multas por cada 1.000 habitantes (Anthem 2051 entero, censo del ultimo mes)
+                Multas por cada 1.000 habitantes (Anthem 2051 entero, censo del último mes)
               </span>
               <span className="font-display text-lg font-bold text-foreground tabular-nums">
                 {multasPerCapita}

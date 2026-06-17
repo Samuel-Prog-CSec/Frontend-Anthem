@@ -96,10 +96,11 @@ const PanelCapasMapa = memo(function PanelCapasMapa({
                     </span>
                   </span>
 
-                  {/* Estado del toggle: check si activa */}
+                  {/* Estado del toggle: casilla (cuadrada = multi-seleccion, no
+                      circulo que sugeriria single-select) con check si activa */}
                   <span
                     className={cn(
-                      'inline-flex items-center justify-center size-5 rounded-full border shrink-0 transition-colors',
+                      'inline-flex items-center justify-center size-5 rounded border shrink-0 transition-colors',
                       activa
                         ? 'bg-primary border-primary text-primary-foreground'
                         : 'bg-transparent border-border/60'

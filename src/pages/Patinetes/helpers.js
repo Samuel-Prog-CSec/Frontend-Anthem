@@ -7,16 +7,16 @@ export const densityOptions = [
   { value: 'BAJA', label: 'Baja' },
   { value: 'MEDIA', label: 'Media' },
   { value: 'ALTA', label: 'Alta' },
-  { value: 'MUY_ALTA', label: 'Muy Alta' }
+  { value: 'MUY_ALTA', label: 'Muy alta' }
 ];
 
 // Opciones de filtro para tipo de zona
 export const zoneTypeOptions = [
-  { value: 'CENTRO_URBANO', label: 'Centro Urbano' },
-  { value: 'ZONA_COMERCIAL', label: 'Zona Comercial' },
-  { value: 'ZONA_UNIVERSITARIA', label: 'Zona Universitaria' },
-  { value: 'ZONA_TRANSPORTE', label: 'Zona Transporte' },
-  { value: 'ZONA_RESIDENCIAL', label: 'Zona Residencial' }
+  { value: 'CENTRO_URBANO', label: 'Centro urbano' },
+  { value: 'ZONA_COMERCIAL', label: 'Zona comercial' },
+  { value: 'ZONA_UNIVERSITARIA', label: 'Zona universitaria' },
+  { value: 'ZONA_TRANSPORTE', label: 'Zona transporte' },
+  { value: 'ZONA_RESIDENCIAL', label: 'Zona residencial' }
 ];
 
 /**

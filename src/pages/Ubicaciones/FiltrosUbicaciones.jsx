@@ -29,8 +29,9 @@ function FiltrosUbicaciones({
       <CardContent>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
-            <label className="text-sm text-muted-foreground mb-1 block">Tipo de ubicacion</label>
+            <label htmlFor="filtro-tipo" className="text-sm text-muted-foreground mb-1 block">Tipo de ubicación</label>
             <Select
+              id="filtro-tipo"
               value={filtros.tipo}
               onChange={onCambioTipo}
               options={opcionesTipo}
@@ -42,7 +43,7 @@ function FiltrosUbicaciones({
             <Input
               value={filtros.busqueda}
               onChange={onCambioBusqueda}
-              placeholder="Buscar ubicacion..."
+              placeholder="Buscar ubicación..."
               startIcon={Search}
             />
           </div>

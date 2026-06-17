@@ -168,6 +168,49 @@ export function formatearNombreDistrito(nombre) {
 }
 
 /**
+ * Title-Case en espanol: capitaliza cada palabra, deja en minuscula los
+ * conectores (de, del, la, las, los, y, e, o, u) salvo al inicio, y respeta los
+ * guiones (capitaliza cada parte: "fuencarral-el pardo" -> "Fuencarral-El
+ * Pardo"). Para nombres crudos en MAYUSCULAS del backend (barrios, denunciante,
+ * etc.) que en la UI deben leerse como texto, no como gritos.
+ *
+ * @param {string|null|undefined} texto
+ * @returns {string} Texto en Title-Case
+ */
+const CONECTORES_TITULO = new Set(['de', 'del', 'la', 'las', 'los', 'y', 'e', 'o', 'u']);
+export function aTituloCase(texto) {
+  if (!texto || typeof texto !== 'string') { return texto || ''; }
+  return texto
+    .toLowerCase()
+    .split(' ')
+    .map((palabra, i) => {
+      if (palabra.includes('-')) {
+        return palabra
+          .split('-')
+          .map((parte) => parte.charAt(0).toUpperCase() + parte.slice(1))
+          .join('-');
+      }
+      if (i > 0 && CONECTORES_TITULO.has(palabra)) { return palabra; }
+      return palabra.charAt(0).toUpperCase() + palabra.slice(1);
+    })
+    .join(' ');
+}
+
+/**
+ * Nombre de distrito en Title-Case con tildes correctas, listo para la UI
+ * ("SALAMANCA" -> "Salamanca", "PUENTE DE VALLECAS" -> "Puente de Vallecas",
+ * "FUENCARRAL-EL PARDO" -> "Fuencarral-El Pardo"). Combina la normalizacion
+ * canonica (tildes/guiones correctos) con el Title-Case.
+ *
+ * @param {string|null|undefined} nombre
+ * @returns {string} Nombre de distrito legible
+ */
+export function formatearNombreDistritoTitulo(nombre) {
+  if (!nombre || typeof nombre !== 'string') { return '-'; }
+  return aTituloCase(formatearNombreDistrito(nombre));
+}
+
+/**
  * Formatea una hora en formato 24h con cero a la izquierda.
  *
  * Aceptamos tanto el rango 0-23 (UTC estandar, viene del backend de

@@ -6,12 +6,32 @@
 import { memo } from 'react';
 import { Activity, Gauge, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { StatCard } from '../../../components/charts';
+import { Card, CardContent, ErrorState } from '../../../components/common';
 import { formatNumber } from '../../../utils';
 
 const TarjetasResumenTrafico = memo(function TarjetasResumenTrafico({
   resumen,
-  isLoading
+  serieIntensidad,
+  isLoading,
+  error,
+  onReintentar
 }) {
+  // Nunca pintar ceros fabricados si la peticion de estadisticas fallo: mostrar
+  // un estado de error claro con reintento (el endpoint es pesado y puede
+  // exceder el limite con rangos grandes).
+  if (error && !isLoading) {
+    return (
+      <Card className="mb-6">
+        <CardContent>
+          <ErrorState
+            message="No se pudieron cargar las estadísticas de tráfico para este rango. Prueba con un rango menor o reinténtalo."
+            onRetry={onReintentar}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
+
   const totalMediciones = resumen?.totalMediciones || 0;
   const intensidadPromedio = resumen?.intensidadPromedio || 0;
   const porcentajeCongestion = resumen?.porcentajeCongestion || 0;
@@ -29,12 +49,13 @@ const TarjetasResumenTrafico = memo(function TarjetasResumenTrafico({
       <StatCard
         title="Intensidad media"
         value={`${formatNumber(intensidadPromedio, 0)}`}
-        subtitle="vehiculos/hora"
+        subtitle="vehículos/hora"
         icon={Gauge}
+        serie={serieIntensidad && serieIntensidad.length >= 2 ? serieIntensidad : undefined}
         isLoading={isLoading}
       />
       <StatCard
-        title="Congestion"
+        title="Congestión"
         value={`${formatNumber(porcentajeCongestion, 1)}%`}
         subtitle="del total de mediciones"
         icon={AlertTriangle}

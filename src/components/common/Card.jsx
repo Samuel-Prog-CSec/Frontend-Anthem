@@ -28,7 +28,7 @@ const Card = memo(forwardRef(({ className, hover = false, ...props }, ref) => (
       // Radius pequeno (8px). Background solido en lugar de translucent.
       'rounded-lg border border-[var(--border-hairline)] bg-card text-card-foreground',
       'transition-colors duration-150',
-      hover && 'hover:border-[var(--border-emphasis)]',
+      hover && 'hover-lift hover:border-[var(--border-emphasis)]',
       className
     )}
     {...props}
@@ -51,16 +51,16 @@ CardHeader.displayName = 'CardHeader';
 /**
  * Titulo de la tarjeta.
  *
- * Por defecto se renderiza como `<h3>` para preservar el comportamiento
- * historico, pero acepta `as="h2"` (u otro nivel) cuando el CardTitle
- * funciona como heading principal de una pagina. Esto evita saltos en
- * la jerarquia de encabezados (h1 -> h3) que rompen accesibilidad
- * (WCAG 1.3.1 - estructura semantica).
+ * Por defecto se renderiza como `<h2>`: las tarjetas son secciones de primer
+ * nivel bajo el `<h1>` de la pagina (PageLayout), asi que h2 evita el salto de
+ * nivel h1 -> h3 que penalizaba accesibilidad (WCAG 1.3.1 / Lighthouse
+ * heading-order). El estilo lo da la clase, no la etiqueta, asi que el cambio
+ * es invisible. Acepta `as="h3"`/`as="h4"` para titulos realmente anidados.
  *
  * @example
- *   <CardTitle as="h2">Aforo de peatones</CardTitle>
+ *   <CardTitle as="h3">Sub-bloque dentro de una seccion</CardTitle>
  */
-const CardTitle = memo(forwardRef(({ as = 'h3', className, ...props }, ref) => {
+const CardTitle = memo(forwardRef(({ as = 'h2', className, ...props }, ref) => {
   // ESLint con JSX no siempre detecta el uso de una variable destructurada
   // como tag dinamico (`<Component .../>`). Asignar a una variable local con
   // mayuscula sortea la regla sin necesidad de disable-comment.

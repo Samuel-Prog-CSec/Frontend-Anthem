@@ -15,9 +15,11 @@
 
 import {
   MapPin, Wind, Volume2, Activity,
-  AlertTriangle, Bike, Users, FileWarning, Zap
+  AlertTriangle, Bike, Users, FileWarning, Zap,
+  TrafficCone, Recycle, Footprints
 } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
+import { dominioDeRuta } from '../../components/layout/navegacion';
 import { ROUTES, DATE_CONFIG } from '../../constants';
 import { useEstadisticasDashboard } from './hooks/useEstadisticasDashboard';
 import {
@@ -29,15 +31,18 @@ import {
 } from './components';
 
 const MODULOS_ACCESO_RAPIDO = [
-  { codigo: '01', titulo: 'Ubicaciones', descripcion: 'Estaciones de medicion, rutas de transporte y zonas de interes', icono: MapPin, color: 'cyan', ruta: ROUTES.UBICACIONES },
-  { codigo: '02', titulo: 'Calidad del Aire', descripcion: 'Niveles de contaminantes (NO2, O3, PM10) y tendencias', icono: Wind, color: 'emerald', ruta: ROUTES.CALIDAD_AIRE },
-  { codigo: '03', titulo: 'Ruido Ambiental', descripcion: 'Niveles de ruido por zona y periodo (diurno, vespertino, nocturno)', icono: Volume2, color: 'purple', ruta: ROUTES.RUIDO },
-  { codigo: '04', titulo: 'Accidentes', descripcion: 'Datos de accidentalidad por distrito, tipo y gravedad', icono: AlertTriangle, color: 'amber', ruta: ROUTES.ACCIDENTES },
-  { codigo: '05', titulo: 'Patinetes', descripcion: 'Asignacion de patinetes por distrito, proveedor y densidad', icono: Zap, color: 'rose', ruta: ROUTES.PATINETES },
-  { codigo: '06', titulo: 'Bicicletas', descripcion: 'Disponibilidad de bicicletas, usos diarios y suscripciones', icono: Bike, color: 'sky', ruta: ROUTES.BICICLETAS },
-  { codigo: '07', titulo: 'Censo', descripcion: 'Datos demograficos por distrito, barrio y grupo de edad', icono: Users, color: 'cyan', ruta: ROUTES.CENSO },
-  { codigo: '08', titulo: 'Multas', descripcion: 'Infracciones de trafico, importes, calificaciones y ubicaciones', icono: FileWarning, color: 'amber', ruta: ROUTES.MULTAS },
-  { codigo: '09', titulo: 'Aforo Bicicletas', descripcion: 'Conteo horario de trafico ciclista por estacion', icono: Activity, color: 'emerald', ruta: ROUTES.AFORO_BICICLETAS }
+  { titulo: 'Tráfico', descripcion: 'Intensidad, ocupación y congestión por punto de medición', icono: TrafficCone, ruta: ROUTES.TRAFICO },
+  { titulo: 'Ubicaciones', descripcion: 'Estaciones de medición, rutas de transporte y zonas de interés', icono: MapPin, ruta: ROUTES.UBICACIONES },
+  { titulo: 'Calidad del aire', descripcion: 'Niveles de contaminantes (NO2, O3, PM10) y su tendencia', icono: Wind, ruta: ROUTES.CALIDAD_AIRE },
+  { titulo: 'Ruido ambiental', descripcion: 'Niveles por zona y periodo: diurno, vespertino y nocturno', icono: Volume2, ruta: ROUTES.RUIDO },
+  { titulo: 'Contenedores', descripcion: 'Ubicación por tipo de residuo, lote y cobertura por distrito', icono: Recycle, ruta: ROUTES.CONTENEDORES },
+  { titulo: 'Accidentes', descripcion: 'Accidentalidad por distrito, tipo y gravedad', icono: AlertTriangle, ruta: ROUTES.ACCIDENTES },
+  { titulo: 'Multas', descripcion: 'Infracciones, importes, calificaciones y ubicación', icono: FileWarning, ruta: ROUTES.MULTAS },
+  { titulo: 'Patinetes', descripcion: 'Reparto por distrito, proveedor y densidad', icono: Zap, ruta: ROUTES.PATINETES },
+  { titulo: 'Bicicletas', descripcion: 'Disponibilidad, usos diarios y suscripciones', icono: Bike, ruta: ROUTES.BICICLETAS },
+  { titulo: 'Aforo de bicicletas', descripcion: 'Conteo horario de tráfico ciclista por estación', icono: Activity, ruta: ROUTES.AFORO_BICICLETAS },
+  { titulo: 'Aforo de peatones', descripcion: 'Conteo horario de tránsito peatonal por estación', icono: Footprints, ruta: ROUTES.AFORO_PEATONES },
+  { titulo: 'Censo', descripcion: 'Población por distrito, barrio y grupo de edad', icono: Users, ruta: ROUTES.CENSO }
 ];
 
 function DashboardPage() {
@@ -45,9 +50,8 @@ function DashboardPage() {
 
   return (
     <PageLayout
-      eyebrow="Dashboard / Vista general"
-      title="Centro de control"
-      description={`Indicadores agregados de la Smart City Anthem ${DATE_CONFIG.DATASET_YEAR}. Cada modulo enlaza con su vista detallada con filtros, mapas y series temporales.`}
+      title="Resumen de la ciudad"
+      description={`Vista agregada de Anthem en ${DATE_CONFIG.DATASET_YEAR}: aire, ruido, movilidad, seguridad vial, residuos y demografía sobre un único modelo de datos.`}
     >
       <BannerCabecera />
 
@@ -61,74 +65,74 @@ function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-14">
         <TarjetaEstadisticaDashboard
           titulo="Ubicaciones registradas"
-          valor={estadisticas.ubicaciones.total.toLocaleString()}
-          subtitulo="Puntos de interes y medicion"
+          valor={estadisticas.ubicaciones.total.toLocaleString('es-ES')}
+          subtitulo="Puntos de interés y medición"
           icono={MapPin}
-          color="cyan"
+          dominio={dominioDeRuta(ROUTES.UBICACIONES)}
           cargando={estadisticas.ubicaciones.cargando}
         />
         <TarjetaEstadisticaDashboard
           titulo="Mediciones de aire"
-          valor={estadisticas.calidadAire.total.toLocaleString()}
+          valor={estadisticas.calidadAire.total.toLocaleString('es-ES')}
           subtitulo="Registros de calidad ambiental"
           icono={Wind}
-          color="emerald"
+          dominio={dominioDeRuta(ROUTES.CALIDAD_AIRE)}
           cargando={estadisticas.calidadAire.cargando}
         />
         <TarjetaEstadisticaDashboard
           titulo="Mediciones de ruido"
-          valor={estadisticas.ruido.total.toLocaleString()}
-          subtitulo="Registros de nivel acustico"
+          valor={estadisticas.ruido.total.toLocaleString('es-ES')}
+          subtitulo="Registros de nivel acústico"
           icono={Volume2}
-          color="purple"
+          dominio={dominioDeRuta(ROUTES.RUIDO)}
           cargando={estadisticas.ruido.cargando}
         />
         <TarjetaEstadisticaDashboard
           titulo="Accidentes registrados"
-          valor={estadisticas.accidentes.total.toLocaleString()}
+          valor={estadisticas.accidentes.total.toLocaleString('es-ES')}
           subtitulo="Personas afectadas en siniestros"
           icono={AlertTriangle}
-          color="amber"
+          dominio={dominioDeRuta(ROUTES.ACCIDENTES)}
           cargando={estadisticas.accidentes.cargando}
         />
         <TarjetaEstadisticaDashboard
           titulo="Asignaciones de patinetes"
-          valor={estadisticas.patinetes.total.toLocaleString()}
+          valor={estadisticas.patinetes.total.toLocaleString('es-ES')}
           subtitulo="Reparto por distrito y proveedor"
           icono={Zap}
-          color="rose"
+          dominio={dominioDeRuta(ROUTES.PATINETES)}
           cargando={estadisticas.patinetes.cargando}
         />
         <TarjetaEstadisticaDashboard
           titulo="Registros de bicicletas"
-          valor={estadisticas.bicicletas.total.toLocaleString()}
+          valor={estadisticas.bicicletas.total.toLocaleString('es-ES')}
           subtitulo="Disponibilidad y usos"
           icono={Bike}
-          color="sky"
+          dominio={dominioDeRuta(ROUTES.BICICLETAS)}
           cargando={estadisticas.bicicletas.cargando}
         />
         <TarjetaEstadisticaDashboard
           titulo="Filas del censo"
-          valor={estadisticas.censo.total.toLocaleString()}
-          subtitulo="Demografia por distrito y barrio"
+          valor={estadisticas.censo.total.toLocaleString('es-ES')}
+          subtitulo="Demografía por distrito y barrio"
           icono={Users}
-          color="cyan"
+          dominio={dominioDeRuta(ROUTES.CENSO)}
           cargando={estadisticas.censo.cargando}
         />
         <TarjetaEstadisticaDashboard
-          titulo="Multas de trafico"
-          valor={estadisticas.multas.total.toLocaleString()}
+          titulo="Multas de tráfico"
+          valor={estadisticas.multas.total.toLocaleString('es-ES')}
           subtitulo="Infracciones registradas"
           icono={FileWarning}
-          color="amber"
+          dominio={dominioDeRuta(ROUTES.MULTAS)}
           cargando={estadisticas.multas.cargando}
         />
         <TarjetaEstadisticaDashboard
           titulo="Aforo de bicicletas"
-          valor={estadisticas.aforoBicicletas.total.toLocaleString()}
-          subtitulo="Conteo horario por estacion"
+          valor={estadisticas.aforoBicicletas.total.toLocaleString('es-ES')}
+          subtitulo="Conteo horario por estación"
           icono={Activity}
-          color="emerald"
+          dominio={dominioDeRuta(ROUTES.AFORO_BICICLETAS)}
           cargando={estadisticas.aforoBicicletas.cargando}
         />
       </div>
@@ -136,21 +140,18 @@ function DashboardPage() {
       {/* Modulos: header editorial con eyebrow + titulo + descriptor */}
       <section className="mb-14" aria-labelledby="dashboard-modulos-titulo">
         <div className="mb-8">
-          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted-foreground mb-2">
-            Catalogo / {MODULOS_ACCESO_RAPIDO.length} modulos
-          </p>
-          <h2 id="dashboard-modulos-titulo" className="font-display text-2xl md:text-3xl font-bold text-foreground tracking-tight">
-            Modulos del sistema
+          <h2 id="dashboard-modulos-titulo" className="font-display text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+            Explora por área
           </h2>
-          <p className="text-sm text-muted-foreground mt-2 max-w-xl">
-            Cada modulo expone sus propios filtros, agregados y visualizaciones.
-            Los datos provienen del mismo modelo unificado.
+          <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+            Cada área tiene sus propios filtros, mapas y series temporales sobre
+            el mismo modelo de datos.
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {MODULOS_ACCESO_RAPIDO.map((modulo) => (
-            <TarjetaAccesoRapido key={modulo.ruta} {...modulo} />
+            <TarjetaAccesoRapido key={modulo.ruta} {...modulo} dominio={dominioDeRuta(modulo.ruta)} />
           ))}
         </div>
       </section>

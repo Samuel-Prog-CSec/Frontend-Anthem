@@ -11,14 +11,18 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Radio } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
-import { Button } from '../../components/common';
+import {
+  Button, Card, CardHeader, CardTitle, CardDescription, CardContent, Skeleton
+} from '../../components/common';
+import { MapaClusterizado } from '../../components/mapas';
 import {
   useRuido, useEstacionesRuido, useRuidoRanking,
-  useRuidoCumplimiento, useRuidoTendencias
+  useRuidoCumplimiento, useRuidoTendencias, useMapaRuido, useRuidoStats
 } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
+import { formatNumber } from '../../utils';
 import { excedeLimite } from './helpers';
 import {
   TarjetasEstadisticasRuido,
@@ -61,16 +65,41 @@ function PaginaRuido() {
   } = useRuido(parametrosConsulta);
 
   const { data: stationOptions = [] } = useEstacionesRuido();
-  const { data: rankingApi, isLoading: cargandoRanking } = useRuidoRanking({ limit: 5 });
-  const { data: cumplimientoApi, isLoading: cargandoCumplimiento } = useRuidoCumplimiento();
 
-  // Tendencias temporales (todo el ano del dataset)
-  const parametrosTendencia = useMemo(() => ({
-    startDate: `${DATE_CONFIG.DATASET_YEAR}-01-01`,
-    endDate: `${DATE_CONFIG.DATASET_YEAR}-12-31`,
-    groupBy: 'month',
-    metric: 'laeq24'
-  }), []);
+  // Ranking y cumplimiento deben respetar los filtros activos (mes/estacion),
+  // igual que la tabla; sin esto mostraban siempre el agregado anual completo
+  // y contradecian al resto de la pagina al filtrar.
+  const parametrosAgregados = useMemo(() => {
+    const params = { año: DATE_CONFIG.DATASET_YEAR };
+    if (filtros.mes) { params.mes = parseInt(filtros.mes); }
+    if (filtros.nmt) { params.nmt = parseInt(filtros.nmt); }
+    return params;
+  }, [filtros.mes, filtros.nmt]);
+
+  const { data: rankingApi, isLoading: cargandoRanking } = useRuidoRanking({ limit: 5, ...parametrosAgregados });
+  const { data: cumplimientoApi, isLoading: cargandoCumplimiento } = useRuidoCumplimiento(parametrosAgregados);
+  // Estadisticas GLOBALES (todo el dataset filtrado, no solo la pagina actual).
+  // Alimentan las tarjetas KPI con promedios/conteos sobre el total.
+  const { data: estadisticasApi } = useRuidoStats(parametrosAgregados);
+
+  // Mapa de estaciones acusticas. Reutiliza los filtros activos (mes/estacion)
+  // para que los puntos cambien al filtrar, en linea con el resto de la pagina.
+  const { data: featureCollectionMapa, isLoading: cargandoMapa } = useMapaRuido(parametrosAgregados);
+
+  // Tendencias temporales del año. Reacciona al filtro de estacion (nmt) para
+  // mostrar la serie de ESA estacion. NO se aplica el filtro `mes`: la grafica
+  // es una tendencia mensual sobre el año y filtrarla por un mes la colapsaria
+  // a un unico punto.
+  const parametrosTendencia = useMemo(() => {
+    const params = {
+      startDate: `${DATE_CONFIG.DATASET_YEAR}-01-01`,
+      endDate: `${DATE_CONFIG.DATASET_YEAR}-12-31`,
+      groupBy: 'month',
+      metric: 'laeq24'
+    };
+    if (filtros.nmt) { params.nmt = parseInt(filtros.nmt); }
+    return params;
+  }, [filtros.nmt]);
   const { data: tendenciasApi } = useRuidoTendencias(parametrosTendencia);
 
   // Memoizamos para mantener referencia estable y no invalidar useMemos
@@ -99,6 +128,14 @@ function PaginaRuido() {
     });
   }, [tendenciasApi]);
 
+  // Serie plana de promedios LAeq24 mensuales (orden cronologico) para la
+  // sparkline inline de la tarjeta "Promedio LAeq24". Reutiliza la misma
+  // tendencia ya consultada para el grafico, sin nuevas peticiones.
+  const serieLaeqMensual = useMemo(
+    () => datosTendencia.map(d => d.promedio).filter(n => Number.isFinite(n)),
+    [datosTendencia]
+  );
+
   // Handlers estables
   const manejarCambioFiltro = useCallback((name, value) => {
     setFiltros(prev => ({ ...prev, [name]: value }));
@@ -110,8 +147,9 @@ function PaginaRuido() {
     setPaginaActual(1);
   }, []);
 
-  // Estadisticas derivadas de la pagina actual
-  const estadisticas = useMemo(() => {
+  // Estadisticas derivadas de la pagina actual (fallback si el endpoint de
+  // estadisticas globales no respondiera).
+  const estadisticasPagina = useMemo(() => {
     if (data.length === 0) {
       return {
         promedioLaeq: 0,
@@ -148,16 +186,41 @@ function PaginaRuido() {
     };
   }, [data]);
 
-  // Datos para grafico de niveles (ultimas 12 mediciones)
+  // KPIs definitivos: preferir el resumen GLOBAL del backend (todo el dataset
+  // filtrado) y caer a la estimacion sobre la pagina actual si no esta listo.
+  const estadisticas = useMemo(() => {
+    const resumen = estadisticasApi?.data?.resumen || estadisticasApi?.resumen || null;
+    if (!resumen) {
+      return estadisticasPagina;
+    }
+    return {
+      promedioLaeq: resumen.promedioGeneralLaeq24 ?? estadisticasPagina.promedioLaeq,
+      promedioDiurno: resumen.promedioDiurno ?? estadisticasPagina.promedioDiurno,
+      promedioNocturno: resumen.promedioNocturno ?? estadisticasPagina.promedioNocturno,
+      promedioVespertino: resumen.promedioVespertino ?? estadisticasPagina.promedioVespertino,
+      cantidadExceden: resumen.estacionesConExcedencia ?? estadisticasPagina.cantidadExceden,
+      cantidadEstaciones: resumen.totalEstaciones ?? estadisticasPagina.cantidadEstaciones
+    };
+  }, [estadisticasApi, estadisticasPagina]);
+
+  // Datos para el grafico "Niveles por estacion". Se derivan del agregado por
+  // estacion del mapa (/ruido/mapa: promedios reales por NMT en el periodo
+  // filtrado) en vez de las primeras 12 filas de la pagina paginada, que eran
+  // un subconjunto arbitrario de station-mes y no un nivel por estacion.
   const datosGrafico = useMemo(() => {
-    return data.slice(0, 12).map(d => ({
-      estacion: d.nombre?.slice(0, 15) || `NMT ${d.nmt}`,
-      diurno: d.nivelDiurno || 0,
-      nocturno: d.nivelNocturno || 0,
-      vespertino: d.nivelVespertino || 0,
-      laeq24: d.laeq24 || 0
-    })).reverse();
-  }, [data]);
+    const features = featureCollectionMapa?.features || [];
+    if (!Array.isArray(features) || features.length === 0) { return []; }
+    return features.map(f => {
+      const p = f.properties || {};
+      return {
+        estacion: (p.nombre && p.nombre.slice(0, 15)) || `NMT ${p.nmt}`,
+        diurno: p.promedioDiurno || 0,
+        nocturno: p.promedioNocturno || 0,
+        vespertino: p.promedioVespertino || 0,
+        laeq24: p.promedioLaeq24 || 0
+      };
+    });
+  }, [featureCollectionMapa]);
 
   // Ranking de estaciones.
   // El backend devuelve `data.ranking` (array) + `data.configuracion` +
@@ -220,17 +283,62 @@ function PaginaRuido() {
 
   return (
     <PageLayout
-      eyebrow="Ambiente / Ruido ambiental"
-      title="El sonido de la ciudad"
-      description={`Treinta estaciones acusticas reportan niveles diurno, vespertino y nocturno frente al limite normativo europeo. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`}
+      title="Ruido ambiental"
+      description={`Treinta estaciones acústicas reportan niveles diurno, vespertino y nocturno frente al límite normativo europeo. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`}
       actions={
         <Button variant="outline" onClick={() => refetch()}>
           <RefreshCw className="size-4 mr-2" />
-          Actualizar
+          Recargar datos
         </Button>
       }
     >
-      <TarjetasEstadisticasRuido estadisticas={estadisticas} />
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Radio className="size-5" aria-hidden="true" />
+            Estaciones acústicas en el mapa
+          </CardTitle>
+          <CardDescription>
+            Puntos clusterizados con niveles diurno y nocturno y cumplimiento normativo por estación.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {cargandoMapa ? (
+            <Skeleton className="h-[480px] w-full rounded-xl" />
+          ) : (
+            <MapaClusterizado
+              featureCollection={featureCollectionMapa}
+              altura="480px"
+              renderPopup={(props) => {
+                // /ruido/mapa emite promedioDiurno/Nocturno/Laeq24 + excede*
+                // (no nivelDiurno/cumple). Cumple = no excede ningun periodo.
+                const tieneExcedencia = props.excedeDiurno != null || props.excedeVespertino != null || props.excedeNocturno != null;
+                const cumple = !props.excedeDiurno && !props.excedeVespertino && !props.excedeNocturno;
+                return (
+                  <div className="text-sm">
+                    <div className="font-semibold mb-1">{props.nombre || `Estación NMT ${props.nmt || ''}`}</div>
+                    {props.nmt && <div>NMT: {props.nmt}</div>}
+                    {props.promedioDiurno != null && (
+                      <div>Diurno: {formatNumber(props.promedioDiurno, 1)} dB</div>
+                    )}
+                    {props.promedioNocturno != null && (
+                      <div>Nocturno: {formatNumber(props.promedioNocturno, 1)} dB</div>
+                    )}
+                    {props.promedioLaeq24 != null && (
+                      <div>LAeq24: {formatNumber(props.promedioLaeq24, 1)} dB</div>
+                    )}
+                    {tieneExcedencia && (
+                      <div>Cumplimiento: {cumple ? 'Sí' : 'No'}</div>
+                    )}
+                  </div>
+                );
+              }}
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      <TarjetasEstadisticasRuido estadisticas={estadisticas} serieLaeqMensual={serieLaeqMensual} />
 
       <FiltrosRuido
         filtros={filtros}
@@ -239,7 +347,7 @@ function PaginaRuido() {
         limpiarFiltros={limpiarFiltros}
       />
 
-      {!isLoading && data.length > 0 && (
+      {datosGrafico.length > 0 && (
         <GraficoNivelesRuido datosGrafico={datosGrafico} />
       )}
 

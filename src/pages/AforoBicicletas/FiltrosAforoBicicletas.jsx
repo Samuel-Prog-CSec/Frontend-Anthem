@@ -35,7 +35,7 @@ function FiltrosAforoBicicletas({
                 Limpiar
               </Button>
             )}
-            <Button variant="ghost" size="sm" onClick={onRefrescar} aria-label="Refrescar">
+            <Button variant="ghost" size="sm" onClick={onRefrescar} aria-label="Recargar datos">
               <RefreshCw className="size-4" aria-hidden="true" />
             </Button>
           </div>
@@ -44,22 +44,28 @@ function FiltrosAforoBicicletas({
       <CardContent>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           <Select
+            id="filtro-distrito"
             options={opcionesDistrito}
             value={filtros.distrito}
             onChange={(e) => onCambioFiltro('distrito', e.target.value)}
             placeholder="Todos los distritos"
+            aria-label="Filtrar por distrito"
           />
           <Select
+            id="filtro-franja-horaria"
             options={opcionesFranjaHoraria}
             value={filtros.franjaHoraria}
             onChange={(e) => onCambioFiltro('franjaHoraria', e.target.value)}
             placeholder="Todas las franjas"
+            aria-label="Filtrar por franja horaria"
           />
           <Select
+            id="filtro-mes"
             options={opcionesMes}
             value={filtros.mes}
             onChange={(e) => onCambioFiltro('mes', e.target.value)}
             placeholder="Todos los meses"
+            aria-label="Filtrar por mes"
           />
         </div>
       </CardContent>

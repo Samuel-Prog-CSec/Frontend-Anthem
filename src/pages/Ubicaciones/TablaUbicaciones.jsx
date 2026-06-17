@@ -41,7 +41,7 @@ function TablaUbicaciones({
           />
         ) : locations.length === 0 ? (
           <EmptyState
-            title="Sin ubicaciones"
+            title="Sin resultados para estos filtros"
             description="No se encontraron ubicaciones con los filtros seleccionados."
             icon={MapPin}
           />

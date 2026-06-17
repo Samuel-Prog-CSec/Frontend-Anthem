@@ -14,7 +14,7 @@ import {
 import { useCensoResumenDistritos } from '../../../api/hooks';
 import { formatDate, formatearNombreDistrito, formatearEtiquetaEnum } from '../../../utils';
 import { ROUTES, DATE_CONFIG } from '../../../constants';
-import { obtenerVarianteBadgeGravedad, obtenerBadgeAlcohol, etiquetaTipoAccidente } from '../helpers';
+import { obtenerVarianteBadgeGravedad, obtenerBadgeAlcohol, etiquetaTipoAccidente, etiquetaGravedad } from '../helpers';
 
 // Normaliza un nombre de distrito (uppercase + sin tildes) para hacer
 // match con el catalogo del censo. Local porque es trivial y evita anadir
@@ -70,7 +70,7 @@ const TablaAccidentes = memo(function TablaAccidentes({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Registro de Accidentes</CardTitle>
+        <CardTitle>Registro de accidentes</CardTitle>
         <CardDescription>
           Cada fila representa una persona afectada. Un mismo expediente puede
           generar varias filas cuando hay varias personas implicadas.
@@ -86,7 +86,7 @@ const TablaAccidentes = memo(function TablaAccidentes({
           />
         ) : datos.length === 0 ? (
           <EmptyState
-            title="Sin accidentes"
+            title="Sin resultados para estos filtros"
             description="No se encontraron accidentes con los filtros seleccionados."
             icon={AlertTriangle}
           />
@@ -96,7 +96,7 @@ const TablaAccidentes = memo(function TablaAccidentes({
               label="Listado de accidentes"
               rowCount={totalDocuments}
             >
-              <TableCaption className="sr-only">Registro de personas afectadas en accidentes de trafico</TableCaption>
+              <TableCaption className="sr-only">Registro de personas afectadas en accidentes de tráfico</TableCaption>
               <TableHeader>
                 <TableRow>
                   <TableHead>Expediente</TableHead>
@@ -104,9 +104,9 @@ const TablaAccidentes = memo(function TablaAccidentes({
                   <TableHead>Hora</TableHead>
                   <TableHead>Calle</TableHead>
                   <TableHead>Distrito</TableHead>
-                  <TableHead>Tipo Accidente</TableHead>
+                  <TableHead>Tipo accidente</TableHead>
                   <TableHead>Gravedad</TableHead>
-                  <TableHead>Vehiculo</TableHead>
+                  <TableHead>Vehículo</TableHead>
                   <TableHead>Persona</TableHead>
                   <TableHead>Alcohol</TableHead>
                 </TableRow>
@@ -175,7 +175,7 @@ const TablaAccidentes = memo(function TablaAccidentes({
                       </TableCell>
                       <TableCell>
                         <Badge variant={obtenerVarianteBadgeGravedad(record.circunstancias?.gravedad)}>
-                          {record.circunstancias?.gravedad || '-'}
+                          {etiquetaGravedad(record.circunstancias?.gravedad)}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">

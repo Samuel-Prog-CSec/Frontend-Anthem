@@ -15,6 +15,7 @@ function EstadisticasAforoBicicletas({
   promedioPorHora,
   totalEstaciones,
   bicicletasPerCapita,
+  seriePatronHorario,
   estadisticasCargando,
   estacionesCargando
 }) {
@@ -25,14 +26,14 @@ function EstadisticasAforoBicicletas({
           title="Total mediciones"
           value={formatNumber(totalMediciones)}
           icon={Activity}
-          accent="cyan"
+          accent="dominio"
           isLoading={estadisticasCargando}
         />
         <StatCard
           title="Bicicletas contadas"
           value={formatNumber(totalBicicletas)}
           icon={Bike}
-          accent="emerald"
+          accent="dominio"
           isLoading={estadisticasCargando}
         />
         <StatCard
@@ -40,14 +41,15 @@ function EstadisticasAforoBicicletas({
           value={formatNumber(Math.round(promedioPorHora))}
           subtitle="Bicicletas por hora"
           icon={Clock}
-          accent="amber"
+          accent="dominio"
+          serie={seriePatronHorario}
           isLoading={estadisticasCargando}
         />
         <StatCard
           title="Estaciones activas"
           value={totalEstaciones}
           icon={Radio}
-          accent="violet"
+          accent="dominio"
           isLoading={estacionesCargando}
         />
       </div>

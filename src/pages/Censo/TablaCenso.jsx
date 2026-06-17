@@ -12,7 +12,7 @@ import {
   ErrorState, EmptyState, Pagination, TableSkeleton
 } from '../../components/common';
 import { ETIQUETAS_GRUPOS_EDAD, DATE_CONFIG, PAGINATION } from '../../constants';
-import { formatNumber, formatearNombreDistrito } from '../../utils';
+import { formatNumber, formatearNombreDistritoTitulo, aTituloCase } from '../../utils';
 import { obtenerVarianteBadgeEdad, formatearPorcentaje } from './helpers';
 
 function TablaCenso({
@@ -44,16 +44,19 @@ function TablaCenso({
             onRetry={onReintentar}
           />
         ) : datos.length === 0 ? (
-          <EmptyState message="No se encontraron registros con los filtros seleccionados" />
+          <EmptyState
+            title="Sin resultados para estos filtros"
+            description="No se encontraron registros con los filtros seleccionados."
+          />
         ) : (
           <>
             <div className="overflow-x-auto">
               <Table
-                label="Datos del censo demografico"
+                label="Datos del censo demográfico"
                 rowCount={paginacion?.totalDocuments}
               >
                 <TableCaption>
-                  Datos del censo demografico - Anthem City {DATE_CONFIG.DATASET_YEAR}
+                  Datos del censo demográfico - Anthem City {DATE_CONFIG.DATASET_YEAR}
                 </TableCaption>
                 <TableHeader>
                   <TableRow>
@@ -75,14 +78,14 @@ function TablaCenso({
 
                     return (
                       <TableRow
-                        key={registro._id || index}
+                        key={registro._id || `censo-${index}`}
                         className="cursor-pointer hover:bg-muted/60"
                         onClick={() => onClickFila(codigoDistrito)}
                       >
                         <TableCell className="font-medium">
-                          {formatearNombreDistrito(registro.distrito?.descripcion)}
+                          {formatearNombreDistritoTitulo(registro.distrito?.descripcion)}
                         </TableCell>
-                        <TableCell>{registro.barrio?.descripcion || '-'}</TableCell>
+                        <TableCell>{registro.barrio?.descripcion ? aTituloCase(registro.barrio.descripcion) : '-'}</TableCell>
                         <TableCell className="text-right font-mono">{formatNumber(stats.totalPoblacion)}</TableCell>
                         <TableCell className="text-right font-mono">{formatNumber(stats.totalEspañoles)}</TableCell>
                         <TableCell className="text-right font-mono">{formatNumber(stats.totalExtranjeros)}</TableCell>

@@ -84,13 +84,13 @@ function DiasMayorMenorUso({ datos }) {
               <div className="text-sm text-foreground/90">
                 <p className="font-medium mb-1">Periodos de servicio interrumpido detectados</p>
                 <p className="text-muted-foreground">
-                  Anthem 2051 tiene {tramosInterrumpidos.reduce((s, t) => s + t.dias, 0)} dias
+                  Anthem 2051 tiene {tramosInterrumpidos.reduce((s, t) => s + t.dias, 0)} días
                   consecutivos sin uso del servicio que aparecen como "menor uso" abajo. Tramos:
                 </p>
                 <ul className="mt-1.5 space-y-0.5">
                   {tramosInterrumpidos.map((t, i) => (
                     <li key={`tramo-${i}`} className="font-mono text-xs text-muted-foreground">
-                      {formatDate(t.inicio)} - {formatDate(t.fin)} ({t.dias} dias)
+                      {formatDate(t.inicio)} - {formatDate(t.fin)} ({t.dias} días)
                     </li>
                   ))}
                 </ul>
@@ -102,7 +102,7 @@ function DiasMayorMenorUso({ datos }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {hayMayor && (
           <TopDiasCard
-            titulo="Top dias de mayor uso"
+            titulo="Top días de mayor uso"
             icono={ArrowUp}
             iconoColor="text-muted-foreground"
             dias={datos.diasMayorUso}
@@ -111,7 +111,7 @@ function DiasMayorMenorUso({ datos }) {
         )}
         {hayMenor && (
           <TopDiasCard
-            titulo="Top dias de menor uso"
+            titulo="Top días de menor uso"
             icono={ArrowDown}
             iconoColor="text-muted-foreground"
             dias={datos.diasMenorUso}
@@ -145,10 +145,10 @@ function TopDiasCard({ titulo, icono, iconoColor, dias, prefijoKey }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Dia</TableHead>
+              <TableHead>Día</TableHead>
               <TableHead className="text-right">Total usos</TableHead>
               <TableHead className="text-right">Bicis medias</TableHead>
-              <TableHead className="text-right">Ocupacion (%)</TableHead>
+              <TableHead className="text-right">Ocupación (%)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

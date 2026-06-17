@@ -8,7 +8,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { PageLayout } from '../../components/layout';
-import { useCenso, useCensoDashboard, useCensoDistritos } from '../../api/hooks';
+import { useCenso, useCensoDashboard, useCensoDistritos, useCensoPiramide } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG, ETIQUETAS_GRUPOS_EDAD } from '../../constants';
 import { formatNumber, formatearNombreDistrito } from '../../utils';
 
@@ -39,7 +39,7 @@ function PaginaCenso() {
     if (filtros.mes) {
       const fecha = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes) - 1, 1);
       params.startDate = fecha.toISOString();
-      const fechaFin = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes), 0);
+      const fechaFin = new Date(DATE_CONFIG.DATASET_YEAR, parseInt(filtros.mes, 10), 0, 23, 59, 59, 999);
       params.endDate = fechaFin.toISOString();
     }
     return params;
@@ -51,8 +51,13 @@ function PaginaCenso() {
   const dashboardParams = useMemo(() => ({
     año: DATE_CONFIG.DATASET_YEAR,
     ...(filtros.mes ? { mes: parseInt(filtros.mes) } : {}),
-    ...(filtros.distrito ? { distrito: parseInt(filtros.distrito) } : {})
-  }), [filtros.mes, filtros.distrito]);
+    ...(filtros.distrito ? { distrito: parseInt(filtros.distrito) } : {}),
+    // barrio y grupoEdad tambien acotan los KPIs (no solo la tabla), para que el
+    // filtro tenga efecto sobre las cifras de cabecera. La piramide NO recibe
+    // grupoEdad a proposito: colapsaria a un solo grupo (es el desglose por edad).
+    ...(filtros.barrio ? { barrio: filtros.barrio } : {}),
+    ...(filtros.grupoEdad ? { grupoEdad: filtros.grupoEdad } : {})
+  }), [filtros.mes, filtros.distrito, filtros.barrio, filtros.grupoEdad]);
 
   // El resumen de distritos alimenta el grafico comparativo Y las opciones
   // del selector de distrito, asi que se mantiene SIN filtrar por distrito
@@ -60,12 +65,27 @@ function PaginaCenso() {
   // quedaria con una unica opcion).
   const distritosParams = useMemo(() => ({
     año: DATE_CONFIG.DATASET_YEAR,
+    // Pedimos el desglose por barrios para alimentar el panel de detalle del
+    // distrito (antes la tabla de barrios nunca se renderizaba porque ni se
+    // solicitaba `incluirBarrios` ni se mapeaban los barrios al normalizar).
+    incluirBarrios: 'true',
     ...(filtros.mes ? { mes: parseInt(filtros.mes) } : {})
   }), [filtros.mes]);
+
+  // La piramide poblacional (hombres/mujeres por grupo de edad) respeta el
+  // filtro de distrito. El endpoint agrega por año y distrito.
+  const piramideParams = useMemo(() => ({
+    año: DATE_CONFIG.DATASET_YEAR,
+    // La piramide es una foto poblacional de UN mes; respeta el filtro de mes
+    // (el servicio ya lo soporta) para ser coherente con los KPIs y la tabla.
+    ...(filtros.mes ? { mes: parseInt(filtros.mes, 10) } : {}),
+    ...(filtros.distrito ? { distrito: parseInt(filtros.distrito, 10) } : {})
+  }), [filtros.mes, filtros.distrito]);
 
   const { data: censoResult, isLoading, error, refetch } = useCenso(queryParams);
   const { data: dashboardResult } = useCensoDashboard(dashboardParams);
   const { data: distritosResult } = useCensoDistritos(distritosParams);
+  const { data: piramideResult } = useCensoPiramide(piramideParams);
 
   const datos = useMemo(() => censoResult?.data || [], [censoResult?.data]);
   const paginacion = censoResult?.pagination || null;
@@ -83,16 +103,37 @@ function PaginaCenso() {
     const lista = distritosStats?.estadisticasDistritos
       || distritosStats?.districtStatistics
       || [];
-    return lista.map(d => ({
-      codigoDistrito: d.distrito?.codigo ?? d.codigoDistrito,
-      distrito: d.distrito?.nombre ?? (typeof d.distrito === 'string' ? d.distrito : d.nombre),
-      poblacionTotal: d.poblacion?.total ?? d.poblacionTotal ?? 0,
-      totalEspañoles: d.poblacion?.españoles ?? d.totalEspañoles ?? 0,
-      totalExtranjeros: d.poblacion?.extranjeros ?? d.totalExtranjeros ?? 0,
-      porcentajeExtranjeros: d.porcentajes?.extranjeros ?? d.porcentajeExtranjeros ?? 0,
-      porcentajeProductiva: d.porcentajes?.poblacionProductiva ?? d.porcentajeProductiva ?? 0,
-      porcentajeTerceraEdad: d.porcentajes?.terceraEdad ?? d.porcentajeTerceraEdad ?? 0
-    }));
+    // Agrupar el desglose de barrios por codigo de distrito para adjuntarlo al
+    // detalle. El backend emite `estadisticasBarrios` con shape anidado
+    // ({ distrito:{codigo,nombre}, barrio:{codigo,nombre}, poblacionTotal,
+    // porcentajeExtranjeros }); lo aplanamos a lo que espera PanelDetalleDistrito.
+    const barriosPorDistrito = {};
+    const listaBarrios = distritosStats?.estadisticasBarrios || [];
+    for (const b of listaBarrios) {
+      const cod = b.distrito?.codigo ?? b.codigoDistrito;
+      if (cod == null) { continue; }
+      if (!barriosPorDistrito[cod]) { barriosPorDistrito[cod] = []; }
+      barriosPorDistrito[cod].push({
+        codigo: b.barrio?.codigo,
+        nombre: b.barrio?.nombre,
+        poblacionTotal: b.poblacionTotal ?? 0,
+        porcentajeExtranjeros: b.porcentajeExtranjeros ?? 0
+      });
+    }
+    return lista.map(d => {
+      const codigoDistrito = d.distrito?.codigo ?? d.codigoDistrito;
+      return {
+        codigoDistrito,
+        distrito: d.distrito?.nombre ?? (typeof d.distrito === 'string' ? d.distrito : d.nombre),
+        poblacionTotal: d.poblacion?.total ?? d.poblacionTotal ?? 0,
+        totalEspañoles: d.poblacion?.españoles ?? d.totalEspañoles ?? 0,
+        totalExtranjeros: d.poblacion?.extranjeros ?? d.totalExtranjeros ?? 0,
+        porcentajeExtranjeros: d.porcentajes?.extranjeros ?? d.porcentajeExtranjeros ?? 0,
+        porcentajeProductiva: d.porcentajes?.poblacionProductiva ?? d.porcentajeProductiva ?? 0,
+        porcentajeTerceraEdad: d.porcentajes?.terceraEdad ?? d.porcentajeTerceraEdad ?? 0,
+        barrios: barriosPorDistrito[codigoDistrito] || []
+      };
+    });
   }, [distritosStats]);
 
   const datosGraficoDistritos = useMemo(() => {
@@ -106,20 +147,20 @@ function PaginaCenso() {
       }));
   }, [distritosNormalizados]);
 
-  const datosGraficoEdad = useMemo(() => {
-    if (!dashboard?.distribucionEdad) return [];
-    // Backend devuelve items `{_id: 'ADULTO_JOVEN', poblacionTotal: 7436645}`.
-    // Antes el componente leia `g.totalPoblacion` (con sufijo invertido) y
-    // siempre obtenia 0 → grafico vacio en negro.
-    return dashboard.distribucionEdad.map(g => {
-      const key = g.grupoEdad || g._id;
-      const total = g.poblacionTotal ?? g.totalPoblacion ?? g.total ?? g.count ?? 0;
-      return {
-        name: ETIQUETAS_GRUPOS_EDAD[key] || key || 'Sin clasificar',
-        value: total
-      };
-    });
-  }, [dashboard]);
+  // Piramide poblacional real: hombres a la izquierda (negativo), mujeres a la
+  // derecha. Se ordena de mayor a menor edad para que los mas jovenes queden
+  // en la base. Sustituye al antiguo donut por grupo de edad.
+  const datosPiramide = useMemo(() => {
+    const lista = piramideResult?.data?.piramideSimplificada || [];
+    if (lista.length === 0) { return []; }
+    return [...lista]
+      .sort((a, b) => (b.rangoEdad?.minima ?? 0) - (a.rangoEdad?.minima ?? 0))
+      .map((g) => ({
+        grupo: ETIQUETAS_GRUPOS_EDAD[g.grupoEdad] || g.grupoEdad || 'Sin clasificar',
+        hombres: -(g.poblacion?.hombres || 0),
+        mujeres: g.poblacion?.mujeres || 0
+      }));
+  }, [piramideResult]);
 
   const opcionesDistrito = useMemo(() =>
     distritosNormalizados.map(d => ({
@@ -172,12 +213,11 @@ function PaginaCenso() {
 
   return (
     <PageLayout
-      eyebrow="Demografia / Censo"
-      title="Pulso demografico"
+      title="Censo"
       description={
         paginacion?.totalDocuments
-          ? `${formatNumber(paginacion.totalDocuments)} registros con edad, sexo, nacionalidad y seccion censal. Piramides poblacionales y analisis por barrio para ${DATE_CONFIG.DATASET_YEAR}.`
-          : `Registros con edad, sexo, nacionalidad y seccion censal. Piramides poblacionales y analisis por barrio para ${DATE_CONFIG.DATASET_YEAR}.`
+          ? `${formatNumber(paginacion.totalDocuments)} registros con edad, sexo, nacionalidad y sección censal. Pirámides poblacionales y análisis por barrio para ${DATE_CONFIG.DATASET_YEAR}.`
+          : `Registros con edad, sexo, nacionalidad y sección censal. Pirámides poblacionales y análisis por barrio para ${DATE_CONFIG.DATASET_YEAR}.`
       }
     >
       <EstadisticasCenso
@@ -197,12 +237,10 @@ function PaginaCenso() {
         onRefrescar={refrescar}
       />
 
-      {!isLoading && (
-        <GraficosCenso
-          datosGraficoDistritos={datosGraficoDistritos}
-          datosGraficoEdad={datosGraficoEdad}
-        />
-      )}
+      <GraficosCenso
+        datosGraficoDistritos={datosGraficoDistritos}
+        datosPiramide={datosPiramide}
+      />
 
       <PanelDetalleDistrito
         detalle={detalleDistritoData}

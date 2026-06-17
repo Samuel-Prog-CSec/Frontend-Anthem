@@ -17,7 +17,7 @@ import {
 } from '../../../components/common';
 import { useAccidentesEstadisticas } from '../../../api/hooks';
 import { ROUTES, DATE_CONFIG } from '../../../constants';
-import { formatNumber } from '../../../utils';
+import { formatNumber, formatearNombreDistritoTitulo } from '../../../utils';
 
 const RANGO_DATASET = {
   startDate: `${DATE_CONFIG.DATASET_YEAR}-01-01`,
@@ -50,10 +50,10 @@ const PanelAlertas = memo(function PanelAlertas() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <ShieldAlert className="size-5 text-destructive" aria-hidden="true" />
-          Senales de seguridad vial
+          Señales de seguridad vial
         </CardTitle>
         <CardDescription>
-          Indicadores de atencion de la accidentalidad en {DATE_CONFIG.DATASET_YEAR}.
+          Indicadores de atención de la accidentalidad en {DATE_CONFIG.DATASET_YEAR}.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -68,8 +68,8 @@ const PanelAlertas = memo(function PanelAlertas() {
             <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Skull className="size-4 text-destructive" aria-hidden="true" />
-                <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  Victimas mortales
+                <p className="text-xs font-medium text-muted-foreground">
+                  Víctimas mortales
                 </p>
               </div>
               <p className="stat-number text-3xl text-foreground">{formatNumber(senales.mortales)}</p>
@@ -81,16 +81,16 @@ const PanelAlertas = memo(function PanelAlertas() {
             <div className="rounded-lg border border-border p-4">
               <div className="flex items-center gap-2 mb-2">
                 <MapPin className="size-4 text-warning" aria-hidden="true" />
-                <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  Calle mas peligrosa
+                <p className="text-xs font-medium text-muted-foreground">
+                  Calle más peligrosa
                 </p>
               </div>
               <p className="font-medium text-sm text-foreground truncate" title={senales.calleTop?.calle || ''}>
-                {senales.calleTop?.calle || '—'}
+                {senales.calleTop?.calle || 'Sin datos'}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {senales.calleTop
-                  ? `${formatNumber(senales.calleTop.total)} accidentes - ${senales.calleTop.distrito}`
+                  ? `${formatNumber(senales.calleTop.total)} accidentes en ${formatearNombreDistritoTitulo(senales.calleTop.distrito)}`
                   : 'Sin datos'}
               </p>
             </div>
@@ -98,12 +98,12 @@ const PanelAlertas = memo(function PanelAlertas() {
             <div className="rounded-lg border border-border p-4">
               <div className="flex items-center gap-2 mb-2">
                 <ShieldAlert className="size-4 text-warning" aria-hidden="true" />
-                <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  Distrito mas accidentado
+                <p className="text-xs font-medium text-muted-foreground">
+                  Distrito más accidentado
                 </p>
               </div>
-              <p className="font-medium text-sm text-foreground truncate" title={senales.distritoTop?.nombre || ''}>
-                {senales.distritoTop?.nombre || '—'}
+              <p className="font-medium text-sm text-foreground truncate" title={senales.distritoTop ? formatearNombreDistritoTitulo(senales.distritoTop.nombre) : ''}>
+                {senales.distritoTop ? formatearNombreDistritoTitulo(senales.distritoTop.nombre) : 'Sin datos'}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {senales.distritoTop ? `${formatNumber(senales.distritoTop.total)} accidentes` : 'Sin datos'}
@@ -116,7 +116,7 @@ const PanelAlertas = memo(function PanelAlertas() {
           to={ROUTES.ACCIDENTES}
           className="inline-flex items-center gap-1 mt-4 text-primary hover:opacity-80 text-sm font-medium"
         >
-          Ver analisis de accidentalidad
+          Ver análisis de accidentalidad
           <ArrowRight className="size-4" aria-hidden="true" />
         </Link>
       </CardContent>

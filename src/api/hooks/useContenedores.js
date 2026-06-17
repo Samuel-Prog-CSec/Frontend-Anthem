@@ -36,18 +36,18 @@ export function useContenedores(params) {
   });
 }
 
-export function useContenedoresEstadisticas() {
+export function useContenedoresEstadisticas(lote) {
   return useQuery({
-    queryKey: ['contenedores-estadisticas'],
-    queryFn: ({ signal }) => obtenerEstadisticasContenedores({ signal }),
+    queryKey: ['contenedores-estadisticas', lote ?? null],
+    queryFn: ({ signal }) => obtenerEstadisticasContenedores(lote, { signal }),
     staleTime: STALE_TIME_LARGO
   });
 }
 
-export function useContenedoresPorDistrito(distrito) {
+export function useContenedoresPorDistrito(distrito, lote) {
   return useQuery({
-    queryKey: ['contenedores-distrito', distrito || null],
-    queryFn: ({ signal }) => obtenerEstadisticasPorDistrito(distrito, { signal }),
+    queryKey: ['contenedores-distrito', distrito || null, lote ?? null],
+    queryFn: ({ signal }) => obtenerEstadisticasPorDistrito(distrito, lote, { signal }),
     staleTime: STALE_TIME_LARGO
   });
 }

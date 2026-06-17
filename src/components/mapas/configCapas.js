@@ -13,13 +13,16 @@ import { AudioLines, Car, AlertTriangle, Receipt, Zap, Bike, Volume2 } from 'luc
  * Paleta de colores semantica por dominio. Elegidos para contraste visual
  * en mapa Leaflet con tile OSM. Si se anade una capa nueva, anadir aqui.
  */
+// Paleta alineada con la identidad "Atlas Civico": 6 colores distinguibles
+// entre si y coherentes con los tokens de dominio. Legibles sobre el basemap
+// claro y sobre el basemap oscuro filtrado.
 export const COLORES_CAPA = {
-  ubicaciones: '#06b6d4', // cyan
-  accidentes: '#ef4444',  // red
-  multas: '#f59e0b',      // amber
-  patinetes: '#10b981',   // emerald
-  aforo: '#3b82f6',       // blue
-  ruido: '#a855f7'        // purple
+  ubicaciones: '#3b82c4', // cobalto
+  accidentes: '#d9533f',  // rojo
+  multas: '#d9a03f',      // ambar
+  patinetes: '#c2693c',   // terracota
+  aforo: '#2ba39b',       // teal
+  ruido: '#8a5bc2'        // violeta
 };
 
 /**
@@ -30,7 +33,7 @@ export const CAPAS_DISPONIBLES = [
   {
     id: 'ubicaciones',
     nombre: 'Estaciones y rutas',
-    descripcion: 'Estaciones acusticas, puntos de trafico y rutas de transporte',
+    descripcion: 'Estaciones acústicas, puntos de tráfico y rutas de transporte',
     color: COLORES_CAPA.ubicaciones,
     icon: Car
   },
@@ -44,28 +47,28 @@ export const CAPAS_DISPONIBLES = [
   {
     id: 'ruido',
     nombre: 'Estaciones de ruido',
-    descripcion: 'Estaciones de monitoreo acustico con niveles dB',
+    descripcion: 'Estaciones de monitoreo acústico con niveles dB',
     color: COLORES_CAPA.ruido,
     icon: AudioLines
   },
   {
     id: 'accidentes',
     nombre: 'Accidentes',
-    descripcion: 'Accidentes de trafico georreferenciados',
+    descripcion: 'Accidentes de tráfico georreferenciados',
     color: COLORES_CAPA.accidentes,
     icon: AlertTriangle
   },
   {
     id: 'multas',
     nombre: 'Multas',
-    descripcion: 'Multas de trafico con coordenadas validas',
+    descripcion: 'Multas de tráfico con coordenadas válidas',
     color: COLORES_CAPA.multas,
     icon: Receipt
   },
   {
     id: 'patinetes',
     nombre: 'Patinetes (por distrito)',
-    descripcion: 'Asignacion de patinetes agregada por distrito (centroide)',
+    descripcion: 'Asignación de patinetes agregada por distrito (centroide)',
     color: COLORES_CAPA.patinetes,
     icon: Zap
   }

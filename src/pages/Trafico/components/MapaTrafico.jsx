@@ -30,7 +30,7 @@ const MapaTrafico = memo(function MapaTrafico({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <MapPin className="size-5" aria-hidden="true" />
-          Mapa de congestion por punto
+          Mapa de congestión por punto
         </CardTitle>
         <CardDescription>
           {features.length > 0
@@ -43,8 +43,8 @@ const MapaTrafico = memo(function MapaTrafico({
           <Skeleton className="h-[500px] w-full rounded-xl" />
         ) : features.length === 0 ? (
           <EmptyState
-            title="Sin datos en el rango"
-            description="No se encontraron puntos de medida con los filtros aplicados. Prueba a ampliar el rango o cambiar el tipo de via."
+            title="Sin resultados para estos filtros"
+            description="No se encontraron puntos de medida con los filtros aplicados. Prueba a ampliar el rango o cambiar el tipo de vía."
             icon={MapPin}
           />
         ) : (
@@ -99,10 +99,10 @@ const MapaTrafico = memo(function MapaTrafico({
                         </div>
                       )}
                       <div className="text-xs">
-                        <span className="text-muted-foreground">Ocupacion media:</span> {formatNumber(props.ocupacionMedia, 1)}%
+                        <span className="text-muted-foreground">Ocupación media:</span> {formatNumber(props.ocupacionMedia, 1)}%
                       </div>
                       <div className="text-xs">
-                        <span className="text-muted-foreground">Congestion:</span> {formatNumber(props.porcentajeCongestion, 1)}% ({etiquetaCongestion(nivel)})
+                        <span className="text-muted-foreground">Congestión:</span> {formatNumber(props.porcentajeCongestion, 1)}% ({etiquetaCongestion(nivel)})
                       </div>
                       <div className="text-xs">
                         <span className="text-muted-foreground">Mediciones:</span> {formatNumber(props.totalMediciones)}

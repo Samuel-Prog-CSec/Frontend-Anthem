@@ -15,7 +15,7 @@ function GraficosAforoPeatones({ datosPatronHorario, datosTopEstaciones }) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       {datosPatronHorario.length > 0 && (
         <LineChartCard
-          title="Patron horario (promedio de peatones por hora)"
+          title="Patrón horario (promedio de peatones por hora)"
           data={datosPatronHorario}
           xKey="hora"
           lines={[

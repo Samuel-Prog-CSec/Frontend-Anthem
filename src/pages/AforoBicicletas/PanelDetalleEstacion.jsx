@@ -18,7 +18,8 @@ function PanelDetalleEstacion({ identificador, detalle, isLoading, onCerrar }) {
   if (isLoading) return <CardSkeleton lines={5} />;
   if (!detalle?.data) return null;
 
-  const summary = detalle.data.summary || detalle.data.data || detalle.data;
+  // El endpoint /estacion/:id envuelve el resumen en `data.resumen`.
+  const summary = detalle.data.resumen || detalle.data.summary || detalle.data.data || detalle.data;
   const partes = descomponerIdentificadorAforo(identificador);
 
   return (
@@ -40,7 +41,7 @@ function PanelDetalleEstacion({ identificador, detalle, isLoading, onCerrar }) {
             <X className="size-4" aria-hidden="true" />
           </Button>
         </div>
-        <CardDescription>Resumen de trafico ciclista de la estacion.</CardDescription>
+        <CardDescription>Resumen de tráfico ciclista de la estación.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

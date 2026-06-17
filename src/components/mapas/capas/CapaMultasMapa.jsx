@@ -20,7 +20,7 @@ const CapaMultasMapa = memo(function CapaMultasMapa({ params }) {
   const renderPopup = useCallback((props) => (
     <div className="text-sm">
       <div className="font-semibold mb-1">{props.lugar || 'Multa'}</div>
-      {props.calificacion && <div>Calificacion: {props.calificacion}</div>}
+      {props.calificacion && <div>Calificación: {props.calificacion}</div>}
       {props.importe != null && <div>Importe: {formatNumber(props.importe)} €</div>}
       {props.puntos != null && props.puntos > 0 && <div>Puntos: {props.puntos}</div>}
     </div>

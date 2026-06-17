@@ -13,8 +13,7 @@ import { RefreshCw } from 'lucide-react';
 import { PageLayout } from '../../components/layout';
 import { Button } from '../../components/common';
 import { useCalidadAire, useCalidadAireStats, useCalidadAireTendencias } from '../../api/hooks';
-import { PAGINATION, DATE_CONFIG, CHART_LIMITS } from '../../constants';
-import { formatDate } from '../../utils';
+import { PAGINATION, DATE_CONFIG } from '../../constants';
 
 import EstadisticasCalidadAire from './EstadisticasCalidadAire';
 import FiltrosCalidadAire from './FiltrosCalidadAire';
@@ -29,7 +28,8 @@ function PaginaCalidadAire() {
     mes: ''
   });
   const [paginaActual, setPaginaActual] = useState(1);
-  const [magnitudTendencia, setMagnitudTendencia] = useState('');
+  // Por defecto NO2 (magnitud 8): la tendencia abre con datos en vez de vacia.
+  const [magnitudTendencia, setMagnitudTendencia] = useState('8');
   const elementosPorPagina = PAGINATION.DEFAULT_LIMIT;
 
   const parametrosConsulta = useMemo(() => {
@@ -45,8 +45,8 @@ function PaginaCalidadAire() {
     if (filtros.mes) {
       const year = DATE_CONFIG.DATASET_YEAR;
       const month = parseInt(filtros.mes);
-      params.startDate = new Date(year, month - 1, 1).toISOString();
-      params.endDate = new Date(year, month, 0).toISOString();
+      params.startDate = new Date(Date.UTC(year, month - 1, 1)).toISOString();
+      params.endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999)).toISOString();
     }
 
     return params;
@@ -59,12 +59,39 @@ function PaginaCalidadAire() {
     refetch
   } = useCalidadAire(parametrosConsulta);
 
-  const { data: statsApi, isLoading: cargandoStats } = useCalidadAireStats();
+  // Las tarjetas de estadisticas deben reflejar los filtros activos (magnitud /
+  // mes). Antes se pedia /calidad-aire/estadisticas SIN parametros, por lo que
+  // los KPI (promedio/max/min) mostraban siempre el dato global aunque hubiera
+  // un contaminante filtrado. El endpoint soporta `magnitud` y rango de fechas.
+  const parametrosEstadisticas = useMemo(() => {
+    const params = {};
+    if (filtros.magnitud) {
+      params.magnitud = parseInt(filtros.magnitud);
+    }
+    if (filtros.mes) {
+      const year = DATE_CONFIG.DATASET_YEAR;
+      const month = parseInt(filtros.mes);
+      params.startDate = new Date(Date.UTC(year, month - 1, 1)).toISOString();
+      params.endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999)).toISOString();
+    }
+    return params;
+  }, [filtros.magnitud, filtros.mes]);
+
+  const { data: statsApi, isLoading: cargandoStats } = useCalidadAireStats(parametrosEstadisticas);
 
   const parametrosTendencia = useMemo(() => {
     if (!magnitudTendencia) return null;
-    return { magnitud: parseInt(magnitudTendencia) };
-  }, [magnitudTendencia]);
+    const params = { magnitud: parseInt(magnitudTendencia) };
+    // La tendencia diaria reacciona al filtro de mes: con un mes activo muestra
+    // la evolucion dia a dia de ESE mes en vez de un tramo fijo del año.
+    if (filtros.mes) {
+      const year = DATE_CONFIG.DATASET_YEAR;
+      const month = parseInt(filtros.mes);
+      params.startDate = new Date(Date.UTC(year, month - 1, 1)).toISOString();
+      params.endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999)).toISOString();
+    }
+    return params;
+  }, [magnitudTendencia, filtros.mes]);
 
   const { data: tendenciasApi, isLoading: cargandoTendencias } = useCalidadAireTendencias(
     parametrosTendencia,
@@ -77,6 +104,10 @@ function PaginaCalidadAire() {
   const manejarCambioFiltro = useCallback((nombre, valor) => {
     setFiltros(prev => ({ ...prev, [nombre]: valor }));
     setPaginaActual(1);
+    // Sincroniza la tendencia con el filtro de contaminante: elegir un
+    // contaminante en Filtros actualiza tambien el grafico de tendencia, en vez
+    // de tener dos selectores de contaminante desconectados.
+    if (nombre === 'magnitud' && valor) { setMagnitudTendencia(valor); }
   }, []);
 
   const limpiarFiltros = useCallback(() => {
@@ -150,13 +181,6 @@ function PaginaCalidadAire() {
     };
   }, [statsApi]);
 
-  const datosGraficoPagina = useMemo(() => {
-    return data.slice(0, CHART_LIMITS.MAX_ITEMS).map(d => ({
-      fecha: formatDate(d.fecha, 'short'),
-      promedio: calcularPromedioDiario(d.medicionesHorarias)?.toFixed(1) || 0
-    })).reverse();
-  }, [data]);
-
   const datosTendencia = useMemo(() => {
     // Shape real backend: `data.tendenciaDiaria` (array) con items
     // `{_id: {fecha}, valorPromedio, valorMaximo, valorMinimo}`. Mantengo
@@ -192,15 +216,22 @@ function PaginaCalidadAire() {
     });
   }, [tendenciasApi]);
 
+  // Serie plana de promedios para la sparkline del StatCard "Promedio general".
+  // Usa la tendencia diaria REAL del contaminante (endpoint agregado), no el
+  // slice de la pagina paginada.
+  const serieTendenciaPromedio = useMemo(
+    () => datosTendencia.map(d => d.promedio).filter(Number.isFinite),
+    [datosTendencia]
+  );
+
   return (
     <PageLayout
-      eyebrow="Ambiente / Calidad del aire"
-      title="El aire que respira la ciudad"
-      description={`Concentraciones diarias de NO2, PM10, ozono y otros once contaminantes registrados por la malla atmosferica durante ${DATE_CONFIG.DATASET_YEAR}.`}
+      title="Calidad del aire"
+      description={`Concentraciones diarias de NO2, PM10, ozono y otros once contaminantes registrados por las estaciones de medición durante ${DATE_CONFIG.DATASET_YEAR}.`}
       actions={
         <Button variant="outline" onClick={refrescar}>
           <RefreshCw className="size-4 mr-2" aria-hidden="true" />
-          Actualizar
+          Recargar datos
         </Button>
       }
     >
@@ -209,6 +240,8 @@ function PaginaCalidadAire() {
         estadisticasLocales={estadisticasLocales}
         totalDocumentos={paginacion.totalDocuments}
         cargandoStats={cargandoStats}
+        serieTendenciaPromedio={serieTendenciaPromedio}
+        magnitudFiltro={filtros.magnitud}
       />
 
       <FiltrosCalidadAire
@@ -218,14 +251,10 @@ function PaginaCalidadAire() {
       />
 
       <GraficosCalidadAire
-        datosGraficoPagina={datosGraficoPagina}
-        magnitudFiltro={filtros.magnitud}
         magnitudTendencia={magnitudTendencia}
         setMagnitudTendencia={setMagnitudTendencia}
         datosTendencia={datosTendencia}
         cargandoTendencias={cargandoTendencias}
-        isLoading={isLoading}
-        hayDatosPagina={data.length > 0}
       />
 
       <TablaCalidadAire

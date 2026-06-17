@@ -14,25 +14,25 @@ function EstadisticasUbicaciones({ stats }) {
         title="Total"
         value={stats?.total ?? '-'}
         icon={MapPin}
-        accent="cyan"
+        accent="dominio"
       />
       <StatCard
-        title="Est. acusticas"
+        title="Est. acústicas"
         value={stats?.estacion_acustica ?? '-'}
         icon={AudioLines}
-        accent="violet"
+        accent="dominio"
       />
       <StatCard
-        title="Puntos trafico"
+        title="Puntos tráfico"
         value={stats?.punto_trafico ?? '-'}
         icon={Car}
-        accent="amber"
+        accent="dominio"
       />
       <StatCard
         title="Rutas transporte"
         value={stats?.rutas_transporte ?? '-'}
         icon={Train}
-        accent="emerald"
+        accent="dominio"
       />
     </div>
   );

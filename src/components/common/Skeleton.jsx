@@ -69,7 +69,7 @@ const StatsSkeleton = memo(function StatsSkeleton({ count = 4 }) {
       className={cn('grid gap-4', GRID_COLS[count] || GRID_COLS[4])}
       role="status"
       aria-live="polite"
-      aria-label="Cargando estadisticas"
+      aria-label="Cargando estadísticas"
     >
       {Array.from({ length: count }).map((_, i) => (
         <div key={`stat-${i}`} className="p-4 rounded-lg border border-border bg-card">
@@ -120,7 +120,7 @@ const ChartSkeleton = memo(function ChartSkeleton({ height = 320 }) {
       style={{ minHeight: height }}
       role="status"
       aria-live="polite"
-      aria-label="Cargando grafica"
+      aria-label="Cargando gráfica"
     >
       <div className="flex items-center justify-between mb-4">
         <Skeleton className="h-5 w-1/4" />

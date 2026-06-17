@@ -46,7 +46,7 @@ function FiltrosAforoPeatones({
               variant="ghost"
               size="sm"
               onClick={onRefrescar}
-              aria-label="Refrescar resultados"
+              aria-label="Recargar datos"
             >
               <RefreshCw className="size-4" />
             </Button>

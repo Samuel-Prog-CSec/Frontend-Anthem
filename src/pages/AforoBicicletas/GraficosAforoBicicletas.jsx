@@ -16,7 +16,7 @@ function GraficosAforoBicicletas({ datosPatronHorario, datosTopEstaciones }) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       {datosPatronHorario.length > 0 && (
         <LineChartCard
-          title="Patron horario (promedio de bicicletas por hora)"
+          title="Patrón horario (promedio de bicicletas por hora)"
           data={datosPatronHorario}
           xKey="hora"
           lines={[

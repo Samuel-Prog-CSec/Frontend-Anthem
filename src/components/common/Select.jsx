@@ -62,11 +62,11 @@ const Select = memo(forwardRef(function Select({
         name={name}
         aria-label={ariaLabel}
         className={cn(
-          // Alineado con Input: radio pequeno, superficie inset solida, foco por
-          // cambio de borde a signal (sin ring), hover a borde de enfasis.
-          'flex h-10 w-full items-center justify-between rounded-sm border border-[var(--border-hairline)] bg-[var(--surface-inset)] px-3 py-2 text-sm text-foreground',
+          // Alineado con Input: superficie inset solida, foco con ring de marca,
+          // hover a borde de enfasis.
+          'flex h-10 w-full items-center justify-between rounded-md border border-[var(--border)] bg-[var(--surface-inset)] px-3 py-2 text-sm text-foreground',
           'placeholder:text-muted-foreground transition-colors duration-150',
-          'focus:outline-none focus:border-[var(--signal)]',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marca)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]',
           'disabled:cursor-not-allowed disabled:opacity-50',
           'hover:border-[var(--border-emphasis)]',
           'data-[placeholder]:text-muted-foreground',

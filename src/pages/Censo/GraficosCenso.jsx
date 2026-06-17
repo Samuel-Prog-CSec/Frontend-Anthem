@@ -2,21 +2,22 @@
  * Sub-componente GraficosCenso
  *
  * BarChart con top 10 distritos por poblacion (espanoles vs extranjeros)
- * + PieChart con distribucion por grupo de edad.
+ * + piramide poblacional real (hombres / mujeres por grupo de edad).
  */
 
-import { BarChartCard, PieChartCard } from '../../components/charts';
+import { BarChartCard } from '../../components/charts';
 import { CHART_COLORS } from '../../constants';
+import PiramidePoblacional from './PiramidePoblacional';
 
-function GraficosCenso({ datosGraficoDistritos, datosGraficoEdad }) {
-  const tieneAlgo = datosGraficoDistritos.length > 0 || datosGraficoEdad.length > 0;
-  if (!tieneAlgo) return null;
+function GraficosCenso({ datosGraficoDistritos, datosPiramide }) {
+  const tieneAlgo = datosGraficoDistritos.length > 0 || datosPiramide.length > 0;
+  if (!tieneAlgo) { return null; }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div className="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-2">
       {datosGraficoDistritos.length > 0 && (
         <BarChartCard
-          title="Poblacion por distrito (Top 10)"
+          title="Población por distrito (Top 10)"
           data={datosGraficoDistritos}
           xKey="nombre"
           bars={[
@@ -25,11 +26,8 @@ function GraficosCenso({ datosGraficoDistritos, datosGraficoEdad }) {
           ]}
         />
       )}
-      {datosGraficoEdad.length > 0 && (
-        <PieChartCard
-          title="Distribucion por grupo de edad"
-          data={datosGraficoEdad}
-        />
+      {datosPiramide.length > 0 && (
+        <PiramidePoblacional title="Pirámide poblacional" datos={datosPiramide} />
       )}
     </div>
   );

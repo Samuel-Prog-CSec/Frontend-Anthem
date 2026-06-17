@@ -4,12 +4,9 @@
  * Aislado del componente Button.jsx para que ese archivo solo exporte
  * componentes (requisito de react-refresh para HMR fiable).
  *
- * Direccion estetica "Civic Operations Console":
- * - Sin gradients. Botones solidos o con borde, sin glows.
- * - Radius pequeno (4px). El boton es una herramienta, no marshmallow.
- * - `primary` usa el color signal (amarillo de senaletica vial) con texto
- *   ink, parsimonioso pero inequivoco. Hover solo cambia border/bg, no
- *   intenta levantar la pieza con shadow.
+ * Identidad "Atlas Civico": sin gradients ni glows. `primary` usa la cobalto
+ * de marca con texto claro. Feedback tactil: brillo sutil en hover + leve
+ * scale al pulsar (respeta prefers-reduced-motion). Radius pequeno (4px).
  */
 
 import { cva } from 'class-variance-authority';
@@ -19,7 +16,8 @@ export const buttonVariants = cva(
     'inline-flex items-center justify-center gap-2 whitespace-nowrap',
     'rounded text-sm font-medium tracking-tight',
     'border border-transparent',
-    'transition-colors duration-150',
+    'transition-[color,background-color,border-color,box-shadow,transform] duration-150',
+    'active:scale-[0.97] motion-reduce:active:scale-100',
     'focus:outline-none focus-visible:outline focus-visible:outline-1',
     'focus-visible:outline-offset-2 focus-visible:outline-primary',
     'disabled:pointer-events-none disabled:opacity-40'
@@ -27,11 +25,10 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Solido signal yellow sobre ink. CTA primario.
-        default: 'bg-primary text-primary-foreground hover:bg-[var(--signal-bright)]',
-        // Alias historico: ahora apunta al mismo estilo que default (sin
-        // gradient cyan/emerald). Mantenido por compat con consumidores.
-        primary: 'bg-primary text-primary-foreground hover:bg-[var(--signal-bright)]',
+        // Solido cobalto de marca. CTA primario.
+        default: 'bg-primary text-primary-foreground hover:brightness-110',
+        // Alias historico: mismo estilo que default. Mantenido por compat.
+        primary: 'bg-primary text-primary-foreground hover:brightness-110',
         // Borde fino, texto ink, hover llena la superficie.
         outline: 'border-[var(--border-emphasis)] text-foreground hover:bg-[var(--surface-raised)] hover:border-[var(--border-strong)]',
         // Discreto, sin borde. Util en toolbars.

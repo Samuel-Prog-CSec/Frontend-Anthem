@@ -31,7 +31,9 @@ const ResumenServiciosDistrito = memo(function ResumenServiciosDistrito({
   const stats = useMemo(() => {
     const lista = contenedoresResult?.data?.estadisticas || [];
     if (!Array.isArray(lista) || lista.length === 0) {return null;}
-    const distritoStats = lista.find(d => (d.distrito || '').toUpperCase() === (nombreDistrito || '').toUpperCase()) || lista[0];
+    // Sin fallback a lista[0]: si el distrito buscado no aparece, mostrar estado
+    // vacio en vez de las estadisticas de OTRO distrito (el primero del array).
+    const distritoStats = lista.find(d => (d.distrito || '').toUpperCase() === (nombreDistrito || '').toUpperCase());
     if (!distritoStats) {return null;}
 
     const totalContenedores = distritoStats.totalGeneral || 0;
@@ -92,7 +94,7 @@ const ResumenServiciosDistrito = memo(function ResumenServiciosDistrito({
                   key={item.tipo}
                   variant="secondary"
                   className="text-xs"
-                  title={`${formatNumber(item.ubicaciones)} puntos de aportacion`}
+                  title={`${formatNumber(item.ubicaciones)} puntos de aportación`}
                 >
                   {CONTAINER_TYPE_LABELS[item.tipo] || item.tipo}: {formatNumber(item.total)}
                 </Badge>

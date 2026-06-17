@@ -11,8 +11,8 @@ import { DATE_CONFIG } from '../../../constants';
 // (bajo) verde, promedio (alto) ambar, maximo (muy alto) rojo.
 const LINEAS_TENDENCIA = [
   { key: 'promedio', name: 'Promedio', color: '#d4a14d' },
-  { key: 'maximo', name: 'Maximo', color: '#d44d3a' },
-  { key: 'minimo', name: 'Minimo', color: '#3aa771' }
+  { key: 'maximo', name: 'Máximo', color: '#d44d3a' },
+  { key: 'minimo', name: 'Mínimo', color: '#3aa771' }
 ];
 
 const GraficoTendenciasRuido = memo(function GraficoTendenciasRuido({ datosTendencia }) {
@@ -20,7 +20,7 @@ const GraficoTendenciasRuido = memo(function GraficoTendenciasRuido({ datosTende
   return (
     <div className="mb-6">
       <LineChartCard
-        title={`Tendencias Temporales de Ruido (LAeq24) - ${DATE_CONFIG.DATASET_YEAR}`}
+        title={`Tendencias temporales de ruido (LAeq24) - ${DATE_CONFIG.DATASET_YEAR}`}
         data={datosTendencia}
         xKey="periodo"
         lines={LINEAS_TENDENCIA}

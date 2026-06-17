@@ -27,6 +27,40 @@ function iconoPorColor(color) {
 }
 
 /**
+ * Icono de cluster tematizado "Atlas Civico". Sin este iconCreateFunction los
+ * recuentos de cluster aparecian como numeros sueltos (react-leaflet-cluster no
+ * trae su CSS por defecto). El circulo hereda el color de la pagina via
+ * `--dominio` (cascada CSS), asi que los clusters de cada dominio toman su
+ * acento (movilidad oro, ambiente teal, seguridad rojo...). El tamano escala
+ * con el numero de puntos agrupados para dar sensacion de densidad.
+ * @param {import('leaflet').MarkerCluster} cluster
+ */
+// Marcador por defecto (cuando no se colorea por categoria): punto del color
+// del dominio de la pagina, para que los marcadores sueltos sean coherentes con
+// los clusters (antes era el pin azul generico de Leaflet, que desentonaba con
+// los clusters tematizados). Es un unico divIcon; el color sale de --dominio via
+// CSS (.punto-dominio), asi que cada pagina lo tine sin recrear el icono.
+export const iconoDominioDefault = L.divIcon({
+  className: 'punto-dominio',
+  html: '<span></span>',
+  iconSize: [16, 16],
+  iconAnchor: [8, 8]
+});
+
+export function crearIconoCluster(cluster) {
+  const total = cluster.getChildCount();
+  const escala = total < 10 ? 'sm' : total < 100 ? 'md' : total < 1000 ? 'lg' : 'xl';
+  const lado = { sm: 32, md: 38, lg: 44, xl: 52 }[escala];
+  const etiqueta = total >= 1000 ? `${(total / 1000).toFixed(total < 10000 ? 1 : 0)}k` : `${total}`;
+  return L.divIcon({
+    html: `<span>${etiqueta}</span>`,
+    className: `cluster-atlas cluster-atlas--${escala}`,
+    iconSize: L.point(lado, lado),
+    iconAnchor: [lado / 2, lado / 2]
+  });
+}
+
+/**
  * @typedef {Object} MapaClusterizadoProps
  * @property {Object} featureCollection - FeatureCollection GeoJSON (solo Point)
  * @property {(props:Object) => React.ReactNode} renderPopup - Contenido del popup
@@ -74,16 +108,21 @@ export function MapaClusterizado({
       altura={altura}
       overlay={overlay}
     >
-      <MarkerClusterGroup chunkedLoading>
+      <MarkerClusterGroup chunkedLoading iconCreateFunction={crearIconoCluster} showCoverageOnHover={false} maxClusterRadius={50}>
         {features.map((feature, idx) => {
           const geom = feature.geometry;
           if (!geom || geom.type !== 'Point') {return null;}
           const [lng, lat] = geom.coordinates;
           if (!Number.isFinite(lat) || !Number.isFinite(lng)) {return null;}
           const props = feature.properties || {};
-          const icono = colorPorFeature ? iconoPorColor(colorPorFeature(props)) : undefined;
+          const icono = colorPorFeature ? iconoPorColor(colorPorFeature(props)) : null;
+          // Solo pasamos `icon` cuando hay uno coloreado. Pasar icon={undefined}
+          // a react-leaflet v5 deja el Marker sin icono y Leaflet revienta al
+          // llamar a icon.createIcon() (crash de Patinetes). Sin la prop, usa el
+          // icono por defecto configurado en MapaInteractivo.
+          const propsIcono = { icon: icono || iconoDominioDefault };
           return (
-            <Marker key={feature.id ?? idx} position={[lat, lng]} icon={icono}>
+            <Marker key={feature.id ?? `feature-${idx}`} position={[lat, lng]} {...propsIcono}>
               {renderPopup && (
                 <Popup>
                   {renderPopup(props, feature)}

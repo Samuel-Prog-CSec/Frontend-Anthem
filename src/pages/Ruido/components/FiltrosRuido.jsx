@@ -25,8 +25,9 @@ const FiltrosRuido = memo(function FiltrosRuido({
       <CardContent>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
-            <label className="text-sm text-muted-foreground mb-1 block">Mes</label>
+            <label htmlFor="filtro-mes" className="text-sm text-muted-foreground mb-1 block">Mes</label>
             <Select
+              id="filtro-mes"
               value={filtros.mes}
               onChange={(e) => manejarCambioFiltro('mes', e.target.value)}
               options={opcionesMes}
@@ -34,8 +35,9 @@ const FiltrosRuido = memo(function FiltrosRuido({
             />
           </div>
           <div className="flex-1">
-            <label className="text-sm text-muted-foreground mb-1 block">Estacion (NMT)</label>
+            <label htmlFor="filtro-nmt" className="text-sm text-muted-foreground mb-1 block">Estación (NMT)</label>
             <Select
+              id="filtro-nmt"
               value={filtros.nmt}
               onChange={(e) => manejarCambioFiltro('nmt', e.target.value)}
               options={stationOptions}

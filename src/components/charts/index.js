@@ -3,4 +3,5 @@
  */
 
 export { StatCard } from './StatCard';
-export { LineChartCard, BarChartCard, PieChartCard, CustomTooltip } from './Charts';
+export { NumeroAnimado } from './NumeroAnimado';
+export { LineChartCard, BarChartCard, PieChartCard, ScatterChartCard, CustomTooltip } from './Charts';

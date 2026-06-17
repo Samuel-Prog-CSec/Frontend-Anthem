@@ -13,6 +13,16 @@ import {
 import { formatNumber } from '../../../utils';
 import { obtenerVarianteBadgeDensidad, obtenerVarianteBadgeDemanda } from '../helpers';
 
+/**
+ * Convierte un enum tipo 'MUY_ALTA' / 'ZONA_RESIDENCIAL' en una etiqueta
+ * legible 'Muy alta' / 'Zona residencial' (sentence case).
+ */
+function formatearEtiqueta(valor) {
+  if (!valor) { return '-'; }
+  const texto = valor.replace(/_/g, ' ').toLowerCase();
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
 const TablaPatinetes = memo(function TablaPatinetes({
   isLoading,
   error,
@@ -26,9 +36,9 @@ const TablaPatinetes = memo(function TablaPatinetes({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Asignaciones de Patinetes</CardTitle>
+        <CardTitle>Asignaciones de patinetes</CardTitle>
         <CardDescription>
-          Distribucion de patinetes por distrito y barrio
+          Distribución de patinetes por distrito y barrio
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -41,7 +51,7 @@ const TablaPatinetes = memo(function TablaPatinetes({
           />
         ) : datos.length === 0 ? (
           <EmptyState
-            title="Sin asignaciones"
+            title="Sin resultados para estos filtros"
             description="No se encontraron asignaciones con los filtros seleccionados."
             icon={Zap}
           />
@@ -53,12 +63,12 @@ const TablaPatinetes = memo(function TablaPatinetes({
                 <TableRow>
                   <TableHead>Distrito</TableHead>
                   <TableHead>Barrio</TableHead>
-                  <TableHead className="text-right">Total Patinetes</TableHead>
+                  <TableHead className="text-right">Total patinetes</TableHead>
                   <TableHead className="text-center">Proveedores</TableHead>
                   <TableHead className="text-center">Densidad</TableHead>
-                  <TableHead>Tipo Zona</TableHead>
+                  <TableHead>Tipo de zona</TableHead>
                   <TableHead className="text-center">Demanda</TableHead>
-                  <TableHead>Proveedor Dominante</TableHead>
+                  <TableHead>Proveedor dominante</TableHead>
                   <TableHead className="text-right">HHI</TableHead>
                 </TableRow>
               </TableHeader>
@@ -83,15 +93,15 @@ const TablaPatinetes = memo(function TablaPatinetes({
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge variant={obtenerVarianteBadgeDensidad(item.estadisticas?.densidadPatinetes)}>
-                        {item.estadisticas?.densidadPatinetes}
+                        {formatearEtiqueta(item.estadisticas?.densidadPatinetes)}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {item.clasificacionArea?.tipoZona?.replace(/_/g, ' ')}
+                      {formatearEtiqueta(item.clasificacionArea?.tipoZona)}
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge variant={obtenerVarianteBadgeDemanda(item.clasificacionArea?.demandaEstimada)}>
-                        {item.clasificacionArea?.demandaEstimada}
+                        {formatearEtiqueta(item.clasificacionArea?.demandaEstimada)}
                       </Badge>
                     </TableCell>
                     <TableCell>

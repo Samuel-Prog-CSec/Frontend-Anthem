@@ -26,9 +26,12 @@ export const API_CONFIG = {
 // ========================================
 
 export const AUTH_CONFIG = {
-  ACCESS_TOKEN_KEY: 'accessToken',
-  REFRESH_TOKEN_KEY: 'refreshToken',
-  TOKEN_REFRESH_THRESHOLD: 5 * 60 * 1000 // 5 minutos antes de expirar
+  // El access token vive SOLO en memoria (Context) y el refresh token en una
+  // cookie httpOnly gestionada por el navegador: NO se usan claves de storage
+  // (se eliminaron ACCESS_TOKEN_KEY/REFRESH_TOKEN_KEY, residuos de una estrategia
+  // localStorage abandonada). El margen real de refresco anticipado vive en
+  // api/axios.js (REFRESH_SAFETY_MARGIN_SECONDS = 30s).
+  TOKEN_REFRESH_THRESHOLD: 5 * 60 * 1000
 };
 
 // ========================================
@@ -153,11 +156,11 @@ export const CONTAINER_TYPES = {
  * Indexadas por el valor del enum (no la clave) para coincidir con la API.
  */
 export const CONTAINER_TYPE_LABELS = {
-  ORGANICA: 'Organica',
+  ORGANICA: 'Orgánica',
   RESTO: 'Resto',
   ENVASES: 'Envases',
   VIDRIO: 'Vidrio',
-  'PAPEL-CARTON': 'Papel y carton'
+  'PAPEL-CARTON': 'Papel y cartón'
 };
 
 /**
@@ -355,17 +358,19 @@ export const CHART_LIMITS = {
 // Paleta de graficos derivada de los tokens de la consola (index.css), no de
 // colores Tailwind genericos. Recharts necesita valores resueltos (no var()),
 // asi que se replican los hex de los tokens semanticos y de dominio.
+// Paleta de series alineada con la identidad "Atlas Civico". Valores resueltos
+// (Recharts no resuelve var()), elegidos para leer bien en tema claro y oscuro.
 export const CHART_COLORS = {
-  primary: '#5a8fd4',    // info       - serie principal / telemetria
-  secondary: '#3aa771',  // ok         - serie secundaria / valor positivo
-  tertiary: '#d4a14d',   // caution    - serie terciaria / ambar
-  quaternary: '#a8be2c', // signal-dim - acento amarillo atenuado
-  danger: '#d44d3a',     // alert      - alerta / excedido / valor maximo
-  muted: '#8c9197',      // ink-tertiary - serie auxiliar / baseline
-  accent: '#a44dd4',     // air-very-unhealthy - resaltado (violeta de dominio)
-  warning: '#d47a3a',    // air-unhealthy-sensitive - naranja intermedio
-  contrast: '#e8e8e3',   // ink-text   - texto/lineas sobre fondo oscuro
-  deep: '#7a2424'        // air-hazardous - severidad maxima
+  primary: '#3b82c4',    // cobalto de marca - serie principal / telemetria
+  secondary: '#2ba39b',  // teal - serie secundaria / valor positivo
+  tertiary: '#d9a03f',   // ambar - serie terciaria
+  quaternary: '#7c6fd6', // indigo-violeta - cuarta serie
+  danger: '#d9533f',     // rojo - alerta / excedido / valor maximo
+  muted: '#8a93a3',      // gris - serie auxiliar / baseline
+  accent: '#c2693c',     // terracota - resaltado
+  warning: '#d98a3f',    // naranja intermedio
+  contrast: '#cfd6e0',   // neutro claro - lineas/texto
+  deep: '#8a5bc2'        // violeta profundo - severidad
 };
 
 // ========================================
@@ -482,7 +487,7 @@ export const CALIFICACIONES_MULTA = {
 export const ETIQUETAS_CALIFICACION_MULTA = {
   LEVE: 'Leve',
   GRAVE: 'Grave',
-  MUY_GRAVE: 'Muy Grave'
+  MUY_GRAVE: 'Muy grave'
 };
 
 export const TIPOS_DENUNCIANTE = {

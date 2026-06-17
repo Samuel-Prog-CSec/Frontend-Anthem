@@ -19,17 +19,17 @@ function EstadisticasCenso({
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <StatCard
-        title="Poblacion total"
+        title="Población total"
         value={formatNumber(poblacionTotal)}
         icon={Users}
-        accent="cyan"
+        accent="dominio"
         isLoading={isLoading}
       />
       <StatCard
         title="% Extranjeros"
         value={formatearPorcentaje(porcentajeExtranjeros)}
         icon={Globe}
-        accent="violet"
+        accent="dominio"
         isLoading={isLoading}
       />
       <StatCard
@@ -37,14 +37,14 @@ function EstadisticasCenso({
         value={ratioGenero ? ratioGenero.toFixed(2) : '-'}
         subtitle="Hombres por mujer"
         icon={UserCheck}
-        accent="emerald"
+        accent="dominio"
         isLoading={isLoading}
       />
       <StatCard
         title="Distritos"
         value={totalDistritos}
         icon={MapPin}
-        accent="amber"
+        accent="dominio"
         isLoading={isLoading}
       />
     </div>

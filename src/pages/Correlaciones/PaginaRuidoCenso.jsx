@@ -29,7 +29,7 @@ function PaginaRuidoCenso() {
   const {
     data: rankingResult,
     isLoading: cargandoRuido
-  } = useRuidoRanking({ limit: 50, sortBy: 'laeq24', sortOrder: 'desc' });
+  } = useRuidoRanking({ limit: 50, orderBy: 'laeq24' });
 
   const {
     data: censoResult,
@@ -109,7 +109,7 @@ function PaginaRuidoCenso() {
   return (
     <PageLayout
       title="Ruido vs. Censo"
-      description={`Estimacion de poblacion expuesta a niveles diurnos superiores al limite legal (${NOISE_LIMITS.DIURNO} dB).`}
+      description={`Estimación de población expuesta a niveles diurnos superiores al límite legal (${NOISE_LIMITS.DIURNO} dB).`}
       actions={
         <Button asChild variant="outline" size="sm">
           <Link to={ROUTES.CORRELACIONES}>
@@ -134,16 +134,16 @@ function PaginaRuidoCenso() {
           isLoading={cargando}
         />
         <StatCard
-          title="Poblacion potencial expuesta"
+          title="Población potencial expuesta"
           value={formatNumber(stats.poblacionExpuestaEstimada)}
-          subtitle="suma poblacion distritos afectados"
+          subtitle="suma población distritos afectados"
           icon={Users}
           isLoading={cargando}
         />
       </div>
 
       <BarChartCard
-        title="Top 12 distritos: poblacion en zonas con incumplimiento"
+        title="Top 12 distritos: población en zonas con incumplimiento"
         data={datosGrafico}
         xKey="name"
         bars={[{ key: 'poblacion', name: 'Habitantes', color: CHART_COLORS.accent }]}
@@ -155,7 +155,7 @@ function PaginaRuidoCenso() {
         <CardHeader>
           <CardTitle>Detalle por distrito</CardTitle>
           <CardDescription>
-            Distritos con al menos una estacion en incumplimiento del limite diurno. La poblacion proviene del censo agregado del distrito completo (estimacion superior).
+            Distritos con al menos una estación en incumplimiento del límite diurno. La población proviene del censo agregado del distrito completo (estimación superior).
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -164,7 +164,7 @@ function PaginaRuidoCenso() {
           ) : stats.distritosAfectados.length === 0 ? (
             <EmptyState
               title="Sin distritos afectados"
-              description="No se detectaron incumplimientos en el ranking actual."
+              description="No se detectaron estaciones por encima del límite diurno."
               icon={Volume2}
             />
           ) : (
@@ -175,7 +175,7 @@ function PaginaRuidoCenso() {
                   <TableHead>Distrito</TableHead>
                   <TableHead className="text-right">Estaciones afectadas</TableHead>
                   <TableHead className="text-right">LAeq24 medio</TableHead>
-                  <TableHead className="text-right">Poblacion</TableHead>
+                  <TableHead className="text-right">Población</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

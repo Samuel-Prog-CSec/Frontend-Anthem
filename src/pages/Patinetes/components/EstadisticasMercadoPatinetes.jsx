@@ -7,7 +7,7 @@ import { memo } from 'react';
 import { BarChartCard, PieChartCard } from '../../../components/charts';
 import { CHART_COLORS } from '../../../constants';
 
-const BARS_PATINETES = [{ key: 'totalPatinetes', name: 'Total Patinetes', color: CHART_COLORS.primary }];
+const BARS_PATINETES = [{ key: 'totalPatinetes', name: 'Total patinetes', color: CHART_COLORS.primary }];
 
 const EstadisticasMercadoPatinetes = memo(function EstadisticasMercadoPatinetes({
   datosGrafico,
@@ -19,7 +19,7 @@ const EstadisticasMercadoPatinetes = memo(function EstadisticasMercadoPatinetes(
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       {datosGrafico.length > 0 && (
         <BarChartCard
-          title="Patinetes por Distrito"
+          title="Patinetes por distrito"
           data={datosGrafico}
           xKey="name"
           bars={BARS_PATINETES}
@@ -28,7 +28,7 @@ const EstadisticasMercadoPatinetes = memo(function EstadisticasMercadoPatinetes(
       )}
       {pieChartData.length > 0 && (
         <PieChartCard
-          title="Cuota de Mercado por Proveedor"
+          title="Cuota de mercado por proveedor"
           data={pieChartData}
           height={280}
           donut

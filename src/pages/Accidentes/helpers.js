@@ -18,6 +18,35 @@ export function obtenerVarianteBadgeGravedad(gravedad) {
   return 'secondary';
 }
 
+// Lesividad por persona afectada (campo `tipoLesion`): el dato trae el enum
+// crudo del DGT (SE_DESCONOCE, FALLECIDO_24_HORAS, INGRESO_*, ASISTENCIA_*...),
+// no LEVE/GRAVE/MORTAL. Mapeamos a etiqueta legible y a una severidad para el
+// badge en vez de mostrar el enum o un badge siempre vacio.
+const ETIQUETAS_TIPO_LESION = {
+  SE_DESCONOCE: 'Se desconoce',
+  SIN_ASISTENCIA_SANITARIA: 'Sin asistencia',
+  'ASISTENCIA_SANITARIA_SÓLO_EN_EL_LUGAR_DEL_ACCIDENTE': 'Asistencia en el lugar',
+  ASISTENCIA_SANITARIA_INMEDIATA_EN_CENTRO_DE_SALUD_O_MUTUA: 'Asistencia inmediata',
+  ASISTENCIA_SANITARIA_AMBULATORIA_CON_POSTERIORIDAD: 'Ambulatoria posterior',
+  'ATENCIÓN_EN_URGENCIAS_SIN_POSTERIOR_INGRESO': 'Urgencias sin ingreso',
+  INGRESO_INFERIOR_O_IGUAL_A_24_HORAS: 'Ingreso ≤ 24h',
+  INGRESO_SUPERIOR_A_24_HORAS: 'Ingreso > 24h',
+  FALLECIDO_24_HORAS: 'Fallecido (24h)'
+};
+
+export function etiquetaTipoLesion(tipoLesion) {
+  if (!tipoLesion) return '-';
+  return ETIQUETAS_TIPO_LESION[tipoLesion] || tipoLesion.replace(/_/g, ' ').toLowerCase();
+}
+
+export function obtenerVarianteBadgeLesion(tipoLesion) {
+  if (!tipoLesion) return 'secondary';
+  if (tipoLesion === 'FALLECIDO_24_HORAS') return 'destructive';
+  if (tipoLesion === 'INGRESO_SUPERIOR_A_24_HORAS' || tipoLesion === 'INGRESO_INFERIOR_O_IGUAL_A_24_HORAS') return 'warning';
+  if (tipoLesion === 'SE_DESCONOCE' || tipoLesion === 'SIN_ASISTENCIA_SANITARIA') return 'secondary';
+  return 'success';
+}
+
 /**
  * Obtiene la variante del badge segun resultado de alcohol
  * @param {string} value - Valor del test de alcohol ('S', 'N', etc.)
@@ -61,6 +90,7 @@ export const opcionesTipoAccidente = [
 
 // Niveles de gravedad para selector
 export const opcionesGravedad = [
+  { value: 'SIN_LESIONES', label: 'Sin lesiones' },
   { value: 'LEVE', label: 'Leve' },
   { value: 'GRAVE', label: 'Grave' },
   { value: 'MORTAL', label: 'Mortal' }
@@ -84,4 +114,22 @@ const ETIQUETAS_TIPO_ACCIDENTE = new Map(
 export function etiquetaTipoAccidente(valor) {
   if (!valor) return 'Desconocido';
   return ETIQUETAS_TIPO_ACCIDENTE.get(valor) || formatearEtiquetaEnum(valor, 'Desconocido');
+}
+
+// Mapa enum -> etiqueta legible de gravedad (incluye SIN_LESIONES, que el
+// backend emite para afectados sin lesion / lesividad desconocida).
+const ETIQUETAS_GRAVEDAD = new Map(
+  opcionesGravedad.map(({ value, label }) => [value, label])
+);
+
+/**
+ * Convierte el codigo de gravedad del backend en etiqueta legible
+ * ("SIN_LESIONES" -> "Sin lesiones"), evitando mostrar el enum crudo.
+ *
+ * @param {string} valor - Gravedad tal cual llega del backend
+ * @returns {string} Etiqueta legible
+ */
+export function etiquetaGravedad(valor) {
+  if (!valor) return '-';
+  return ETIQUETAS_GRAVEDAD.get(valor) || formatearEtiquetaEnum(valor, 'Desconocido');
 }

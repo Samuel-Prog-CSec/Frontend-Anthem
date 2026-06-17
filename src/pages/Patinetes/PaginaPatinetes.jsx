@@ -63,6 +63,17 @@ function PaginaPatinetes() {
     return params;
   }, [paginacion.currentPage, paginacion.itemsPerPage, filtros]);
 
+  // Filtros (sin paginacion) para los endpoints agregados: KPIs, barras por
+  // distrito, donut de proveedores, zonas y mapa. Sin esto mostraban siempre la
+  // ciudad entera aunque se filtrara por distrito/densidad/tipoZona.
+  const filtrosAgregados = useMemo(() => {
+    const params = {};
+    if (filtros.distrito) params.distrito = filtros.distrito;
+    if (filtros.densidad) params.densidad = filtros.densidad;
+    if (filtros.tipoZona) params.tipoZona = filtros.tipoZona;
+    return params;
+  }, [filtros]);
+
   // React Query hooks (se ejecutan en paralelo automaticamente)
   const {
     data: assignmentsResult,
@@ -71,10 +82,15 @@ function PaginaPatinetes() {
     refetch
   } = usePatinetes(queryParams);
 
-  const { data: statsResult } = usePatinetesEstadisticas();
-  const { data: mercadoResult } = usePatinetesMercado();
-  const { data: zonasResult } = usePatinetesZonas();
-  const { data: featureCollectionMapa, isLoading: cargandoMapa } = useMapaPatinetes();
+  const { data: statsResult } = usePatinetesEstadisticas(filtrosAgregados);
+  const { data: mercadoResult } = usePatinetesMercado(filtrosAgregados);
+  const { data: zonasResult } = usePatinetesZonas(filtrosAgregados);
+  const { data: featureCollectionMapa, isLoading: cargandoMapa } = useMapaPatinetes(filtrosAgregados);
+
+  // Catalogo de distritos para el desplegable: agregado SIN filtrar, para que el
+  // selector no se reduzca a una sola opcion al elegir un distrito (efecto
+  // trinquete). React Query cachea esta consulta (ademas viene precalentada).
+  const { data: statsCatalogoResult } = usePatinetesEstadisticas();
   const {
     data: areaResult,
     isLoading: cargandoArea
@@ -96,16 +112,21 @@ function PaginaPatinetes() {
   const datosMercado = useMemo(() => {
     const raw = mercadoResult?.data;
     if (Array.isArray(raw)) return raw;
+    // El endpoint /analisis-mercado/proveedores envuelve el array en `analisis`.
+    if (Array.isArray(raw?.analisis)) return raw.analisis;
     if (Array.isArray(raw?.data)) return raw.data;
     return [];
   }, [mercadoResult?.data]);
   const zonasConcentracion = useMemo(() => {
     const raw = zonasResult?.data;
     if (Array.isArray(raw)) return raw;
+    // El endpoint /zonas-concentracion envuelve el array en `zonas`.
+    if (Array.isArray(raw?.zonas)) return raw.zonas;
     if (Array.isArray(raw?.data)) return raw.data;
     return [];
   }, [zonasResult?.data]);
-  const areaSeleccionada = areaQuery ? (areaResult?.data || null) : null;
+  // El endpoint /area/:distrito/:barrio envuelve el detalle en `data.area`.
+  const areaSeleccionada = areaQuery ? (areaResult?.data?.area || null) : null;
   const error = mainError?.message || null;
 
   // Actualizar paginacion cuando cambian los datos
@@ -158,14 +179,23 @@ function PaginaPatinetes() {
           .filter(d => d.estadisticas?.totalPatinetes != null)
           .reduce((sum, d) => sum + d.estadisticas.totalPatinetes, 0);
 
-    // Proveedores: media de proveedores activos por area (de la pagina
-    // actual; aproximacion razonable).
-    const proveedoresValues = datos
-      .filter(d => d.estadisticas?.proveedoresActivos != null)
-      .map(d => d.estadisticas.proveedoresActivos);
-    const proveedoresActivos = proveedoresValues.length > 0
-      ? proveedoresValues.reduce((a, b) => a + b, 0) / proveedoresValues.length
-      : 0;
+    // Proveedores activos promedio por area, sobre TODO el conjunto (no la
+    // pagina): suma de proveedores activos / suma de areas a partir de las
+    // estadisticas por distrito. Asi el KPI no cambia al paginar. Cae a la
+    // media de la pagina solo si no hay stats por distrito.
+    let proveedoresActivos = 0;
+    if (estadisticasDistritos.length > 0) {
+      const sumaProveedores = estadisticasDistritos.reduce((s, d) => s + (d.sumaProveedoresActivos || 0), 0);
+      const sumaAreas = estadisticasDistritos.reduce((s, d) => s + (d.totalBarrios || 0), 0);
+      proveedoresActivos = sumaAreas > 0 ? sumaProveedores / sumaAreas : 0;
+    } else {
+      const proveedoresValues = datos
+        .filter(d => d.estadisticas?.proveedoresActivos != null)
+        .map(d => d.estadisticas.proveedoresActivos);
+      proveedoresActivos = proveedoresValues.length > 0
+        ? proveedoresValues.reduce((a, b) => a + b, 0) / proveedoresValues.length
+        : 0;
+    }
 
     // Promedio por area: total agregado / numero total de areas registradas
     const promedioPorBarrio = totalAreas > 0 ? totalPatinetes / totalAreas : 0;
@@ -182,11 +212,15 @@ function PaginaPatinetes() {
   // mantiene como viene del backend (lo usa el filtro para casar); solo la
   // etiqueta se normaliza para no mostrar el nombre en mayusculas crudas.
   const districtOptions = useMemo(() => {
-    return estadisticasDistritos.map(d => ({
+    const raw = statsCatalogoResult?.data;
+    const catalogo = Array.isArray(raw) ? raw
+      : Array.isArray(raw?.estadisticas) ? raw.estadisticas
+        : Array.isArray(raw?.data) ? raw.data : [];
+    return catalogo.map(d => ({
       value: d._id,
       label: formatearNombreDistrito(d._id)
     }));
-  }, [estadisticasDistritos]);
+  }, [statsCatalogoResult?.data]);
 
   // Datos para grafico de barras (patinetes por distrito)
   const datosGrafico = useMemo(() => {
@@ -208,15 +242,14 @@ function PaginaPatinetes() {
 
   return (
     <PageLayout
-      eyebrow="Movilidad / Micromovilidad"
-      title="Flota de micromovilidad"
+      title="Patinetes"
       description={estadisticas.totalPatinetes > 0
-        ? `${estadisticas.totalPatinetes.toLocaleString('es-ES')} patinetes desplegados en ${estadisticas.totalAreas} areas de la ciudad. Densidad, dominancia HHI y zonas de concentracion en ${DATE_CONFIG.DATASET_YEAR}.`
-        : `Flota de micromovilidad agregada por distrito y barrio. Densidad, dominancia HHI y zonas de concentracion en ${DATE_CONFIG.DATASET_YEAR}.`}
+        ? `${estadisticas.totalPatinetes.toLocaleString('es-ES')} patinetes desplegados en ${estadisticas.totalAreas} áreas de la ciudad. Densidad, concentración por proveedor y zonas de mayor concentración en ${DATE_CONFIG.DATASET_YEAR}.`
+        : `Patinetes agregados por distrito y barrio. Densidad, concentración por proveedor y zonas de mayor concentración en ${DATE_CONFIG.DATASET_YEAR}.`}
       actions={
         <Button variant="outline" onClick={() => refetch()}>
           <RefreshCw className="size-4 mr-2" />
-          Actualizar
+          Recargar datos
         </Button>
       }
     >
@@ -239,7 +272,7 @@ function PaginaPatinetes() {
           <EnlacesCruzados
             distrito={filtros.distrito}
             modulosExcluidos={['patinetes']}
-            titulo={`Ver "${filtros.distrito}" en otros modulos:`}
+            titulo={`Ver "${filtros.distrito}" en otros módulos:`}
           />
         </div>
       )}

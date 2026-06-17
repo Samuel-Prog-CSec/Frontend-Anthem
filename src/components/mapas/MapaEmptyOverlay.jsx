@@ -24,7 +24,7 @@ import { MapPinOff } from 'lucide-react';
 
 const MapaEmptyOverlay = memo(function MapaEmptyOverlay({
   titulo = 'Sin registros para los filtros aplicados',
-  descripcion = 'La consulta a la malla sensorizada no devolvio datos en esta seleccion. Prueba a relajar los filtros o cambiar el rango temporal.',
+  descripcion = 'No hay datos para los filtros aplicados. Prueba a relajar los filtros o cambiar el rango temporal.',
   onLimpiar,
   textoBotonLimpiar = 'Limpiar filtros'
 }) {
@@ -43,12 +43,9 @@ const MapaEmptyOverlay = memo(function MapaEmptyOverlay({
             <MapPinOff className="size-5" strokeWidth={1.5} />
           </div>
           <div className="space-y-3 flex-1">
-            <div className="space-y-1">
-              <p className="eyebrow text-[var(--ink-tertiary)]">SIN COBERTURA EN LOS FILTROS</p>
-              <p className="font-display italic text-xl text-foreground leading-tight">
-                {titulo}
-              </p>
-            </div>
+            <p className="font-display text-xl font-semibold text-foreground leading-tight">
+              {titulo}
+            </p>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {descripcion}
             </p>
@@ -56,7 +53,7 @@ const MapaEmptyOverlay = memo(function MapaEmptyOverlay({
               <button
                 type="button"
                 onClick={onLimpiar}
-                className="inline-flex items-center gap-2 px-3 py-1.5 mt-1 font-mono text-[10px] uppercase tracking-[0.12em] border border-[var(--border-emphasis)] hover:border-[var(--signal)] hover:text-[var(--signal)] transition-colors rounded-sm"
+                className="mt-1 inline-flex items-center gap-2 rounded-md border border-[var(--border-emphasis)] px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:border-[var(--marca)] hover:text-[var(--marca)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marca)]"
               >
                 {textoBotonLimpiar}
               </button>

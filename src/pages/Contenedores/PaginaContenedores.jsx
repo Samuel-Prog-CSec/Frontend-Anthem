@@ -118,12 +118,17 @@ function PaginaContenedores() {
   const {
     data: statsResult,
     isLoading: cargandoStats
-  } = useContenedoresEstadisticas();
+  } = useContenedoresEstadisticas(filtros.lote || undefined);
 
+  // Estadisticas por distrito SIN acotar al distrito filtrado: el Bar "Top
+  // distritos" es una comparativa entre distritos (no debe colapsar a 1 al
+  // seleccionar uno) y los KPIs/Pie localizan el suyo con .find() sobre la lista
+  // completa. La reactividad por tipo del Bar se resuelve en cliente desde
+  // contenedoresPorTipo (que el endpoint ya entrega por distrito).
   const {
     data: distritosResult,
     isLoading: cargandoDistritos
-  } = useContenedoresPorDistrito(filtros.distrito || undefined);
+  } = useContenedoresPorDistrito(undefined, filtros.lote || undefined);
 
   const {
     data: listaDistritos
@@ -140,6 +145,7 @@ function PaginaContenedores() {
   } = useDensidadContenedores({
     distrito: filtros.distrito || undefined,
     tipoContenedor: filtros.tipoContenedor || undefined,
+    lote: filtros.lote || undefined,
     includeBarrios: 'true'
   });
 
@@ -176,23 +182,59 @@ function PaginaContenedores() {
       .map(b => ({ value: b, label: b }));
   }, [listaBarrios]);
 
-  // KPIs de cabecera
+  // KPIs de cabecera. Reaccionan a los filtros activos (distrito / tipo de
+  // contenedor): con distrito se derivan del desglose por tipo de ese distrito;
+  // con tipo se filtra ese tipo. Sin filtros se usan los totales globales.
   const kpis = useMemo(() => {
-    if (!resumenGeneral) {
+    const hayFiltro = Boolean(filtros.distrito || filtros.tipoContenedor);
+
+    if (!hayFiltro) {
+      if (!resumenGeneral) {
+        return { totalContenedores: 0, totalUbicaciones: 0, totalTipos: 0, totalDistritos: 0 };
+      }
       return {
-        totalContenedores: 0,
-        totalUbicaciones: 0,
-        totalTipos: 0,
-        totalDistritos: 0
+        totalContenedores: resumenGeneral.totalGeneral || 0,
+        totalUbicaciones: resumenGeneral.totalUbicaciones || 0,
+        totalTipos: Array.isArray(resumenGeneral.porTipo) ? resumenGeneral.porTipo.length : 0,
+        totalDistritos
       };
     }
+
+    // Desglose por tipo segun el distrito filtrado (o global si solo hay tipo).
+    let porTipo;
+    let distritosKpi = totalDistritos;
+    if (filtros.distrito) {
+      // Sin fallback a datosDistritos[0]: si el distrito filtrado no aparece
+      // (p.ej. un lote sin datos en ese distrito) los KPIs muestran 0, no los
+      // numeros equivocados del primer distrito de la lista.
+      const entry = datosDistritos.find(d => (d.distrito || d._id) === filtros.distrito);
+      porTipo = entry?.contenedoresPorTipo || [];
+      distritosKpi = 1;
+    } else {
+      porTipo = resumenGeneral?.porTipo || [];
+    }
+    if (filtros.tipoContenedor) {
+      porTipo = porTipo.filter(t => t.tipo === filtros.tipoContenedor);
+    }
     return {
-      totalContenedores: resumenGeneral.totalGeneral || 0,
-      totalUbicaciones: resumenGeneral.totalUbicaciones || 0,
-      totalTipos: Array.isArray(resumenGeneral.porTipo) ? resumenGeneral.porTipo.length : 0,
-      totalDistritos
+      totalContenedores: porTipo.reduce((s, t) => s + (t.total || 0), 0),
+      totalUbicaciones: porTipo.reduce((s, t) => s + (t.ubicaciones || 0), 0),
+      totalTipos: porTipo.length,
+      totalDistritos: distritosKpi
     };
-  }, [resumenGeneral, totalDistritos]);
+  }, [resumenGeneral, totalDistritos, filtros.distrito, filtros.tipoContenedor, datosDistritos]);
+
+  // Pie "por tipo": con un distrito filtrado el desglose debe ser el de ESE
+  // distrito (no el global). Reutiliza el breakdown ya cargado en datosDistritos
+  // -- igual que los KPIs -- en vez de resumenGeneral.porTipo, que solo reacciona
+  // a `lote`. No se filtra por tipoContenedor (colapsaria el grafico a 1 sector).
+  const datosPorTipoPie = useMemo(() => {
+    if (filtros.distrito) {
+      const entry = datosDistritos.find(d => (d.distrito || d._id) === filtros.distrito);
+      return entry?.contenedoresPorTipo || [];
+    }
+    return resumenGeneral?.porTipo || [];
+  }, [filtros.distrito, datosDistritos, resumenGeneral]);
 
   const paginacionActual = useMemo(() => ({
     ...paginacion,
@@ -224,8 +266,7 @@ function PaginaContenedores() {
 
   return (
     <PageLayout
-      eyebrow="Servicios urbanos / Residuos"
-      title="Capilaridad de residuos"
+      title="Contenedores"
       description={
         listadoResult?.pagination?.totalDocuments
           ? `${formatNumber(listadoResult.pagination.totalDocuments)} contenedores georreferenciados con tipo de residuo, lote y cobertura por distrito. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`
@@ -234,24 +275,18 @@ function PaginaContenedores() {
       actions={
         <Button variant="outline" onClick={() => refetchListado()}>
           <RefreshCw className="size-4 mr-2" aria-hidden="true" />
-          Actualizar
+          Recargar datos
         </Button>
       }
     >
-      <TarjetasEstadisticasContenedores
-        totalContenedores={kpis.totalContenedores}
-        totalUbicaciones={kpis.totalUbicaciones}
-        totalTipos={kpis.totalTipos}
-        totalDistritos={kpis.totalDistritos}
-        isLoading={cargandoStats}
-      />
-
       <MapaContenedores
         cargandoMapa={cargandoMapa}
         featureCollection={featureCollectionMapa}
         filtrosActivos={filtros}
       />
 
+      {/* Filtros justo bajo el mapa-hero: el control queda pegado a lo que
+          afecta (mapa + KPIs + tabla), sin bajar hasta el final. */}
       <FiltrosContenedores
         filtros={filtros}
         opcionesDistrito={opcionesDistrito}
@@ -261,20 +296,29 @@ function PaginaContenedores() {
         limpiarFiltros={limpiarFiltros}
       />
 
+      <TarjetasEstadisticasContenedores
+        totalContenedores={kpis.totalContenedores}
+        totalUbicaciones={kpis.totalUbicaciones}
+        totalTipos={kpis.totalTipos}
+        totalDistritos={kpis.totalDistritos}
+        isLoading={cargandoStats}
+      />
+
       {filtros.distrito && (
         <div className="mb-6">
           <EnlacesCruzados
             distrito={filtros.distrito}
             barrio={filtros.barrio || undefined}
             modulosExcluidos={['contenedores']}
-            titulo={`Ver "${filtros.distrito}${filtros.barrio ? ` / ${filtros.barrio}` : ''}" en otros modulos:`}
+            titulo={`Ver "${filtros.distrito}${filtros.barrio ? ` / ${filtros.barrio}` : ''}" en otras áreas:`}
           />
         </div>
       )}
 
       <GraficosContenedores
-        resumenPorTipo={resumenGeneral?.porTipo}
+        resumenPorTipo={datosPorTipoPie}
         estadisticasDistritos={datosDistritos}
+        tipoFiltro={filtros.tipoContenedor}
         isLoading={cargandoStats || cargandoDistritos}
       />
 

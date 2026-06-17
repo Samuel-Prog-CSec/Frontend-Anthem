@@ -89,23 +89,37 @@ function programarRefreshAnticipado(token) {
 }
 
 /**
- * Dispara /auth/refresh sin pasar por el interceptor de 401. Usado por el
- * timer del refresh anticipado.
+ * Dispara /auth/refresh para el refresh anticipado. Coordina con `isRefreshing`
+ * (la misma bandera que usa el interceptor reactivo de 401) para evitar un
+ * race: si un refresh ya esta en curso, NO lanza otro. Sin esta coordinacion,
+ * el timer anticipado podia disparar un segundo /auth/refresh con el refresh
+ * token ya rotado (y por tanto en blacklist) -> 401 -> logout forzado espurio.
  */
 async function refrescarAccessTokenSilencioso() {
   // Si no hay sesion (no hay accessToken), no intentar; el usuario ya hizo logout.
   if (!accessToken) {
     return;
   }
+  // Si ya hay un refresh en curso (reactivo o anticipado), no lanzar otro.
+  if (isRefreshing) {
+    return;
+  }
+  isRefreshing = true;
   try {
     const response = await apiClient.post('/auth/refresh', {});
     const nuevoToken = response.data?.data?.accessToken;
     if (nuevoToken) {
       setAuthTokens(nuevoToken);
+      // Liberar cualquier request que se hubiera encolado durante este refresh.
+      processQueue(null, nuevoToken);
     }
-  } catch {
-    // Si falla (red caida, refresh expirado, etc.), el siguiente request
-    // recibira 401 y el interceptor reactivo se encargara. No spammear logs.
+  } catch (refreshError) {
+    // Liberar la cola (rechazando) para que no quede colgada; NO forzamos
+    // logout aqui: el siguiente request recibira 401 y el interceptor reactivo
+    // gestionara el cierre de sesion si procede.
+    processQueue(refreshError, null);
+  } finally {
+    isRefreshing = false;
   }
 }
 

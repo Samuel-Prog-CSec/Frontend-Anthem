@@ -36,21 +36,28 @@ function PaginaBicicletas() {
     itemsPerPage: PAGINATION.BIKES_DEFAULT_LIMIT
   });
 
+  // Los endpoints de bicicletas filtran por `startDate`/`endDate` (campo `dia`),
+  // NO por `año`/`mes`. Traducimos el mes seleccionado al rango UTC del mes
+  // completo para que el filtro impacte de verdad (antes era placebo).
+  const rangoMes = useMemo(() => {
+    if (!filtros.mes) return null;
+    const mesNum = parseInt(filtros.mes, 10);
+    return {
+      startDate: new Date(Date.UTC(DATE_CONFIG.DATASET_YEAR, mesNum - 1, 1)).toISOString(),
+      endDate: new Date(Date.UTC(DATE_CONFIG.DATASET_YEAR, mesNum, 0, 23, 59, 59, 999)).toISOString()
+    };
+  }, [filtros.mes]);
+
   const queryParams = useMemo(() => {
     const params = {
       page: paginacion.currentPage,
-      limit: paginacion.itemsPerPage,
-      año: DATE_CONFIG.DATASET_YEAR
+      limit: paginacion.itemsPerPage
     };
-    if (filtros.mes) params.mes = parseInt(filtros.mes);
+    if (rangoMes) { Object.assign(params, rangoMes); }
     return params;
-  }, [paginacion.currentPage, paginacion.itemsPerPage, filtros]);
+  }, [paginacion.currentPage, paginacion.itemsPerPage, rangoMes]);
 
-  const statsParams = useMemo(() => {
-    const params = { año: DATE_CONFIG.DATASET_YEAR };
-    if (filtros.mes) params.mes = parseInt(filtros.mes);
-    return params;
-  }, [filtros]);
+  const statsParams = useMemo(() => (rangoMes ? { ...rangoMes } : {}), [rangoMes]);
 
   const {
     data: availabilityResult,
@@ -59,12 +66,13 @@ function PaginaBicicletas() {
     refetch
   } = useBicicletas(queryParams);
 
-  const { data: statsResult } = useBicicletasEstadisticas(statsParams);
+  const { data: statsResult, isLoading: cargandoStats } = useBicicletasEstadisticas(statsParams);
   const { data: trendsResult } = useBicicletasTendencias({ year: DATE_CONFIG.DATASET_YEAR });
-  // mayor-uso y comparativa-suscripciones aceptan filtro mes para reflejar
-  // el periodo activo. Sin propagacion el panel mostraba siempre los mismos
-  // numeros aunque se cambiase el selector de mes.
-  const { data: mayorUsoResult } = useBicicletasMayorUso(statsParams);
+  // comparativa-suscripciones acepta rango de fechas y reacciona al mes.
+  // mayor-uso es una metrica ANUAL (dias de mayor/menor uso del ano): su
+  // endpoint no filtra por fecha, por eso se llama sin params (pasarle un
+  // rango no haria nada).
+  const { data: mayorUsoResult } = useBicicletasMayorUso();
   const { data: suscripcionesResult } = useBicicletasSuscripciones(statsParams);
 
   const datos = useMemo(() => availabilityResult?.data || [], [availabilityResult?.data]);
@@ -114,6 +122,18 @@ function PaginaBicicletas() {
     };
   }, [estadisticas, datos, paginacionActual.totalItems]);
 
+  // Serie cronologica para la sparkline del KPI "Promedio usos diarios".
+  // Reusa las tendencias mensuales ya disponibles (useBicicletasTendencias),
+  // tomando el promedio diario de cada mes en orden. El backend ya entrega
+  // los meses ordenados; cap defensivo de 30 puntos.
+  const serieUsosDiarios = useMemo(() => {
+    if (!tendencias || tendencias.length === 0) return [];
+    return tendencias
+      .slice(0, 30)
+      .map(item => Number(item.promedioUsosDiarios ?? item.totalUsos ?? 0))
+      .filter(n => Number.isFinite(n));
+  }, [tendencias]);
+
   const tendenciasGrafico = useMemo(() => {
     if (!tendencias || tendencias.length === 0) return [];
     return tendencias.map(item => {
@@ -150,17 +170,20 @@ function PaginaBicicletas() {
 
   return (
     <PageLayout
-      eyebrow="Movilidad / Bicicletas"
-      title="Flota ciclista en circulacion"
+      title="Bicicletas"
       description={`Disponibilidad diaria, suscripciones anuales frente a uso ocasional y tendencias mensuales del servicio en ${DATE_CONFIG.DATASET_YEAR}.`}
       actions={
         <Button variant="outline" onClick={refrescar}>
           <RefreshCw className="size-4 mr-2" aria-hidden="true" />
-          Actualizar
+          Recargar datos
         </Button>
       }
     >
-      <EstadisticasBicicletas stats={computedStats} isLoading={!estadisticas} />
+      <EstadisticasBicicletas
+        stats={computedStats}
+        serieUsosDiarios={serieUsosDiarios}
+        isLoading={cargandoStats}
+      />
 
       <FiltrosBicicletas
         filtros={filtros}

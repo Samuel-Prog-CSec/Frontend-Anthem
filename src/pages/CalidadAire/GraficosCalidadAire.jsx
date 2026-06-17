@@ -16,45 +16,25 @@ import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
   Select, EmptyState, ChartSkeleton
 } from '../../components/common';
-import { BarChartCard, LineChartCard } from '../../components/charts';
+import { LineChartCard } from '../../components/charts';
 import { AIR_QUALITY_MAGNITUDES, CHART_COLORS } from '../../constants';
 import { opcionesMagnitud } from './opcionesFiltros';
 import { obtenerUnidadMagnitud } from './helpers';
 
 function GraficosCalidadAire({
-  datosGraficoPagina,
-  magnitudFiltro,
   magnitudTendencia,
   setMagnitudTendencia,
   datosTendencia,
-  cargandoTendencias,
-  isLoading,
-  hayDatosPagina
+  cargandoTendencias
 }) {
-  // Cada contaminante tiene su propia escala/unidad (CO en mg/m3, resto ug/m3).
-  // La unidad se resuelve por magnitud para no rotular todo como ug/m3.
-  const unidadPagina = obtenerUnidadMagnitud(parseInt(magnitudFiltro, 10));
+  // Cada contaminante tiene su unidad (CO en mg/m3, resto ug/m3); se resuelve
+  // por magnitud para no rotular todo como ug/m3. Se eliminó el BarChart
+  // "Tendencia" que se calculaba sobre el slice de la pagina paginada (no era
+  // una tendencia real); la evolucion correcta es el LineChart de abajo, que
+  // proviene del endpoint agregado /calidad-aire/tendencias.
   const unidadTendencia = obtenerUnidadMagnitud(parseInt(magnitudTendencia, 10));
 
   return (
-    <>
-      {/* El grafico de tendencia de la pagina solo se muestra cuando hay un
-          contaminante seleccionado: sin filtro, la pagina mezcla magnitudes
-          (NO2, O3, PM10, CO...) con escalas y unidades distintas, y promediarlas
-          en un mismo eje no tiene sentido. Para la vista por contaminante sin
-          filtrar la tabla esta el panel "Tendencias por contaminante" de abajo. */}
-      {!isLoading && hayDatosPagina && magnitudFiltro && (
-        <div className="mb-6">
-          <BarChartCard
-            title={`Tendencia - ${AIR_QUALITY_MAGNITUDES[magnitudFiltro] || 'Contaminante'}`}
-            data={datosGraficoPagina}
-            xKey="fecha"
-            bars={[{ key: 'promedio', name: `Promedio diario (${unidadPagina})`, color: CHART_COLORS.primary }]}
-            height={250}
-          />
-        </div>
-      )}
-
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -62,7 +42,7 @@ function GraficosCalidadAire({
             Tendencias por contaminante
           </CardTitle>
           <CardDescription>
-            Seleccione un contaminante para visualizar su evolucion temporal.
+            Seleccione un contaminante para visualizar su evolución temporal.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -80,13 +60,13 @@ function GraficosCalidadAire({
 
           {!cargandoTendencias && magnitudTendencia && datosTendencia.length > 0 && (
             <LineChartCard
-              title={`Evolucion - ${AIR_QUALITY_MAGNITUDES[magnitudTendencia] || 'Contaminante'}`}
+              title={`Evolución - ${AIR_QUALITY_MAGNITUDES[magnitudTendencia] || 'Contaminante'}`}
               data={datosTendencia}
               xKey="periodo"
               lines={[
                 { key: 'promedio', name: `Promedio (${unidadTendencia})`, color: CHART_COLORS.primary },
-                { key: 'maximo', name: `Maximo (${unidadTendencia})`, color: CHART_COLORS.danger },
-                { key: 'minimo', name: `Minimo (${unidadTendencia})`, color: CHART_COLORS.secondary }
+                { key: 'maximo', name: `Máximo (${unidadTendencia})`, color: CHART_COLORS.danger },
+                { key: 'minimo', name: `Mínimo (${unidadTendencia})`, color: CHART_COLORS.secondary }
               ]}
               height={300}
             />
@@ -94,7 +74,7 @@ function GraficosCalidadAire({
 
           {!cargandoTendencias && magnitudTendencia && datosTendencia.length === 0 && (
             <EmptyState
-              title="Sin datos de tendencia"
+              title="Sin resultados para estos filtros"
               description="No se encontraron datos de tendencia para el contaminante seleccionado."
               icon={TrendingUp}
             />
@@ -107,7 +87,6 @@ function GraficosCalidadAire({
           )}
         </CardContent>
       </Card>
-    </>
   );
 }
 

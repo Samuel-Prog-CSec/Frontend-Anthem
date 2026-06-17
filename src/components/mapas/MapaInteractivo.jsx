@@ -13,6 +13,18 @@ import { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { cn } from '../../utils';
+import { useTheme } from '../../context';
+
+// Basemaps cartograficos reales (CARTO, sin token). Sustituyen al truco de
+// invertir por CSS los tiles claros de OSM (que tenia el artefacto de vias
+// rosaceas y etiquetas espejadas en oscuro). Ahora el "plano nocturno" usa
+// dark matter nativo y el "blanco tecnico" usa positron, ambos minimalistas.
+const TILES = {
+  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+};
+const TILES_ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
 /**
  * Etiquetas accesibles para los controles nativos de Leaflet.
@@ -110,6 +122,7 @@ export function MapaInteractivo({
   children
 }) {
   const contenedorRef = useRef(null);
+  const { esOscuro } = useTheme();
 
   // Aplicar etiquetas a11y a los controles de Leaflet cuando se monta el
   // mapa y cada vez que cambian los hijos (los clusters pueden recrearse
@@ -142,8 +155,11 @@ export function MapaInteractivo({
         style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          key={esOscuro ? 'dark' : 'light'}
+          attribution={TILES_ATTRIBUTION}
+          url={esOscuro ? TILES.dark : TILES.light}
+          subdomains="abcd"
+          maxZoom={20}
         />
         {bbox && <AjustarBbox bbox={bbox} />}
         {children}

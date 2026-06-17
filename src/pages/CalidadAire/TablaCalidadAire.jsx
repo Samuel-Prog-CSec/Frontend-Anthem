@@ -44,7 +44,7 @@ function TablaCalidadAire({
           />
         ) : data.length === 0 ? (
           <EmptyState
-            title="Sin mediciones"
+            title="Sin resultados para estos filtros"
             description="No se encontraron mediciones con los filtros seleccionados."
             icon={Wind}
           />
@@ -58,7 +58,7 @@ function TablaCalidadAire({
               <TableHeader>
                 <TableRow>
                   <TableHead>Fecha</TableHead>
-                  <TableHead>Estacion</TableHead>
+                  <TableHead>Estación</TableHead>
                   <TableHead>Contaminante</TableHead>
                   <TableHead className="text-right">Promedio</TableHead>
                   <TableHead>Calidad</TableHead>
@@ -79,7 +79,7 @@ function TablaCalidadAire({
                         {formatDate(record.fecha)}
                       </TableCell>
                       <TableCell>
-                        {record.estacion || record.puntoMuestreo}
+                        {record.estacion ? `Estación ${record.estacion}` : record.puntoMuestreo}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {AIR_QUALITY_MAGNITUDES[record.magnitud] || `Magnitud ${record.magnitud}`}

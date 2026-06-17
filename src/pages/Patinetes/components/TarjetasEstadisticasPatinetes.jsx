@@ -12,17 +12,17 @@ const TarjetasEstadisticasPatinetes = memo(function TarjetasEstadisticasPatinete
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       <StatCard
-        title="Total Patinetes"
+        title="Total patinetes"
         value={formatNumber(estadisticas.totalPatinetes)}
         icon={Zap}
       />
       <StatCard
-        title="Areas Registradas"
+        title="Áreas registradas"
         value={estadisticas.totalAreas}
         icon={MapPin}
       />
       <StatCard
-        title="Promedio por Barrio"
+        title="Promedio por barrio"
         value={formatNumber(Math.round(estadisticas.promedioPorBarrio))}
         icon={BarChart3}
       />
@@ -33,7 +33,7 @@ const TarjetasEstadisticasPatinetes = memo(function TarjetasEstadisticasPatinete
         que el label coincida con el numero mostrado y no confunda.
       */}
       <StatCard
-        title="Proveedores promedio/area"
+        title="Proveedores promedio/área"
         value={Math.round(estadisticas.proveedoresActivos)}
         subtitle="sobre 14 operadores"
         icon={Users}

@@ -37,7 +37,7 @@ function TablaBicicletas({
           <ErrorState message={error} onRetry={onReintentar} />
         ) : datos.length === 0 ? (
           <EmptyState
-            title="Sin datos de disponibilidad"
+            title="Sin resultados para estos filtros"
             description="No se encontraron registros con los filtros seleccionados."
             icon={Bike}
           />
@@ -52,14 +52,14 @@ function TablaBicicletas({
               </TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Dia</TableHead>
+                  <TableHead>Día</TableHead>
                   <TableHead>Horas uso</TableHead>
                   <TableHead>Horas disponibilidad</TableHead>
                   <TableHead>Media bicis</TableHead>
                   <TableHead>Usos anual</TableHead>
                   <TableHead>Usos ocasional</TableHead>
                   <TableHead>Total usos</TableHead>
-                  <TableHead>Tasa ocupacion</TableHead>
+                  <TableHead>Tasa ocupación</TableHead>
                   <TableHead>Usos/bici</TableHead>
                 </TableRow>
               </TableHeader>
@@ -75,10 +75,10 @@ function TablaBicicletas({
                     <TableCell className="font-mono font-medium">{formatNumber(item.totalUsos)}</TableCell>
                     <TableCell>
                       <Badge variant={obtenerBadgeOcupacion(item.tasaOcupacion)}>
-                        {item.tasaOcupacion != null ? `${item.tasaOcupacion.toFixed(1)}%` : '-'}
+                        {item.tasaOcupacion != null ? `${formatNumber(item.tasaOcupacion, 1)}%` : '-'}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-mono">{item.promedioUsosPorBicicleta?.toFixed(2) || '-'}</TableCell>
+                    <TableCell className="font-mono">{item.promedioUsosPorBicicleta != null ? formatNumber(item.promedioUsosPorBicicleta, 2) : '-'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

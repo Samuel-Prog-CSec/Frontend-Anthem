@@ -23,7 +23,8 @@ function PanelDetalleEstacionPeatones({
     return null;
   }
 
-  const resumen = detalleEstacion.data.summary || detalleEstacion.data.data || {};
+  // El endpoint /estacion/:id envuelve el resumen en `data.resumen`.
+  const resumen = detalleEstacion.data.resumen || detalleEstacion.data.summary || detalleEstacion.data.data || {};
   const partes = descomponerIdentificadorAforo(identificador);
 
   return (
@@ -47,12 +48,12 @@ function PanelDetalleEstacionPeatones({
             <X className="size-4" />
           </Button>
         </div>
-        <CardDescription>Resumen de trafico peatonal de la estacion</CardDescription>
+        <CardDescription>Resumen de tráfico peatonal de la estación</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center p-3 rounded-lg bg-muted/50">
-            <p className="text-sm text-muted-foreground">Total Peatones</p>
+            <p className="text-sm text-muted-foreground">Total peatones</p>
             <p className="text-lg font-semibold text-foreground">
               {formatNumber(resumen.totalPeatones || 0)}
             </p>
@@ -70,7 +71,7 @@ function PanelDetalleEstacionPeatones({
             </p>
           </div>
           <div className="text-center p-3 rounded-lg bg-muted/50">
-            <p className="text-sm text-muted-foreground">Nombre Vial</p>
+            <p className="text-sm text-muted-foreground">Nombre vial</p>
             <p className="text-lg font-semibold text-foreground">
               {resumen.nombreVial || '-'}
             </p>

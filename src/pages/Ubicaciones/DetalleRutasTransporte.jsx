@@ -25,14 +25,14 @@ function DetalleRutasTransporte({ tipo, datos, isLoading }) {
           <RouteIcon className="size-5" aria-hidden="true" />
           Rutas de {LOCATION_TYPE_LABELS[tipo] || 'transporte'}
         </CardTitle>
-        <CardDescription>Informacion detallada de las rutas disponibles.</CardDescription>
+        <CardDescription>Información detallada de las rutas disponibles.</CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
           <TableSkeleton rows={4} columns={3} />
         ) : datos.length === 0 ? (
           <EmptyState
-            title="Sin datos de rutas"
+            title="Sin resultados para estos filtros"
             description="No se encontraron detalles para este tipo de transporte."
             icon={RouteIcon}
           />
@@ -47,7 +47,7 @@ function DetalleRutasTransporte({ tipo, datos, isLoading }) {
             </TableHeader>
             <TableBody>
               {datos.map((ruta, index) => (
-                <TableRow key={`ruta-${index}`}>
+                <TableRow key={ruta.nombre || `ruta-${index}`}>
                   <TableCell className="font-medium">{ruta.nombre}</TableCell>
                   <TableCell className="text-center font-mono">
                     {ruta.paradas > 0 ? formatNumber(ruta.paradas) : '-'}

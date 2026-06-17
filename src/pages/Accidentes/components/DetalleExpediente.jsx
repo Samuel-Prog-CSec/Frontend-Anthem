@@ -11,7 +11,7 @@ import {
   Badge, Button, CardSkeleton
 } from '../../../components/common';
 import { formatDate } from '../../../utils';
-import { obtenerVarianteBadgeGravedad, obtenerBadgeAlcohol } from '../helpers';
+import { obtenerVarianteBadgeGravedad, obtenerBadgeAlcohol, etiquetaTipoLesion, obtenerVarianteBadgeLesion } from '../helpers';
 
 const DetalleExpediente = memo(function DetalleExpediente({
   expediente,
@@ -58,7 +58,7 @@ const DetalleExpediente = memo(function DetalleExpediente({
             <p className="font-medium">{expediente.hora || '-'}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Ubicacion</p>
+            <p className="text-sm text-muted-foreground">Ubicación</p>
             <p className="font-medium flex items-center gap-1">
               <MapPin className="size-3" />
               {expediente.ubicacion?.calle || '-'}
@@ -73,7 +73,7 @@ const DetalleExpediente = memo(function DetalleExpediente({
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
           <div>
-            <p className="text-sm text-muted-foreground">Tipo de Accidente</p>
+            <p className="text-sm text-muted-foreground">Tipo de accidente</p>
             <p className="font-medium">{expediente.circunstancias?.tipoAccidente || '-'}</p>
           </div>
           <div>
@@ -83,7 +83,7 @@ const DetalleExpediente = memo(function DetalleExpediente({
             </Badge>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Vehiculo</p>
+            <p className="text-sm text-muted-foreground">Vehículo</p>
             <p className="font-medium">{expediente.vehiculo?.tipo || '-'}</p>
           </div>
         </div>
@@ -91,7 +91,7 @@ const DetalleExpediente = memo(function DetalleExpediente({
         {/* Persona afectada */}
         {expediente.personaAfectada && (
           <div>
-            <h4 className="text-sm font-semibold text-foreground/80 mb-3">Persona Afectada</h4>
+            <h4 className="text-sm font-semibold text-foreground/80 mb-3">Persona afectada</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-muted/50 rounded-lg p-4">
               <div>
                 <p className="text-sm text-muted-foreground">Tipo</p>
@@ -102,7 +102,7 @@ const DetalleExpediente = memo(function DetalleExpediente({
                 <p className="font-medium">{expediente.personaAfectada.sexo || '-'}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Rango de Edad</p>
+                <p className="text-sm text-muted-foreground">Rango de edad</p>
                 <p className="font-medium">{expediente.personaAfectada.rangoEdad || '-'}</p>
               </div>
               <div>
@@ -119,15 +119,15 @@ const DetalleExpediente = memo(function DetalleExpediente({
         {expediente.personasAfectadas?.length > 0 && (
           <div>
             <h4 className="text-sm font-semibold text-foreground/80 mb-3">
-              Personas Afectadas ({expediente.personasAfectadas.length})
+              Personas afectadas ({expediente.personasAfectadas.length})
             </h4>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tipo Persona</TableHead>
+                  <TableHead>Tipo persona</TableHead>
                   <TableHead>Sexo</TableHead>
-                  <TableHead>Rango Edad</TableHead>
-                  <TableHead>Gravedad</TableHead>
+                  <TableHead>Rango edad</TableHead>
+                  <TableHead>Lesividad</TableHead>
                   <TableHead>Alcohol</TableHead>
                 </TableRow>
               </TableHeader>
@@ -135,13 +135,13 @@ const DetalleExpediente = memo(function DetalleExpediente({
                 {expediente.personasAfectadas.map((persona, idx) => {
                   const alcoholPersona = obtenerBadgeAlcohol(persona.positivaAlcohol);
                   return (
-                    <TableRow key={`persona-${idx}`}>
+                    <TableRow key={persona._id || `persona-${idx}`}>
                       <TableCell>{persona.tipoPersona || '-'}</TableCell>
                       <TableCell>{persona.sexo || '-'}</TableCell>
                       <TableCell>{persona.rangoEdad || '-'}</TableCell>
                       <TableCell>
-                        <Badge variant={obtenerVarianteBadgeGravedad(persona.gravedad)}>
-                          {persona.gravedad || '-'}
+                        <Badge variant={obtenerVarianteBadgeLesion(persona.tipoLesion)}>
+                          {etiquetaTipoLesion(persona.tipoLesion)}
                         </Badge>
                       </TableCell>
                       <TableCell>

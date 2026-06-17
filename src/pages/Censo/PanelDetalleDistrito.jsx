@@ -45,13 +45,13 @@ function PanelDetalleDistrito({ detalle, onCerrar }) {
           </div>
         </div>
         <CardDescription>
-          Indicadores demograficos del distrito. La vista completa agrega
+          Indicadores demográficos del distrito. La vista completa agrega
           accidentes, patinetes y multas del mismo distrito.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Celda etiqueta="Poblacion" valor={formatNumber(detalle.poblacionTotal)} />
+          <Celda etiqueta="Población" valor={formatNumber(detalle.poblacionTotal)} />
           <Celda etiqueta="% Extranjeros" valor={formatearPorcentaje(detalle.porcentajeExtranjeros)} />
           <Celda etiqueta="% Productiva" valor={formatearPorcentaje(detalle.porcentajeProductiva)} />
           <Celda etiqueta="% Tercera edad" valor={formatearPorcentaje(detalle.porcentajeTerceraEdad)} />
@@ -67,7 +67,7 @@ function PanelDetalleDistrito({ detalle, onCerrar }) {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Barrio</TableHead>
-                    <TableHead className="text-right">Poblacion</TableHead>
+                    <TableHead className="text-right">Población</TableHead>
                     <TableHead className="text-right">% Extranjeros</TableHead>
                   </TableRow>
                 </TableHeader>

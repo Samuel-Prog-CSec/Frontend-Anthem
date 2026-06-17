@@ -69,7 +69,7 @@ function TablaAforoBicicletas({
                 <TableBody>
                   {datos.map((registro, index) => (
                     <TableRow
-                      key={registro._id || index}
+                      key={registro._id || `aforo-${index}`}
                       className="cursor-pointer hover:bg-muted/60"
                       onClick={() => onClickEstacion(registro.identificador)}
                     >

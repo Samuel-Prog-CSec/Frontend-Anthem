@@ -12,32 +12,34 @@ function EstadisticasAforoPeatones({
   totalPeatones,
   promedioPorHora,
   totalEstaciones,
+  seriePatronHorario,
   estadisticasCargando,
   estacionesCargando
 }) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <StatCard
-        title="Total Mediciones"
+        title="Total mediciones"
         value={formatNumber(totalMediciones)}
         icon={Activity}
         isLoading={estadisticasCargando}
       />
       <StatCard
-        title="Peatones Contados"
+        title="Peatones contados"
         value={formatNumber(totalPeatones)}
         icon={Users}
         isLoading={estadisticasCargando}
       />
       <StatCard
-        title="Promedio/Hora"
+        title="Promedio/hora"
         value={formatNumber(Math.round(promedioPorHora || 0))}
         subtitle="Peatones por hora"
         icon={Clock}
+        serie={seriePatronHorario}
         isLoading={estadisticasCargando}
       />
       <StatCard
-        title="Estaciones Activas"
+        title="Estaciones activas"
         value={totalEstaciones}
         icon={Radio}
         isLoading={estacionesCargando}

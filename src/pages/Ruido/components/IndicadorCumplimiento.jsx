@@ -17,10 +17,10 @@ const IndicadorCumplimiento = memo(function IndicadorCumplimiento({ datos, carga
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ShieldCheck className="size-5" />
-          Cumplimiento Normativo
+          Cumplimiento normativo
         </CardTitle>
         <CardDescription>
-          Estado de cumplimiento de limites acusticos por estacion
+          Estado de cumplimiento de límites acústicos por estación
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -38,9 +38,9 @@ const IndicadorCumplimiento = memo(function IndicadorCumplimiento({ datos, carga
                 </Badge>
               </div>
             )}
-            {datos.estaciones.map((estacion, index) => (
+            {datos.estaciones.map((estacion) => (
               <div
-                key={`compliance-${estacion.nmt}-${index}`}
+                key={`compliance-${estacion.nmt}`}
                 className="flex items-center justify-between p-3 border border-[var(--border-hairline)]"
               >
                 <div className="flex-1 min-w-0">
@@ -71,7 +71,7 @@ const IndicadorCumplimiento = memo(function IndicadorCumplimiento({ datos, carga
         ) : (
           <EmptyState
             title="Sin datos de cumplimiento"
-            description="No se pudo obtener informacion de cumplimiento normativo."
+            description="No se pudo obtener información de cumplimiento normativo."
             icon={ShieldCheck}
           />
         )}

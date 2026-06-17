@@ -19,7 +19,7 @@ const GraficosAccidentes = memo(function GraficosAccidentes({
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       {datosGrafico.length > 0 && (
         <BarChartCard
-          title="Top 10 Distritos por Accidentes"
+          title="Top 10 distritos por accidentes"
           data={datosGrafico}
           xKey="distrito"
           bars={BARS_TOP_DISTRITOS}
@@ -28,7 +28,7 @@ const GraficosAccidentes = memo(function GraficosAccidentes({
       )}
       {datosGraficoPastel.length > 0 && (
         <PieChartCard
-          title="Distribucion por Tipo de Accidente"
+          title="Distribución por tipo de accidente"
           data={datosGraficoPastel}
           height={280}
         />

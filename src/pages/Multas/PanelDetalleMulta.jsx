@@ -34,12 +34,12 @@ function PanelDetalleMulta({ detalle, isLoading, onCerrar }) {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          <Celda etiqueta="Importe boletin" valor={formatearImporte(d.importeBoletín)} />
+          <Celda etiqueta="Importe boletín" valor={formatearImporte(d.importeBoletín)} />
           <Celda etiqueta="Importe final" valor={formatearImporte(d.importeFinal)} />
           <Celda etiqueta="Puntos" valor={d.puntosDetraídos || 0} />
           <div className="p-3 rounded-lg bg-muted/50">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground mb-1.5">
-              Calificacion
+              Calificación
             </p>
             <Badge variant={obtenerVarianteBadgeCalificacion(d.calificacion)}>
               {ETIQUETAS_CALIFICACION_MULTA[d.calificacion] || d.calificacion}
@@ -50,7 +50,7 @@ function PanelDetalleMulta({ detalle, isLoading, onCerrar }) {
         {d.descripcionInfraccion && (
           <div className="p-3 rounded-lg bg-muted/50 mb-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground mb-1">
-              Descripcion de la infraccion
+              Descripción de la infracción
             </p>
             <p className="text-sm text-foreground">{d.descripcionInfraccion}</p>
           </div>
@@ -59,12 +59,12 @@ function PanelDetalleMulta({ detalle, isLoading, onCerrar }) {
         {d.datosVelocidad?.velocidadLimite && (
           <div className="grid grid-cols-3 gap-4">
             <Celda
-              etiqueta="Vel. limite"
+              etiqueta="Vel. límite"
               valor={`${d.datosVelocidad.velocidadLimite} km/h`}
               variant="alert"
             />
             <Celda
-              etiqueta="Vel. circulacion"
+              etiqueta="Vel. circulación"
               valor={`${d.datosVelocidad.velocidadCirculacion} km/h`}
               variant="alert"
               destaque

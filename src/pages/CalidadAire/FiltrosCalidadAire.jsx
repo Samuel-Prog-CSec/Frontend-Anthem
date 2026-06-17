@@ -23,8 +23,9 @@ function FiltrosCalidadAire({ filtros, onCambioFiltro, onLimpiar }) {
       <CardContent>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
-            <label className="text-sm text-muted-foreground mb-1 block">Contaminante</label>
+            <label htmlFor="filtro-magnitud" className="text-sm text-muted-foreground mb-1 block">Contaminante</label>
             <Select
+              id="filtro-magnitud"
               value={filtros.magnitud}
               onChange={(e) => onCambioFiltro('magnitud', e.target.value)}
               options={opcionesMagnitud}
@@ -32,8 +33,9 @@ function FiltrosCalidadAire({ filtros, onCambioFiltro, onLimpiar }) {
             />
           </div>
           <div className="flex-1">
-            <label className="text-sm text-muted-foreground mb-1 block">Mes</label>
+            <label htmlFor="filtro-mes" className="text-sm text-muted-foreground mb-1 block">Mes</label>
             <Select
+              id="filtro-mes"
               value={filtros.mes}
               onChange={(e) => onCambioFiltro('mes', e.target.value)}
               options={opcionesMes}

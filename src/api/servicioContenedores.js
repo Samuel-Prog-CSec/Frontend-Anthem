@@ -26,16 +26,19 @@ export async function obtenerContenedores(params = {}, { signal } = {}) {
 /**
  * Resumen general por tipo
  */
-export async function obtenerEstadisticasContenedores({ signal } = {}) {
-  const response = await apiClient.get('/contenedores/estadisticas', { signal });
+export async function obtenerEstadisticasContenedores(lote, { signal } = {}) {
+  const params = (lote !== undefined && lote !== null && lote !== '') ? { lote } : {};
+  const response = await apiClient.get('/contenedores/estadisticas', { params, signal });
   return normalizarRespuestaDetalle(response);
 }
 
 /**
  * Estadisticas por distrito (todos o uno especifico)
  */
-export async function obtenerEstadisticasPorDistrito(distrito, { signal } = {}) {
-  const params = distrito ? { distrito } : {};
+export async function obtenerEstadisticasPorDistrito(distrito, lote, { signal } = {}) {
+  const params = {};
+  if (distrito) { params.distrito = distrito; }
+  if (lote !== undefined && lote !== null && lote !== '') { params.lote = lote; }
   const response = await apiClient.get('/contenedores/estadisticas/distrito', { params, signal });
   return normalizarRespuestaDetalle(response);
 }

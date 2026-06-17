@@ -16,7 +16,7 @@ const TarjetasEstadisticasAccidentes = memo(function TarjetasEstadisticasAcciden
   // distinguen "Accidentes" (expedientes unicos) de "Personas afectadas"
   // (filas). El backend ya devuelve ambas metricas en data.resumen.
   const global = Boolean(estadisticasGenerales);
-  const subtitle = global ? 'total del periodo' : 'en pagina actual';
+  const subtitle = global ? 'total del periodo' : 'en página actual';
 
   const totalAccidentes = estadisticasGenerales?.totalAccidentes ?? estadisticas.totalAccidentes;
   const totalAfectados = estadisticasGenerales?.totalAfectados ?? estadisticas.totalPersonasAfectadas;
@@ -28,23 +28,23 @@ const TarjetasEstadisticasAccidentes = memo(function TarjetasEstadisticasAcciden
       <StatCard
         title="Accidentes"
         value={formatNumber(totalAccidentes)}
-        subtitle="expedientes unicos"
+        subtitle="expedientes únicos"
         icon={CarFront}
       />
       <StatCard
-        title="Personas Afectadas"
+        title="Personas afectadas"
         value={formatNumber(totalAfectados)}
         subtitle="conductores, peatones y pasajeros"
         icon={Users}
       />
       <StatCard
-        title="Accidentes Graves"
+        title="Accidentes graves"
         value={formatNumber(graves)}
         subtitle={subtitle}
         icon={ShieldAlert}
       />
       <StatCard
-        title="Accidentes Mortales"
+        title="Accidentes mortales"
         value={formatNumber(mortales)}
         subtitle={subtitle}
         icon={Skull}

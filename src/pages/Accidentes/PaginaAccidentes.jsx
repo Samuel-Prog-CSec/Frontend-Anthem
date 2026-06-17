@@ -19,7 +19,7 @@ import { useSincronizarFiltroGeo } from '../../context';
 import {
   useAccidentes, useAccidentesComparativa,
   useAccidentesEstadisticas, useAccidenteExpediente,
-  useMapaAccidentes
+  useAccidentesMapaCalor
 } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
 import { formatNumber, formatearNombreDistrito } from '../../utils';
@@ -38,7 +38,10 @@ const FILTROS_INICIALES = { distrito: '', tipoAccidente: '', gravedad: '', mes: 
 // El validator del backend (MAP_LIMITS.DEFAULT_MAX) cappea /accidentes/mapa
 // a 1000 registros por seguridad (cada feature carga geometria + props).
 // Si esto cambia en el backend, sincronizar aqui.
-const LIMITE_MAPA = 1000;
+// El heatmap usa /accidentes/mapa-calor, cuyo `limite` capa el numero de CELDAS
+// de rejilla (no documentos) y el backend lo valida con MAP_LIMITS.HEATMAP_MAX
+// (500). 500 celdas densas cubren de sobra el heatmap de la ciudad.
+const LIMITE_MAPA = 500;
 
 function PaginaAccidentes() {
   const [filtros, setFiltros] = useState(FILTROS_INICIALES);
@@ -68,8 +71,8 @@ function PaginaAccidentes() {
     if (filtros.mes) {
       const year = DATE_CONFIG.DATASET_YEAR;
       const month = parseInt(filtros.mes);
-      params.startDate = new Date(year, month - 1, 1).toISOString();
-      params.endDate = new Date(year, month, 0, 23, 59, 59).toISOString();
+      params.startDate = new Date(Date.UTC(year, month - 1, 1)).toISOString();
+      params.endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999)).toISOString();
     }
     return params;
   }, [paginacion.paginaActual, paginacion.elementosPorPagina, filtros]);
@@ -82,29 +85,77 @@ function PaginaAccidentes() {
     refetch
   } = useAccidentes(queryParams);
 
-  const { data: distritosResult } = useAccidentesComparativa();
-  // Sin startDate/endDate el backend toma "ultimos 30 dias" desde HOY (2026)
-  // y devuelve cero, porque todo el dataset Smart City vive en 2051.
-  // Pasamos rango anual completo del dataset para obtener estadisticas reales.
-  const { data: statsResult } = useAccidentesEstadisticas({
-    startDate: `${DATE_CONFIG.DATASET_YEAR}-01-01`,
-    endDate: `${DATE_CONFIG.DATASET_YEAR}-12-31`
-  });
-  // FeatureCollection GeoJSON para heatmap Leaflet.
-  // Se pasan los filtros activos de distrito/gravedad/tipoAccidente.
+  // Rango UTC del mes seleccionado (o todo el ano si no hay mes). Compartido por
+  // estadisticas, comparativa de distritos y mapa para que TODOS reaccionen al
+  // mes. Sin rango el backend caeria a "ultimos 30 dias desde hoy" (2026) y
+  // devolveria cero (el dataset es 2051).
+  const rangoFechas = useMemo(() => {
+    const year = DATE_CONFIG.DATASET_YEAR;
+    if (filtros.mes) {
+      const month = parseInt(filtros.mes, 10);
+      return {
+        startDate: new Date(Date.UTC(year, month - 1, 1)).toISOString(),
+        endDate: new Date(Date.UTC(year, month, 0, 23, 59, 59, 999)).toISOString()
+      };
+    }
+    return { startDate: `${year}-01-01`, endDate: `${year}-12-31` };
+  }, [filtros.mes]);
+
+  // KPIs globales: mismo rango y filtros que la tabla y el mapa.
+  const parametrosEstadisticas = useMemo(() => {
+    const params = { ...rangoFechas };
+    if (filtros.distrito) { params.distrito = filtros.distrito; }
+    if (filtros.gravedad) { params.gravedad = filtros.gravedad; }
+    if (filtros.tipoAccidente) { params.tipoAccidente = filtros.tipoAccidente; }
+    return params;
+  }, [rangoFechas, filtros.distrito, filtros.gravedad, filtros.tipoAccidente]);
+
+  // Comparativa por distrito (bar chart "Top 10 distritos"): agrupa por distrito,
+  // por eso NO se le pasa `distrito` (dejaria una sola barra). Reacciona a mes,
+  // gravedad y tipo de accidente.
+  const parametrosComparativa = useMemo(() => {
+    const params = { ...rangoFechas };
+    if (filtros.gravedad) { params.gravedad = filtros.gravedad; }
+    if (filtros.tipoAccidente) { params.tipoAccidente = filtros.tipoAccidente; }
+    return params;
+  }, [rangoFechas, filtros.gravedad, filtros.tipoAccidente]);
+
+  // FeatureCollection GeoJSON para el heatmap Leaflet: filtros activos + rango.
   const parametrosMapa = useMemo(() => {
-    const params = { limite: LIMITE_MAPA };
+    const params = { limite: LIMITE_MAPA, ...rangoFechas };
     if (filtros.distrito) params.distrito = filtros.distrito;
     if (filtros.gravedad) params.gravedad = filtros.gravedad;
     if (filtros.tipoAccidente) params.tipoAccidente = filtros.tipoAccidente;
     return params;
-  }, [filtros.distrito, filtros.gravedad, filtros.tipoAccidente]);
+  }, [rangoFechas, filtros.distrito, filtros.gravedad, filtros.tipoAccidente]);
 
-  const { data: featureCollectionMapa, isLoading: cargandoMapa } = useMapaAccidentes(parametrosMapa);
+  const { data: distritosResult } = useAccidentesComparativa(parametrosComparativa);
+  const { data: statsResult } = useAccidentesEstadisticas(parametrosEstadisticas);
+  // Heatmap desde el endpoint AGREGADO /accidentes/mapa-calor (rejilla sobre
+  // TODA la serie filtrada) en vez de /accidentes/mapa (las ~1000 filas mas
+  // recientes, sesgo temporal). Los puntos de la rejilla se convierten abajo al
+  // FeatureCollection que ya consume MapaCalor.
+  const { data: mapaCalorResult, isLoading: cargandoMapa } = useAccidentesMapaCalor(parametrosMapa);
   const {
     data: expedienteResult,
     isLoading: cargandoExpediente
   } = useAccidenteExpediente(expedienteQuery);
+
+  // FeatureCollection para el heatmap, derivado de la rejilla agregada
+  // (/mapa-calor -> data.data.puntos: [{lat,lng,weight,intensity}]). Es el mismo
+  // shape GeoJSON que MapaCalor ya renderiza, solo que de la fuente agregada.
+  const featureCollectionMapa = useMemo(() => {
+    const puntos = mapaCalorResult?.data?.data?.puntos || [];
+    return {
+      type: 'FeatureCollection',
+      features: puntos.map((p, i) => ({
+        type: 'Feature',
+        id: i,
+        geometry: { type: 'Point', coordinates: [p.lng, p.lat] },
+        properties: { weight: p.weight || 0, intensity: p.intensity || 0 }
+      }))
+    };
+  }, [mapaCalorResult]);
 
   // Extraer datos de las respuestas (estabilizar referencias para useMemo)
   const datos = useMemo(() => accidentesResult?.data || [], [accidentesResult?.data]);
@@ -113,6 +164,8 @@ function PaginaAccidentes() {
   const datosDistritos = useMemo(() => {
     const raw = distritosResult?.data;
     if (Array.isArray(raw)) return raw;
+    // El endpoint /comparativa-distritos envuelve el array en `comparativa`.
+    if (Array.isArray(raw?.comparativa)) return raw.comparativa;
     if (Array.isArray(raw?.estadisticas)) return raw.estadisticas;
     if (Array.isArray(raw?.data)) return raw.data;
     return [];
@@ -245,31 +298,27 @@ function PaginaAccidentes() {
 
   return (
     <PageLayout
-      eyebrow="Seguridad vial / Accidentes"
-      title="Cicatrices de la malla vial"
+      title="Accidentes"
       description={
         accidentesResult?.pagination?.totalDocuments
-          ? `Expedientes georreferenciados con gravedad, tipo de vehiculo y persona afectada. ${formatNumber(accidentesResult.pagination.totalDocuments)} personas registradas en ${DATE_CONFIG.DATASET_YEAR}.`
-          : `Expedientes georreferenciados con gravedad, tipo de vehiculo y persona afectada. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`
+          ? `Expedientes georreferenciados con gravedad, tipo de vehículo y persona afectada. ${formatNumber(accidentesResult.pagination.totalDocuments)} personas registradas en ${DATE_CONFIG.DATASET_YEAR}.`
+          : `Expedientes georreferenciados con gravedad, tipo de vehículo y persona afectada. Cobertura ${DATE_CONFIG.DATASET_YEAR}.`
       }
       actions={
         <Button variant="outline" onClick={() => refetch()}>
           <RefreshCw className="size-4 mr-2" />
-          Actualizar
+          Recargar datos
         </Button>
       }
     >
-      <TarjetasEstadisticasAccidentes
-        estadisticas={estadisticas}
-        estadisticasGenerales={estadisticasGenerales}
-      />
-
       <MapaCalorAccidentes
         cargandoMapa={cargandoMapa}
         featureCollectionMapa={featureCollectionMapa}
         limite={parametrosMapa.limite}
       />
 
+      {/* Filtros justo bajo el mapa-hero: el control queda pegado a lo que
+          afecta (mapa + KPIs + tabla), sin tener que bajar al final. */}
       <FiltrosAccidentes
         filtros={filtros}
         opcionesDistrito={opcionesDistrito}
@@ -277,12 +326,17 @@ function PaginaAccidentes() {
         limpiarFiltros={limpiarFiltros}
       />
 
+      <TarjetasEstadisticasAccidentes
+        estadisticas={estadisticas}
+        estadisticasGenerales={estadisticasGenerales}
+      />
+
       {filtros.distrito && (
         <div className="mb-6">
           <EnlacesCruzados
             distrito={filtros.distrito}
             modulosExcluidos={['accidentes']}
-            titulo={`Ver "${filtros.distrito}" en otros modulos:`}
+            titulo={`Ver "${filtros.distrito}" en otras areas:`}
           />
         </div>
       )}

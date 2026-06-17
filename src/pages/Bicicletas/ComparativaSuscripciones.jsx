@@ -39,7 +39,7 @@ function ComparativaSuscripciones({ comparativa }) {
           <Users className="size-5" aria-hidden="true" />
           Comparativa de suscripciones
         </CardTitle>
-        <CardDescription>Uso del servicio por tipo de suscripcion.</CardDescription>
+        <CardDescription>Uso del servicio por tipo de suscripción.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -53,21 +53,21 @@ function ComparativaSuscripciones({ comparativa }) {
             value={formatNumber(totalAnual)}
             subtitle={`Promedio diario: ${formatNumber(promedioAnual, 1)}`}
             icon={UserCheck}
-            accent="cyan"
+            accent="dominio"
           />
           <StatCard
             title="Usos ocasionales"
             value={formatNumber(totalOcasional)}
             subtitle={`Promedio diario: ${formatNumber(promedioOcasional, 1)}`}
             icon={Users}
-            accent="emerald"
+            accent="dominio"
           />
         </div>
 
         {(porcentajeAnual > 0 || porcentajeOcasional > 0) && (
           <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
             <span>
-              Distribucion: Anual {formatNumber(porcentajeAnual, 1)}%
+              Distribución: Anual {formatNumber(porcentajeAnual, 1)}%
             </span>
             <span aria-hidden="true">|</span>
             <span>

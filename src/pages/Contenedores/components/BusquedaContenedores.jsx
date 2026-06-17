@@ -31,8 +31,10 @@ const BusquedaContenedores = memo(function BusquedaContenedores({ tipoContenedor
     refetch
   } = useBuscarContenedores(queryDebounced, opciones);
 
-  const resultados = data?.data?.contenedores || [];
-  const total = data?.data?.total || 0;
+  // El servicio aplana la respuesta a `data.contenedores`/`data.total`.
+  // Aceptamos tambien el shape anidado por compatibilidad defensiva.
+  const resultados = data?.contenedores || data?.data?.contenedores || [];
+  const total = data?.total ?? data?.data?.total ?? 0;
   const tieneQuery = queryDebounced.length >= 3;
 
   return (
@@ -40,11 +42,11 @@ const BusquedaContenedores = memo(function BusquedaContenedores({ tipoContenedor
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <Search className="size-5" aria-hidden="true" />
-          Buscar por direccion
+          Buscar por dirección
         </CardTitle>
         <CardDescription>
-          Busqueda textual usando indice $text (peso: nombre de calle &gt; direccion completa).
-          Minimo 3 caracteres.
+          Busca por calle o dirección. Prioriza coincidencias en el nombre de la calle.
+          Mínimo 3 caracteres.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -53,9 +55,9 @@ const BusquedaContenedores = memo(function BusquedaContenedores({ tipoContenedor
             type="search"
             value={textoBusqueda}
             onChange={(e) => setTextoBusqueda(e.target.value)}
-            placeholder="Ej. Gran Via, Alcala, ..."
+            placeholder="Ej. Gran Vía, Alcalá, ..."
             startIcon={Search}
-            aria-label="Buscar contenedores por direccion"
+            aria-label="Buscar contenedores por dirección"
           />
         </div>
 

@@ -13,21 +13,30 @@ import { CapaPuntos } from './CapaPuntos';
 const CapaRuidoMapa = memo(function CapaRuidoMapa({ params }) {
   const { data: featureCollection } = useMapaRuido(params || {});
 
-  const renderPopup = useCallback((props) => (
-    <div className="text-sm">
-      <div className="font-semibold mb-1">{props.nombre || `Estacion NMT ${props.nmt || ''}`}</div>
-      {props.nmt && <div>NMT: {props.nmt}</div>}
-      {props.nivelDiurno != null && (
-        <div>Diurno: {formatNumber(props.nivelDiurno, 1)} dB</div>
-      )}
-      {props.nivelNocturno != null && (
-        <div>Nocturno: {formatNumber(props.nivelNocturno, 1)} dB</div>
-      )}
-      {props.cumple != null && (
-        <div>Cumplimiento: {props.cumple ? 'Si' : 'No'}</div>
-      )}
-    </div>
-  ), []);
+  const renderPopup = useCallback((props) => {
+    // El endpoint /ruido/mapa emite promedioDiurno/promedioNocturno/promedioLaeq24
+    // y banderas excede* (no nivelDiurno/cumple). Cumple = no excede ninguno.
+    const tieneExcedencia = props.excedeDiurno != null || props.excedeVespertino != null || props.excedeNocturno != null;
+    const cumple = !props.excedeDiurno && !props.excedeVespertino && !props.excedeNocturno;
+    return (
+      <div className="text-sm">
+        <div className="font-semibold mb-1">{props.nombre || `Estación NMT ${props.nmt || ''}`}</div>
+        {props.nmt && <div>NMT: {props.nmt}</div>}
+        {props.promedioDiurno != null && (
+          <div>Diurno: {formatNumber(props.promedioDiurno, 1)} dB</div>
+        )}
+        {props.promedioNocturno != null && (
+          <div>Nocturno: {formatNumber(props.promedioNocturno, 1)} dB</div>
+        )}
+        {props.promedioLaeq24 != null && (
+          <div>LAeq24: {formatNumber(props.promedioLaeq24, 1)} dB</div>
+        )}
+        {tieneExcedencia && (
+          <div>Cumplimiento: {cumple ? 'Sí' : 'No'}</div>
+        )}
+      </div>
+    );
+  }, []);
 
   return (
     <CapaPuntos

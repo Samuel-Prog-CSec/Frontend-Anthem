@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, MapPin } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, Skeleton } from '../../../components/common';
 import { ROUTES, DATE_CONFIG } from '../../../constants';
-import { formatNumber } from '../../../utils';
+import { formatNumber, formatearNombreDistritoTitulo } from '../../../utils';
 
 const HeroDistrito = memo(function HeroDistrito({ distrito, isLoading }) {
   if (isLoading || !distrito) {
@@ -41,16 +41,16 @@ const HeroDistrito = memo(function HeroDistrito({ distrito, isLoading }) {
           <span className="inline-flex items-center justify-center size-10 rounded-xl bg-primary/15 text-primary">
             <MapPin className="size-5" aria-hidden="true" />
           </span>
-          {distrito.nombre}
+          {formatearNombreDistritoTitulo(distrito.nombre)}
           <span className="text-base font-mono text-muted-foreground">
-            (codigo {String(distrito.codigo).padStart(2, '0')})
+            (código {String(distrito.codigo).padStart(2, '0')})
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-muted-foreground">
-          Resumen demografico, accidentalidad, multas y movilidad del distrito {distrito.nombre} en {DATE_CONFIG.DATASET_YEAR}.
-          Poblacion registrada:{' '}
+          Resumen demográfico, accidentalidad, multas y movilidad del distrito {formatearNombreDistritoTitulo(distrito.nombre)} en {DATE_CONFIG.DATASET_YEAR}.
+          Población registrada:{' '}
           <strong className="text-foreground">{formatNumber(distrito.totalPoblacion || 0)}</strong> habitantes.
         </p>
       </CardContent>

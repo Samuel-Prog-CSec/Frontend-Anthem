@@ -68,8 +68,11 @@ export async function obtenerEstacionesCalidadAire({ signal } = {}) {
       signal
     });
 
-    if (response.data?.success && response.data?.data?.data) {
-      return response.data.data.data
+    // El endpoint /calidad-aire/estadisticas?groupBy=station envuelve el array
+    // en `data.estadisticas` (no `data.data`). Con la clave erronea la condicion
+    // era siempre falsa y caia al fallback que reparsea el listado.
+    if (response.data?.success && Array.isArray(response.data?.data?.estadisticas)) {
+      return response.data.data.estadisticas
         .map(s => ({
           estacion: s._id?.estacion,
           puntoMuestreo: s._id?.puntoMuestreo,

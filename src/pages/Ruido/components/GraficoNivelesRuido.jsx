@@ -17,8 +17,8 @@ const LINEAS_NIVELES = [
 ];
 
 const REFERENCE_LINES = [
-  { y: NOISE_LIMITS.DIURNO, label: `Limite diurno (${NOISE_LIMITS.DIURNO} dB)`, color: '#d4a14d' },
-  { y: NOISE_LIMITS.NOCTURNO, label: `Limite nocturno (${NOISE_LIMITS.NOCTURNO} dB)`, color: '#d44d3a' }
+  { y: NOISE_LIMITS.DIURNO, label: `Límite diurno (${NOISE_LIMITS.DIURNO} dB)`, color: '#d4a14d' },
+  { y: NOISE_LIMITS.NOCTURNO, label: `Límite nocturno (${NOISE_LIMITS.NOCTURNO} dB)`, color: '#d44d3a' }
 ];
 
 const GraficoNivelesRuido = memo(function GraficoNivelesRuido({ datosGrafico }) {
@@ -26,7 +26,7 @@ const GraficoNivelesRuido = memo(function GraficoNivelesRuido({ datosGrafico }) 
   return (
     <div className="mb-6">
       <LineChartCard
-        title="Niveles de Ruido por Estacion"
+        title="Niveles de ruido por estación"
         data={datosGrafico}
         xKey="estacion"
         lines={LINEAS_NIVELES}

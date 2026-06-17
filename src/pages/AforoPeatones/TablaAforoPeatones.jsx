@@ -64,14 +64,14 @@ function TablaAforoPeatones({
                     <TableHead>Identificador</TableHead>
                     <TableHead className="text-right">Peatones</TableHead>
                     <TableHead>Distrito</TableHead>
-                    <TableHead>Nombre Vial</TableHead>
+                    <TableHead>Nombre vial</TableHead>
                     <TableHead>Franja</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {datos.map((registro, index) => (
                     <TableRow
-                      key={registro._id || index}
+                      key={registro._id || `aforo-peatones-${index}`}
                       className="cursor-pointer hover:bg-muted/60"
                       onClick={() => onClickEstacion(registro.identificador)}
                     >

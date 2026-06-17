@@ -8,9 +8,20 @@
 
 import { memo, useState, useMemo } from 'react';
 import { CalendarRange, AlertCircle } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Select, Button } from '../../../components/common';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Select, Button, Input } from '../../../components/common';
+import { cn } from '../../../utils';
 import { opcionesTipoElemento, validarRangoMapa } from '../helpers';
 import { TRAFICO_MAPA_MAX_DIAS } from '../../../constants';
+
+// Semanas de muestra (1a semana de cada trimestre de 2051): atajos de un clic a
+// un rango valido, para no tener que elegir dos fechas a mano dentro de un ano
+// completo y para explorar la estacionalidad del trafico.
+const PRESETS_RANGO = [
+  { etiqueta: 'Enero', startDate: '2051-01-01', endDate: '2051-01-07' },
+  { etiqueta: 'Abril', startDate: '2051-04-01', endDate: '2051-04-07' },
+  { etiqueta: 'Julio', startDate: '2051-07-01', endDate: '2051-07-07' },
+  { etiqueta: 'Octubre', startDate: '2051-10-01', endDate: '2051-10-07' }
+];
 
 const BarraFiltrosTrafico = memo(function BarraFiltrosTrafico({
   filtrosActivos,
@@ -28,16 +39,23 @@ const BarraFiltrosTrafico = memo(function BarraFiltrosTrafico({
     onAplicar(borrador);
   };
 
+  // Los presets son rangos validos de 7 dias: aplican directamente (un clic).
+  const aplicarPreset = (preset) => {
+    const next = { ...borrador, startDate: preset.startDate, endDate: preset.endDate };
+    setBorrador(next);
+    onAplicar(next);
+  };
+
   return (
     <Card className="mb-6">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <CalendarRange className="size-5" aria-hidden="true" />
-          Filtros del analisis
+          Filtros del análisis
         </CardTitle>
         <CardDescription>
-          Selecciona un rango de fechas (maximo {TRAFICO_MAPA_MAX_DIAS} dias) y
-          opcionalmente un tipo de via para empezar el analisis. Sin filtros
+          Selecciona un rango de fechas (máximo {TRAFICO_MAPA_MAX_DIAS} días) y
+          opcionalmente un tipo de vía para empezar el análisis. Sin filtros
           el sistema no carga datos por su volumen.
         </CardDescription>
       </CardHeader>
@@ -47,33 +65,31 @@ const BarraFiltrosTrafico = memo(function BarraFiltrosTrafico({
             <label className="text-sm text-muted-foreground mb-1 block" htmlFor="trafico-start">
               Fecha inicio
             </label>
-            <input
+            <Input
               id="trafico-start"
               type="date"
               value={borrador.startDate}
               onChange={(e) => setBorrador(b => ({ ...b, startDate: e.target.value }))}
               min="2051-01-01"
               max="2051-12-31"
-              className="flex h-10 w-full rounded-md border border-border bg-input/60 px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
             />
           </div>
           <div>
             <label className="text-sm text-muted-foreground mb-1 block" htmlFor="trafico-end">
               Fecha fin
             </label>
-            <input
+            <Input
               id="trafico-end"
               type="date"
               value={borrador.endDate}
               onChange={(e) => setBorrador(b => ({ ...b, endDate: e.target.value }))}
               min="2051-01-01"
               max="2051-12-31"
-              className="flex h-10 w-full rounded-md border border-border bg-input/60 px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
             />
           </div>
           <div>
             <label className="text-sm text-muted-foreground mb-1 block" htmlFor="trafico-tipo">
-              Tipo de via
+              Tipo de vía
             </label>
             <Select
               id="trafico-tipo"
@@ -95,6 +111,29 @@ const BarraFiltrosTrafico = memo(function BarraFiltrosTrafico({
           </div>
         </div>
 
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="text-xs text-muted-foreground">Saltar a una semana de muestra:</span>
+          {PRESETS_RANGO.map((preset) => {
+            const activo = borrador.startDate === preset.startDate && borrador.endDate === preset.endDate;
+            return (
+              <button
+                key={preset.etiqueta}
+                type="button"
+                onClick={() => aplicarPreset(preset)}
+                aria-pressed={activo}
+                className={cn(
+                  'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+                  activo
+                    ? 'border-dominio bg-dominio-soft text-dominio'
+                    : 'border-border text-muted-foreground hover:border-[var(--border-emphasis)] hover:text-foreground'
+                )}
+              >
+                {preset.etiqueta}
+              </button>
+            );
+          })}
+        </div>
+
         {!validacion.valido && (
           <div className="flex items-start gap-2 text-sm text-destructive">
             <AlertCircle className="size-4 mt-0.5 flex-shrink-0" aria-hidden="true" />
@@ -103,8 +142,8 @@ const BarraFiltrosTrafico = memo(function BarraFiltrosTrafico({
         )}
         {validacion.valido && (
           <p className="text-xs text-muted-foreground">
-            Rango de {validacion.dias} dia{validacion.dias === 1 ? '' : 's'} seleccionado.
-            Click en Aplicar filtros para cargar datos.
+            Rango de {validacion.dias} día{validacion.dias === 1 ? '' : 's'} seleccionado.
+            Pulsa Aplicar filtros para cargar datos.
           </p>
         )}
       </CardContent>

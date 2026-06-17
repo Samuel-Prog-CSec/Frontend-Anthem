@@ -53,7 +53,7 @@ class ErrorBoundary extends Component {
                   Reintentar
                 </Button>
                 <Button variant="outline" onClick={() => window.location.reload()}>
-                  Recargar pagina
+                  Recargar página
                 </Button>
               </div>
             </CardContent>

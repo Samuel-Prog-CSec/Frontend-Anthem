@@ -1,79 +1,70 @@
 /**
  * Componente EstadoSistema
  *
- * Footer informativo del dashboard. Sustituye al panel previo de "4
- * servicios todos en Operativo + pulse verde" (decoracion sin estado real)
- * por una franja editorial con metadata del proyecto: stack, version,
- * actualizacion y enlace al dataset.
- *
- * Cuando el backend exponga un endpoint /system/health real, esta tarjeta
- * sera el lugar natural para mostrar latencia y cache hit ratio reales.
+ * Franja "Acerca de los datos": metadata CIVICA del conjunto (cobertura,
+ * ambito, areas y naturaleza), no el stack tecnico del backend (que era
+ * decoracion de implementacion). Sin glassmorphism ni eyebrow.
  */
 
-import { GitBranch, Database, Server, Calendar } from 'lucide-react';
+import { CalendarRange, Map, Layers3, Database } from 'lucide-react';
 import { DATE_CONFIG } from '../../../constants';
 
 const ITEMS_META = [
   {
-    id: 'dataset',
-    icono: Calendar,
+    id: 'cobertura',
+    icono: CalendarRange,
     etiqueta: 'Cobertura',
     valor: `${DATE_CONFIG.DATASET_YEAR}`,
-    descripcion: 'Enero - Diciembre, 12 meses completos'
+    descripcion: 'De enero a diciembre, doce meses completos'
   },
   {
-    id: 'stack',
-    icono: Server,
-    etiqueta: 'Backend',
-    valor: 'Express 5 + Mongoose 9',
-    descripcion: 'Node 22, cache multinivel, ETags'
+    id: 'ambito',
+    icono: Map,
+    etiqueta: 'Ámbito',
+    valor: '21 distritos',
+    descripcion: 'Madrid, sobre un único modelo georreferenciado'
   },
   {
-    id: 'bd',
+    id: 'areas',
+    icono: Layers3,
+    etiqueta: 'Áreas de datos',
+    valor: '12 dominios',
+    descripcion: 'Aire, ruido, movilidad, seguridad vial, residuos y censo'
+  },
+  {
+    id: 'naturaleza',
     icono: Database,
-    etiqueta: 'Persistencia',
-    valor: 'MongoDB 8',
-    descripcion: '14 colecciones, indices 2dsphere'
-  },
-  {
-    id: 'version',
-    icono: GitBranch,
-    etiqueta: 'Frontend',
-    valor: 'React 19 + Vite 7',
-    descripcion: 'Tailwind v4, React Query v5, Leaflet'
+    etiqueta: 'Naturaleza',
+    valor: 'Datos simulados',
+    descripcion: 'Conjunto sintético con fines de análisis y demostración'
   }
 ];
 
 export function EstadoSistema() {
   return (
     <section
-      className="rounded-xl border border-border/60 bg-card/30 backdrop-blur-sm"
+      className="rounded-xl border border-border bg-card"
       aria-labelledby="dashboard-estado-titulo"
     >
-      <header className="px-6 py-5 border-b border-border/50">
-        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted-foreground mb-1">
-          Acerca del sistema
-        </p>
-        <h2 id="dashboard-estado-titulo" className="font-display text-lg text-foreground font-bold">
-          Stack tecnico y cobertura
+      <header className="border-b border-border px-6 py-5">
+        <h2 id="dashboard-estado-titulo" className="font-display text-lg font-semibold text-foreground">
+          Acerca de los datos
         </h2>
       </header>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border/40">
+      <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-cols-4">
         {ITEMS_META.map((item) => {
           const Icono = item.icono;
           return (
             <article key={item.id} className="px-6 py-5">
-              <div className="flex items-center gap-2 mb-3">
-                <Icono className="size-3.5 text-muted-foreground" aria-hidden="true" />
-                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                  {item.etiqueta}
-                </p>
+              <div className="mb-3 flex items-center gap-2">
+                <Icono className="size-4 text-dominio" aria-hidden="true" />
+                <p className="text-xs font-medium text-muted-foreground">{item.etiqueta}</p>
               </div>
-              <p className="font-display text-base font-bold text-foreground mb-1">
+              <p className="mb-1 font-display text-base font-semibold text-foreground">
                 {item.valor}
               </p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
+              <p className="text-xs leading-relaxed text-muted-foreground">
                 {item.descripcion}
               </p>
             </article>

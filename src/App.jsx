@@ -9,7 +9,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider, useAuth, FiltroGeoProvider } from './context';
+import { ThemeProvider, AuthProvider, useAuth, FiltroGeoProvider } from './context';
 import { ROUTES } from './constants';
 import { LoadingState, ErrorBoundary } from './components/common';
 
@@ -300,15 +300,17 @@ function AppRoutes() {
  */
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <FiltroGeoProvider>
-            <AppRoutes />
-          </FiltroGeoProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <AuthProvider>
+            <FiltroGeoProvider>
+              <AppRoutes />
+            </FiltroGeoProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

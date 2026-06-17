@@ -30,7 +30,9 @@ import { rangoFechasInicial, validarRangoMapa } from '../Trafico/helpers';
 
 function PaginaAireTrafico() {
   const [borrador, setBorrador] = useState(rangoFechasInicial);
-  const [aplicados, setAplicados] = useState(null);
+  // Auto-aplica el rango por defecto al entrar (no abrir vacio); el usuario
+  // puede ajustarlo. El rango por defecto ya es valido y acotado (<=7 dias).
+  const [aplicados, setAplicados] = useState(() => rangoFechasInicial());
 
   const validacion = useMemo(
     () => validarRangoMapa(borrador.startDate, borrador.endDate),
@@ -56,25 +58,38 @@ function PaginaAireTrafico() {
   const {
     data: aireResult,
     isLoading: cargandoAire
-  } = useCalidadAireStats(queryParams || {});
+  } = useCalidadAireStats(queryParams ? { ...queryParams, magnitud: 8 } : {});
 
   const congestion = useMemo(
     () => congestionResult?.data?.analisis || [],
     [congestionResult]
   );
 
-  const aire = useMemo(
-    () => aireResult?.data?.byMagnitude || aireResult?.data?.byMagnitud || aireResult?.data || [],
-    [aireResult]
-  );
+  // El endpoint /calidad-aire/estadisticas devuelve un array de aggregates por
+  // fecha cuando se filtra por magnitud. Pedimos NO2 (magnitud 8) y calculamos
+  // el promedio ponderado por totalRegistros + el total de mediciones. (El aire
+  // no esta indexado por distrito en el dataset, por eso el cruce se muestra a
+  // nivel agregado de periodo, no como scatter por distrito.)
+  const aire = useMemo(() => {
+    const d = aireResult?.data?.estadisticas || aireResult?.data?.data || aireResult?.data || [];
+    return Array.isArray(d) ? d : [];
+  }, [aireResult]);
 
   const cargando = cargandoCongestion || cargandoAire;
 
-  // Datos del grafico: top distritos por congestion + media de NO2 (magnitud 8) si lo tenemos
-  const no2Promedio = useMemo(() => {
-    if (!Array.isArray(aire)) {return 0;}
-    const no2 = aire.find(a => a._id === 8 || a.magnitud === 8);
-    return no2?.promedio || no2?.average || no2?.avg || 0;
+  const no2 = useMemo(() => {
+    let suma = 0;
+    let peso = 0;
+    let registros = 0;
+    for (const entrada of aire) {
+      const n = entrada.totalRegistros || 0;
+      registros += n;
+      if (entrada.promedioGeneral != null) {
+        suma += entrada.promedioGeneral * n;
+        peso += n;
+      }
+    }
+    return { promedio: peso > 0 ? suma / peso : 0, registros };
   }, [aire]);
 
   const datosGrafico = useMemo(() => {
@@ -91,8 +106,8 @@ function PaginaAireTrafico() {
 
   return (
     <PageLayout
-      title="Calidad del aire vs. Trafico"
-      description="Cruce por distrito entre intensidad/congestion del trafico y niveles de contaminacion en el mismo periodo."
+      title="Calidad del aire vs. Tráfico"
+      description="Cruce por distrito entre intensidad/congestión del tráfico y niveles de contaminación en el mismo periodo."
       actions={
         <Button asChild variant="outline" size="sm">
           <Link to={ROUTES.CORRELACIONES}>
@@ -104,9 +119,9 @@ function PaginaAireTrafico() {
     >
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-lg">Periodo de analisis</CardTitle>
+          <CardTitle className="text-lg">Periodo de análisis</CardTitle>
           <CardDescription>
-            Selecciona un rango (max {TRAFICO_MAPA_MAX_DIAS} dias) y aplica para cargar el cruce.
+            Selecciona un rango (máx. {TRAFICO_MAPA_MAX_DIAS} días) y aplica para cargar el cruce.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -164,7 +179,7 @@ function PaginaAireTrafico() {
           <CardContent>
             <EmptyState
               title="Aplica un rango para empezar"
-              description="Las queries de trafico (138M docs) y aire son pesadas; necesitan filtros."
+              description="Los datos de tráfico y aire son muy grandes; elige un periodo para acotar la consulta."
               icon={Wind}
             />
           </CardContent>
@@ -174,21 +189,21 @@ function PaginaAireTrafico() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <StatCard
               title="Distritos analizados"
-              value={formatNumber(congestion.length)}
+              value={formatNumber(congestion.filter(c => c.zona).length)}
               icon={TrafficCone}
               isLoading={cargando}
             />
             <StatCard
               title="NO2 promedio"
-              value={formatNumber(no2Promedio, 1)}
-              subtitle="μg/m³ en el periodo"
+              value={`${formatNumber(no2.promedio, 1)} μg/m³`}
+              subtitle="media ponderada del periodo"
               icon={Wind}
               isLoading={cargando}
             />
             <StatCard
-              title="Magnitudes con datos"
-              value={formatNumber(Array.isArray(aire) ? aire.length : 0)}
-              subtitle="contaminantes registrados"
+              title="Mediciones de NO2"
+              value={formatNumber(no2.registros)}
+              subtitle="en el periodo"
               icon={Wind}
               isLoading={cargando}
             />
@@ -200,20 +215,20 @@ function PaginaAireTrafico() {
             <Card>
               <CardContent>
                 <EmptyState
-                  title="Sin datos para el rango"
-                  description="No hay datos de trafico para el periodo aplicado."
+                  title="Sin resultados para estos filtros"
+                  description="No hay datos de tráfico para el periodo seleccionado. Prueba con otro rango de fechas."
                   icon={TrafficCone}
                 />
               </CardContent>
             </Card>
           ) : (
             <BarChartCard
-              title="Top 12 distritos por intensidad de trafico (con % de congestion)"
+              title="Top 12 distritos por intensidad de tráfico (con % de congestión)"
               data={datosGrafico}
               xKey="name"
               bars={[
                 { key: 'intensidad', name: 'Intensidad media (v/h)', color: CHART_COLORS.primary },
-                { key: 'congestion', name: '% Congestion', color: CHART_COLORS.tertiary }
+                { key: 'congestion', name: '% Congestión', color: CHART_COLORS.tertiary }
               ]}
               height={400}
             />
@@ -223,7 +238,7 @@ function PaginaAireTrafico() {
             <CardHeader>
               <CardTitle>Lectura del cruce</CardTitle>
               <CardDescription>
-                Las dimensiones se muestran a nivel agregado de distrito por simplicidad. El siguiente paso (no incluido) seria correlacionar series temporales hora a hora entre estaciones de aire y puntos de trafico cercanos para detectar lag horario y dependencia espacial fina.
+                Las dimensiones se muestran a nivel agregado de distrito por simplicidad. El siguiente paso (no incluido) sería correlacionar series temporales hora a hora entre estaciones de aire y puntos de tráfico cercanos para detectar lag horario y dependencia espacial fina.
               </CardDescription>
             </CardHeader>
           </Card>

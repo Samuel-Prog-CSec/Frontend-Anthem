@@ -35,7 +35,7 @@ const MapaMultasDistrito = memo(function MapaMultasDistrito({
   const renderPopup = useCallback((props) => (
     <div className="text-sm">
       <div className="font-semibold mb-1">{props.lugar || 'Multa'}</div>
-      <div>Calificacion: {props.calificacion || '-'}</div>
+      <div>Calificación: {props.calificacion || '-'}</div>
       {props.importe != null && (
         <div>Importe: {formatNumber(props.importe)} €</div>
       )}
@@ -64,10 +64,10 @@ const MapaMultasDistrito = memo(function MapaMultasDistrito({
           Multas en {nombreDistrito}
         </CardTitle>
         <CardDescription>
-          Aproximacion por bbox cuadrado de 4 km alrededor del centroide del
-          distrito. Multas no tiene campo distrito normalizado en el dataset, asi
-          que la aproximacion puede incluir falsos positivos en zonas limitrofes
-          o quedar incompleta en distritos muy extensos.
+          Estimación por zona, en un área de 4 km alrededor del centro del
+          distrito. Las multas no guardan distrito asignado, así que esta
+          estimación puede incluir multas de zonas vecinas o quedar incompleta
+          en distritos muy extensos.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -82,7 +82,7 @@ const MapaMultasDistrito = memo(function MapaMultasDistrito({
           <>
             <p className="text-sm text-muted-foreground mb-3" aria-live="polite">
               Mostrando <strong className="text-foreground">{formatNumber(totalMultas)}</strong> multas
-              {totalMultas === LIMITE_MULTAS_DISTRITO && ' (limite alcanzado, hay mas multas en la zona)'}.
+              {totalMultas === LIMITE_MULTAS_DISTRITO && ' (límite alcanzado, hay más multas en la zona)'}.
             </p>
             <MapaClusterizado
               featureCollection={featureCollection}

@@ -22,17 +22,17 @@ function DetallePuntosMedicion({ tipo, datos, isLoading }) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Gauge className="size-5" aria-hidden="true" />
-          Puntos de medicion - {LOCATION_TYPE_LABELS[tipo] || 'medicion'}
+          Puntos de medición - {LOCATION_TYPE_LABELS[tipo] || 'medicion'}
         </CardTitle>
-        <CardDescription>Detalle de los puntos de medicion registrados.</CardDescription>
+        <CardDescription>Detalle de los puntos de medición registrados.</CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
           <TableSkeleton rows={4} columns={3} />
         ) : datos.length === 0 ? (
           <EmptyState
-            title="Sin datos de puntos de medicion"
-            description="No se encontraron detalles para este tipo de medicion."
+            title="Sin resultados para estos filtros"
+            description="No se encontraron detalles para este tipo de medición."
             icon={Gauge}
           />
         ) : (
@@ -46,7 +46,7 @@ function DetallePuntosMedicion({ tipo, datos, isLoading }) {
             </TableHeader>
             <TableBody>
               {datos.map((punto, index) => (
-                <TableRow key={`punto-${index}`}>
+                <TableRow key={punto.id || `punto-${index}`}>
                   <TableCell className="font-medium">{punto.nombre}</TableCell>
                   <TableCell className="text-muted-foreground font-mono">{punto.id}</TableCell>
                   <TableCell>{formatearNombreDistrito(punto.distrito)}</TableCell>

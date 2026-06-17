@@ -25,8 +25,9 @@ const FiltrosAccidentes = memo(function FiltrosAccidentes({
       <CardContent>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
-            <label className="text-sm text-muted-foreground mb-1 block">Distrito</label>
+            <label htmlFor="filtro-distrito" className="text-sm text-muted-foreground mb-1 block">Distrito</label>
             <Select
+              id="filtro-distrito"
               value={filtros.distrito}
               onChange={(e) => manejarCambioFiltro('distrito', e.target.value)}
               options={opcionesDistrito}
@@ -34,8 +35,9 @@ const FiltrosAccidentes = memo(function FiltrosAccidentes({
             />
           </div>
           <div className="flex-1">
-            <label className="text-sm text-muted-foreground mb-1 block">Tipo de Accidente</label>
+            <label htmlFor="filtro-tipo-accidente" className="text-sm text-muted-foreground mb-1 block">Tipo de accidente</label>
             <Select
+              id="filtro-tipo-accidente"
               value={filtros.tipoAccidente}
               onChange={(e) => manejarCambioFiltro('tipoAccidente', e.target.value)}
               options={opcionesTipoAccidente}
@@ -43,8 +45,9 @@ const FiltrosAccidentes = memo(function FiltrosAccidentes({
             />
           </div>
           <div className="flex-1">
-            <label className="text-sm text-muted-foreground mb-1 block">Gravedad</label>
+            <label htmlFor="filtro-gravedad" className="text-sm text-muted-foreground mb-1 block">Gravedad</label>
             <Select
+              id="filtro-gravedad"
               value={filtros.gravedad}
               onChange={(e) => manejarCambioFiltro('gravedad', e.target.value)}
               options={opcionesGravedad}
@@ -52,8 +55,9 @@ const FiltrosAccidentes = memo(function FiltrosAccidentes({
             />
           </div>
           <div className="flex-1">
-            <label className="text-sm text-muted-foreground mb-1 block">Mes</label>
+            <label htmlFor="filtro-mes" className="text-sm text-muted-foreground mb-1 block">Mes</label>
             <Select
+              id="filtro-mes"
               value={filtros.mes}
               onChange={(e) => manejarCambioFiltro('mes', e.target.value)}
               options={opcionesMes}

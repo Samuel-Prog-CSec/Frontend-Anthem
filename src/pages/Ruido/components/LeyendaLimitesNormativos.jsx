@@ -12,9 +12,9 @@ const LeyendaLimitesNormativos = memo(function LeyendaLimitesNormativos() {
   return (
     <Card className="mt-6">
       <CardHeader>
-        <CardTitle className="text-lg">Limites Normativos (dB)</CardTitle>
+        <CardTitle className="text-lg">Límites normativos (dB)</CardTitle>
         <CardDescription>
-          Basado en normativa europea de contaminacion acustica
+          Basado en normativa europea de contaminación acústica
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -23,21 +23,21 @@ const LeyendaLimitesNormativos = memo(function LeyendaLimitesNormativos() {
             <Sun className="size-5 text-muted-foreground" />
             <div>
               <p className="font-medium text-foreground">Diurno (07:00 - 19:00)</p>
-              <p className="text-sm text-muted-foreground">Limite: {NOISE_LIMITS.DIURNO} dB</p>
+              <p className="text-sm text-muted-foreground">Límite: {NOISE_LIMITS.DIURNO} dB</p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border-emphasis)]">
             <Sunset className="size-5 text-muted-foreground" />
             <div>
               <p className="font-medium text-foreground">Vespertino (19:00 - 23:00)</p>
-              <p className="text-sm text-muted-foreground">Limite: {NOISE_LIMITS.VESPERTINO} dB</p>
+              <p className="text-sm text-muted-foreground">Límite: {NOISE_LIMITS.VESPERTINO} dB</p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border-emphasis)]">
             <Moon className="size-5 text-muted-foreground" />
             <div>
               <p className="font-medium text-foreground">Nocturno (23:00 - 07:00)</p>
-              <p className="text-sm text-muted-foreground">Limite: {NOISE_LIMITS.NOCTURNO} dB</p>
+              <p className="text-sm text-muted-foreground">Límite: {NOISE_LIMITS.NOCTURNO} dB</p>
             </div>
           </div>
         </div>
