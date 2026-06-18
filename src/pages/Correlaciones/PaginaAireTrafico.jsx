@@ -24,7 +24,7 @@ import {
   useAnalisisCongestion,
   useCalidadAireStats
 } from '../../api/hooks';
-import { ROUTES, TRAFICO_MAPA_MAX_DIAS, CHART_COLORS } from '../../constants';
+import { ROUTES, TRAFICO_MAPA_MAX_DIAS, CHART_COLORS, nombreDistrito } from '../../constants';
 import { formatNumber } from '../../utils';
 import { rangoFechasInicial, validarRangoMapa } from '../Trafico/helpers';
 
@@ -98,7 +98,9 @@ function PaginaAireTrafico() {
       .sort((a, b) => (b.intensidadPromedio || 0) - (a.intensidadPromedio || 0))
       .slice(0, 12)
       .map(c => ({
-        name: c.zona,
+        // `zona` es el codigo numerico de distrito (1-21); mapear a nombre
+        // legible para el eje X en vez de mostrar "14", "18"...
+        name: nombreDistrito(c.zona),
         intensidad: c.intensidadPromedio || 0,
         congestion: c.porcentajeCongestion || 0
       }));

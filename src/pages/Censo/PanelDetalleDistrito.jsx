@@ -73,7 +73,7 @@ function PanelDetalleDistrito({ detalle, onCerrar }) {
                 </TableHeader>
                 <TableBody>
                   {detalle.barrios.map((barrio, idx) => (
-                    <TableRow key={idx}>
+                    <TableRow key={barrio.codigo ?? `barrio-${idx}`}>
                       <TableCell>
                         {barrio.nombre || barrio.descripcion || `Barrio ${barrio.codigo}`}
                       </TableCell>

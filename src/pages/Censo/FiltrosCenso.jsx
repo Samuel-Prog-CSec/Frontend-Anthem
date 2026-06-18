@@ -22,11 +22,17 @@ import { opcionesGrupoEdad, opcionesMes } from './opcionesFiltros';
 function FiltrosCenso({
   filtros,
   opcionesDistrito,
+  opcionesBarrio = [],
   hayFiltrosActivos,
   onCambioFiltro,
   onLimpiar,
   onRefrescar
 }) {
+  // El barrio depende del distrito: el backend filtra por codigo de barrio
+  // (numerico) y las opciones se calculan desde los barrios del distrito
+  // seleccionado. Sin distrito no hay barrios que ofrecer, asi que el control
+  // se deshabilita en vez de mostrar una lista vacia.
+  const barrioDeshabilitado = !filtros.distrito || opcionesBarrio.length === 0;
   return (
     <Card className="mb-6">
       <CardHeader className="pb-3">
@@ -65,18 +71,28 @@ function FiltrosCenso({
             </p>
           </div>
         )}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <Select
             options={opcionesDistrito}
             value={filtros.distrito}
             onChange={(e) => onCambioFiltro('distrito', e.target.value)}
             placeholder="Todos los distritos"
+            ariaLabel="Filtrar por distrito"
+          />
+          <Select
+            options={opcionesBarrio}
+            value={filtros.barrio}
+            onChange={(e) => onCambioFiltro('barrio', e.target.value)}
+            placeholder={barrioDeshabilitado ? 'Elige un distrito' : 'Todos los barrios'}
+            disabled={barrioDeshabilitado}
+            ariaLabel="Filtrar por barrio"
           />
           <Select
             options={opcionesGrupoEdad}
             value={filtros.grupoEdad}
             onChange={(e) => onCambioFiltro('grupoEdad', e.target.value)}
             placeholder="Todos los grupos de edad"
+            ariaLabel="Filtrar por grupo de edad"
           />
           <Select
             options={opcionesMes}

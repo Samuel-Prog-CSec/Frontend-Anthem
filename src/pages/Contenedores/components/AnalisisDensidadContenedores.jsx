@@ -46,6 +46,8 @@ const AnalisisDensidadContenedores = memo(function AnalisisDensidadContenedores(
       .slice(0, 25);
   }, [datos]);
 
+  const totalFilas = Array.isArray(datos) ? datos.length : 0;
+
   return (
     <Card className="mb-6">
       <CardHeader>
@@ -69,7 +71,8 @@ const AnalisisDensidadContenedores = memo(function AnalisisDensidadContenedores(
             icon={BarChart3}
           />
         ) : (
-          <Table label="Análisis de densidad" rowCount={filas.length}>
+          <>
+          <Table label="Análisis de densidad" rowCount={totalFilas}>
             <TableCaption className="sr-only">
               Tabla con densidad de contenedores por zona
             </TableCaption>
@@ -122,6 +125,12 @@ const AnalisisDensidadContenedores = memo(function AnalisisDensidadContenedores(
               })}
             </TableBody>
           </Table>
+          {totalFilas > filas.length && (
+            <p className="text-xs text-muted-foreground mt-3">
+              Mostrando las {filas.length} zonas de mayor volumen de {formatNumber(totalFilas)}.
+            </p>
+          )}
+          </>
         )}
       </CardContent>
     </Card>

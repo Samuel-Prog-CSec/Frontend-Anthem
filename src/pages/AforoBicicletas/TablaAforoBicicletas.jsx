@@ -80,7 +80,7 @@ function TablaAforoBicicletas({
                       >
                         {registro.identificador}
                       </TableCell>
-                      <TableCell className="text-right font-mono">{registro.bicicletas}</TableCell>
+                      <TableCell className="text-right font-mono">{formatNumber(registro.bicicletas)}</TableCell>
                       <TableCell>{formatearNombreDistrito(registro.ubicacion?.distrito)}</TableCell>
                       <TableCell>{registro.ubicacion?.nombreVial || '-'}</TableCell>
                       <TableCell>

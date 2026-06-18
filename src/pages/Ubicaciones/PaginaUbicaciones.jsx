@@ -61,7 +61,7 @@ function PaginaUbicaciones() {
   const datosRutas = useMemo(() => {
     const rutasData = rutasApi?.data?.rutas || rutasApi?.data?.data || [];
     if (!Array.isArray(rutasData)) return [];
-    return rutasData.slice(0, 20).map(r => ({
+    return rutasData.map(r => ({
       nombre: r.nombre || r.name || '-',
       tipo: r.tipo || filtros.tipo,
       paradas: r.paradas?.length || r.stops?.length || r.totalParadas || r.numStops || 0,
@@ -72,7 +72,7 @@ function PaginaUbicaciones() {
   const datosPuntos = useMemo(() => {
     const puntosData = puntosApi?.data?.puntos || puntosApi?.data?.data || [];
     if (!Array.isArray(puntosData)) return [];
-    return puntosData.slice(0, 20).map(p => ({
+    return puntosData.map(p => ({
       nombre: p.nombre || p.name || '-',
       id: p.nmt || p.id_punto || p._id || '-',
       distrito: nombreDistrito(p.distrito),

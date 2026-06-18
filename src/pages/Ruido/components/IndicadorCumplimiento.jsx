@@ -27,7 +27,7 @@ const IndicadorCumplimiento = memo(function IndicadorCumplimiento({ datos, carga
         {cargando ? (
           <ChartSkeleton height={300} />
         ) : datos.estaciones.length > 0 ? (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 max-h-[440px] overflow-y-auto pr-1">
             {datos.resumen && (
               <div className="p-3 mb-1 border border-[var(--border-hairline)] bg-[var(--surface-inset)] flex items-center justify-between">
                 <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">

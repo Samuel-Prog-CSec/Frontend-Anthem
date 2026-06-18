@@ -23,8 +23,12 @@ import LeyendaCalidadAire from './LeyendaCalidadAire';
 import { calcularPromedioDiario } from './helpers';
 
 function PaginaCalidadAire() {
+  // Por defecto NO2 (magnitud 8): los KPIs (promedio/max/min) y la tabla abren
+  // sobre un unico contaminante con su unidad. Sin contaminante fijado, el
+  // "Promedio general" mezclaria magnitudes de escalas distintas (NO2 ug/m3,
+  // CO mg/m3) en un numero sin sentido fisico.
   const [filtros, setFiltros] = useState({
-    magnitud: '',
+    magnitud: '8',
     mes: ''
   });
   const [paginaActual, setPaginaActual] = useState(1);
@@ -111,7 +115,10 @@ function PaginaCalidadAire() {
   }, []);
 
   const limpiarFiltros = useCallback(() => {
-    setFiltros({ magnitud: '', mes: '' });
+    // Volver al contaminante por defecto (NO2), no a "todos": evita el promedio
+    // multi-unidad y mantiene tabla, KPIs y tendencia sincronizados.
+    setFiltros({ magnitud: '8', mes: '' });
+    setMagnitudTendencia('8');
     setPaginaActual(1);
   }, []);
 
@@ -202,7 +209,10 @@ function PaginaCalidadAire() {
       }
     };
 
-    return trendData.slice(0, 30).map(d => {
+    // Sin recorte: se pinta toda la serie diaria que devuelve el backend (ya
+    // acotada a DAYS_PER_YEAR). Antes un slice(0, 30) mostraba solo ~enero
+    // cuando no habia filtro de mes, ocultando el ~92% del año.
+    return trendData.map(d => {
       const promedio = d.valorPromedio ?? d.promedio ?? d.avgValue ?? 0;
       const maximo = d.valorMaximo ?? d.maximo ?? d.maxValue ?? 0;
       const minimo = d.valorMinimo ?? d.minimo ?? d.minValue ?? 0;

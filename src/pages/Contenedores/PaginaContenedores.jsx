@@ -53,6 +53,19 @@ function leerFiltrosDesdeUrl(searchParams) {
   };
 }
 
+/**
+ * Convierte el `distribucionTipos` de una fila de analisis de densidad
+ * ({ [TIPO]: { cantidad, puntos } }) a la forma `porTipo`
+ * ([{ tipo, total, ubicaciones }]) que consumen los KPIs y el pie de tipos.
+ */
+function porTipoDesdeDensidad(filaBarrio) {
+  return Object.entries(filaBarrio?.distribucionTipos || {}).map(([tipo, v]) => ({
+    tipo,
+    total: v?.cantidad || 0,
+    ubicaciones: v?.puntos || 0
+  }));
+}
+
 function PaginaContenedores() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filtros, setFiltros] = useState(() => leerFiltrosDesdeUrl(searchParams));
@@ -182,11 +195,13 @@ function PaginaContenedores() {
       .map(b => ({ value: b, label: b }));
   }, [listaBarrios]);
 
-  // KPIs de cabecera. Reaccionan a los filtros activos (distrito / tipo de
-  // contenedor): con distrito se derivan del desglose por tipo de ese distrito;
-  // con tipo se filtra ese tipo. Sin filtros se usan los totales globales.
+  // KPIs de cabecera. Reaccionan a los filtros activos (barrio / distrito /
+  // tipo de contenedor): con barrio se derivan del desglose por tipo de ese
+  // barrio (analisisDensidad, ya cargado con includeBarrios); con distrito del
+  // desglose del distrito; con tipo se filtra ese tipo. Sin filtros, totales
+  // globales.
   const kpis = useMemo(() => {
-    const hayFiltro = Boolean(filtros.distrito || filtros.tipoContenedor);
+    const hayFiltro = Boolean(filtros.distrito || filtros.tipoContenedor || filtros.barrio);
 
     if (!hayFiltro) {
       if (!resumenGeneral) {
@@ -200,10 +215,18 @@ function PaginaContenedores() {
       };
     }
 
-    // Desglose por tipo segun el distrito filtrado (o global si solo hay tipo).
+    // Desglose por tipo. Prioridad: barrio (si seleccionado y su fila de
+    // densidad ya esta cargada) > distrito > global. Si el barrio aun no tiene
+    // fila cargada se cae al desglose del distrito para no mostrar 0 transitorio.
     let porTipo;
     let distritosKpi = totalDistritos;
-    if (filtros.distrito) {
+    const filaBarrio = filtros.barrio
+      ? datosDensidad.find(f => f.barrio === filtros.barrio)
+      : null;
+    if (filaBarrio) {
+      porTipo = porTipoDesdeDensidad(filaBarrio);
+      distritosKpi = 1;
+    } else if (filtros.distrito) {
       // Sin fallback a datosDistritos[0]: si el distrito filtrado no aparece
       // (p.ej. un lote sin datos en ese distrito) los KPIs muestran 0, no los
       // numeros equivocados del primer distrito de la lista.
@@ -222,19 +245,28 @@ function PaginaContenedores() {
       totalTipos: porTipo.length,
       totalDistritos: distritosKpi
     };
-  }, [resumenGeneral, totalDistritos, filtros.distrito, filtros.tipoContenedor, datosDistritos]);
+  }, [resumenGeneral, totalDistritos, filtros.distrito, filtros.tipoContenedor, filtros.barrio, datosDistritos, datosDensidad]);
 
-  // Pie "por tipo": con un distrito filtrado el desglose debe ser el de ESE
-  // distrito (no el global). Reutiliza el breakdown ya cargado en datosDistritos
-  // -- igual que los KPIs -- en vez de resumenGeneral.porTipo, que solo reacciona
-  // a `lote`. No se filtra por tipoContenedor (colapsaria el grafico a 1 sector).
+  // Pie "por tipo": con barrio filtrado el desglose es el de ESE barrio; con
+  // distrito, el del distrito; si no, el global. Reutiliza breakdowns ya
+  // cargados (datosDensidad / datosDistritos) -- igual que los KPIs -- en vez de
+  // resumenGeneral.porTipo (que solo reacciona a `lote`). No se filtra por
+  // tipoContenedor a nivel distrito/global (colapsaria el grafico a 1 sector);
+  // a nivel barrio la densidad ya viene acotada por tipo si hay tipo filtrado.
   const datosPorTipoPie = useMemo(() => {
+    if (filtros.barrio) {
+      const filaBarrio = datosDensidad.find(f => f.barrio === filtros.barrio);
+      if (filaBarrio) {
+        return porTipoDesdeDensidad(filaBarrio);
+      }
+      // densidad aun no cargada: caer al desglose del distrito mas abajo.
+    }
     if (filtros.distrito) {
       const entry = datosDistritos.find(d => (d.distrito || d._id) === filtros.distrito);
       return entry?.contenedoresPorTipo || [];
     }
     return resumenGeneral?.porTipo || [];
-  }, [filtros.distrito, datosDistritos, resumenGeneral]);
+  }, [filtros.barrio, filtros.distrito, datosDensidad, datosDistritos, resumenGeneral]);
 
   const paginacionActual = useMemo(() => ({
     ...paginacion,

@@ -191,7 +191,7 @@ function PaginaMultas() {
   }, [refetch]);
 
   const hayFiltrosActivos = Boolean(
-    filtros.calificacion || filtros.denunciante || filtros.mes || filtros.tieneDescuento
+    filtros.calificacion || filtros.denunciante || filtros.mes
   );
 
   // Aviso explicito cuando el usuario tiene un filtro geografico activo:

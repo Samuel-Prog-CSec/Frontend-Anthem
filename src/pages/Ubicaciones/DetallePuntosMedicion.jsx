@@ -12,7 +12,7 @@ import {
   EmptyState, TableSkeleton
 } from '../../components/common';
 import { LOCATION_TYPE_LABELS } from '../../constants';
-import { formatearNombreDistrito } from '../../utils';
+import { formatearNombreDistrito, formatNumber } from '../../utils';
 
 function DetallePuntosMedicion({ tipo, datos, isLoading }) {
   if (!tipo) return null;
@@ -45,7 +45,7 @@ function DetallePuntosMedicion({ tipo, datos, isLoading }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {datos.map((punto, index) => (
+              {datos.slice(0, 20).map((punto, index) => (
                 <TableRow key={punto.id || `punto-${index}`}>
                   <TableCell className="font-medium">{punto.nombre}</TableCell>
                   <TableCell className="text-muted-foreground font-mono">{punto.id}</TableCell>
@@ -54,6 +54,11 @@ function DetallePuntosMedicion({ tipo, datos, isLoading }) {
               ))}
             </TableBody>
           </Table>
+        )}
+        {datos.length > 20 && (
+          <p className="text-xs text-muted-foreground mt-3">
+            Mostrando los primeros 20 de {formatNumber(datos.length)} puntos.
+          </p>
         )}
       </CardContent>
     </Card>

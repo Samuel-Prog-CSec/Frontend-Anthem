@@ -82,7 +82,7 @@ function TablaAforoPeatones({
                       >
                         {registro.identificador}
                       </TableCell>
-                      <TableCell className="text-right font-semibold">{registro.peatones}</TableCell>
+                      <TableCell className="text-right font-semibold">{formatNumber(registro.peatones)}</TableCell>
                       <TableCell>{formatearNombreDistrito(registro.ubicacion?.distrito)}</TableCell>
                       <TableCell>{registro.ubicacion?.nombreVial || '-'}</TableCell>
                       <TableCell>

@@ -341,7 +341,7 @@ function PaginaAccidentes() {
         </div>
       )}
 
-      {!isLoading && datos.length > 0 && (
+      {!isLoading && (datosGrafico.length > 0 || datosGraficoPastel.length > 0) && (
         <GraficosAccidentes
           datosGrafico={datosGrafico}
           datosGraficoPastel={datosGraficoPastel}

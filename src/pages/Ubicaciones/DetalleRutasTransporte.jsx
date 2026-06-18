@@ -46,7 +46,7 @@ function DetalleRutasTransporte({ tipo, datos, isLoading }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {datos.map((ruta, index) => (
+              {datos.slice(0, 20).map((ruta, index) => (
                 <TableRow key={ruta.nombre || `ruta-${index}`}>
                   <TableCell className="font-medium">{ruta.nombre}</TableCell>
                   <TableCell className="text-center font-mono">
@@ -59,6 +59,11 @@ function DetalleRutasTransporte({ tipo, datos, isLoading }) {
               ))}
             </TableBody>
           </Table>
+        )}
+        {datos.length > 20 && (
+          <p className="text-xs text-muted-foreground mt-3">
+            Mostrando las primeras 20 de {formatNumber(datos.length)} rutas.
+          </p>
         )}
       </CardContent>
     </Card>

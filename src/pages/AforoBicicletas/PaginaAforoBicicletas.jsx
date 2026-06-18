@@ -61,6 +61,11 @@ function PaginaAforoBicicletas() {
   const { data: estadisticasResult } = useAforoEstadisticas(queryParams);
   const { data: distribucionResult } = useAforoDistribucionHoraria(queryParams);
   const { data: estacionesResult } = useAforoEstaciones({ ...queryParams, limit: 10 });
+  // Catalogo de distritos: consulta SIN filtrar y con limite alto para listar
+  // TODAS las estaciones (hay 35 en 12 distritos), no solo el top-10 filtrado.
+  // Sin esto, el desplegable solo ofrecia los distritos del top-10 y se
+  // colapsaba a uno al seleccionar distrito (efecto trinquete).
+  const { data: catalogoEstacionesResult } = useAforoEstaciones({ limit: 100 });
   const { data: detalleEstacion, isLoading: detalleLoading } = useAforoEstacion(estacionSeleccionada);
   const { data: resumenCenso } = useCensoResumenDistritos({ año: DATE_CONFIG.DATASET_YEAR });
   // Propagar filtros al mapa para que las estaciones cambien al filtrar
@@ -115,9 +120,12 @@ function PaginaAforoBicicletas() {
   }, [estacionesRanking]);
 
   const opcionesDistrito = useMemo(() => {
-    const distritos = [...new Set(estacionesRanking.map(e => e.distrito).filter(Boolean))];
+    const catalogo = catalogoEstacionesResult?.data?.estaciones
+      || catalogoEstacionesResult?.data?.data
+      || [];
+    const distritos = [...new Set(catalogo.map(e => e.distrito).filter(Boolean))].sort();
     return distritos.map(d => ({ value: d, label: d }));
-  }, [estacionesRanking]);
+  }, [catalogoEstacionesResult]);
 
   const bicicletasPerCapita = useMemo(() => {
     const totalBicis = estadisticas?.totalBicicletas || estadisticas?.data?.totalBicicletas;
@@ -133,11 +141,16 @@ function PaginaAforoBicicletas() {
   const manejarCambioFiltro = useCallback((nombre, valor) => {
     setFiltros(prev => ({ ...prev, [nombre]: valor }));
     setPaginaActual(1);
+    // Cerrar el detalle: la estacion abierta puede no pertenecer al nuevo
+    // conjunto filtrado (su query es independiente de los filtros) y quedaria
+    // mostrando datos sin relacion con lo que se ve en la tabla/mapa.
+    setEstacionSeleccionada(null);
   }, []);
 
   const limpiarFiltros = useCallback(() => {
     setFiltros({ distrito: '', franjaHoraria: '', mes: '' });
     setPaginaActual(1);
+    setEstacionSeleccionada(null);
   }, []);
 
   const manejarCambioPagina = useCallback((pagina) => {

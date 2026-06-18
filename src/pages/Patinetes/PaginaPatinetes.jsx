@@ -230,14 +230,19 @@ function PaginaPatinetes() {
     }));
   }, [estadisticasDistritos]);
 
-  // Datos para grafico de pastel (cuota de mercado por proveedor, top 8)
+  // Datos para grafico de pastel (cuota de mercado por proveedor). Se muestran
+  // los principales operadores y la cola se agrega en "Otros" para no descartar
+  // cuota (antes slice(0, 8) ocultaba operadores y desvirtuaba los porcentajes).
   const pieChartData = useMemo(() => {
-    return datosMercado
-      .slice(0, 8)
-      .map(d => ({
-        name: d._id,
-        value: d.totalPatinetes || 0
-      }));
+    const ordenados = datosMercado
+      .map(d => ({ name: d._id, value: d.totalPatinetes || 0 }))
+      .sort((a, b) => b.value - a.value);
+    const TOP = 8;
+    if (ordenados.length <= TOP) return ordenados;
+    const principales = ordenados.slice(0, TOP);
+    const restoValor = ordenados.slice(TOP).reduce((sum, d) => sum + d.value, 0);
+    if (restoValor > 0) principales.push({ name: 'Otros', value: restoValor });
+    return principales;
   }, [datosMercado]);
 
   return (

@@ -10,8 +10,8 @@ import {
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell,
   Badge, Button, CardSkeleton
 } from '../../../components/common';
-import { formatDate } from '../../../utils';
-import { obtenerVarianteBadgeGravedad, obtenerBadgeAlcohol, etiquetaTipoLesion, obtenerVarianteBadgeLesion } from '../helpers';
+import { formatDate, formatearEtiquetaEnum } from '../../../utils';
+import { obtenerVarianteBadgeGravedad, obtenerBadgeAlcohol, etiquetaTipoLesion, obtenerVarianteBadgeLesion, etiquetaTipoAccidente, etiquetaGravedad } from '../helpers';
 
 const DetalleExpediente = memo(function DetalleExpediente({
   expediente,
@@ -74,17 +74,17 @@ const DetalleExpediente = memo(function DetalleExpediente({
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
           <div>
             <p className="text-sm text-muted-foreground">Tipo de accidente</p>
-            <p className="font-medium">{expediente.circunstancias?.tipoAccidente || '-'}</p>
+            <p className="font-medium">{expediente.circunstancias?.tipoAccidente ? etiquetaTipoAccidente(expediente.circunstancias.tipoAccidente) : '-'}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Gravedad</p>
             <Badge variant={obtenerVarianteBadgeGravedad(expediente.circunstancias?.gravedad)}>
-              {expediente.circunstancias?.gravedad || '-'}
+              {etiquetaGravedad(expediente.circunstancias?.gravedad)}
             </Badge>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Vehículo</p>
-            <p className="font-medium">{expediente.vehiculo?.tipo || '-'}</p>
+            <p className="font-medium">{expediente.vehiculo?.tipo ? formatearEtiquetaEnum(expediente.vehiculo.tipo) : '-'}</p>
           </div>
         </div>
 

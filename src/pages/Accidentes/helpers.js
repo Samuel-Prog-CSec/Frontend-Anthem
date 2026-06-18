@@ -74,9 +74,13 @@ export const opcionesMes = [
   { value: '12', label: 'Diciembre' }
 ];
 
-// Tipos de accidente para selector
+// Tipos de accidente para selector.
+// IMPORTANTE: debe cubrir los 13 valores del enum del backend
+// (constants/domains/accidente.js -> TIPOS_ACCIDENTE). Si falta alguno, esos
+// accidentes quedan invisibles al filtro.
 export const opcionesTipoAccidente = [
   { value: 'ALCANCE', label: 'Alcance' },
+  { value: 'ATROPELLO_A_ANIMAL', label: 'Atropello a animal' },
   { value: 'ATROPELLO_A_PERSONA', label: 'Atropello a persona' },
   { value: 'CAÍDA', label: 'Caida' },
   { value: 'CHOQUE_CONTRA_OBSTÁCULO_FIJO', label: 'Choque contra obstaculo fijo' },
@@ -84,6 +88,8 @@ export const opcionesTipoAccidente = [
   { value: 'COLISIÓN_FRONTO-LATERAL', label: 'Colision fronto-lateral' },
   { value: 'COLISIÓN_LATERAL', label: 'Colision lateral' },
   { value: 'COLISIÓN_MÚLTIPLE', label: 'Colision multiple' },
+  { value: 'DESPEÑAMIENTO', label: 'Despeñamiento' },
+  { value: 'SOLO_SALIDA_DE_LA_VÍA', label: 'Solo salida de la via' },
   { value: 'VUELCO', label: 'Vuelco' },
   { value: 'OTRO', label: 'Otro' }
 ];

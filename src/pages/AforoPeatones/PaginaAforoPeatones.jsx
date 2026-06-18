@@ -82,6 +82,10 @@ function PaginaAforoPeatones() {
   const { data: estadisticasResult } = useAforoPeatonesEstadisticas(queryParams);
   const { data: distribucionResult } = useAforoPeatonesDistribucionHoraria(queryParams);
   const { data: estacionesResult } = useAforoPeatonesEstaciones({ ...queryParams, limit: 10 });
+  // Catalogo de distritos sin filtrar (anti-trinquete): lista TODAS las
+  // estaciones (no solo el top-10 filtrado) para poblar el desplegable de
+  // distrito completo.
+  const { data: catalogoEstacionesResult } = useAforoPeatonesEstaciones({ limit: 100 });
   const { data: detalleEstacion, isLoading: detalleLoading } = useAforoPeatonesEstacion(estacionSeleccionada);
   // El mapa debe respetar los filtros activos (distrito/franja/mes), igual que
   // el resto de la pagina; antes se llamaba sin params y mostraba siempre todas
@@ -126,18 +130,26 @@ function PaginaAforoPeatones() {
   }, [estacionesRanking]);
 
   const opcionesDistrito = useMemo(() => {
-    const distritos = [...new Set(estacionesRanking.map(e => e.distrito).filter(Boolean))];
+    const catalogo = catalogoEstacionesResult?.data?.estaciones
+      || catalogoEstacionesResult?.data?.data
+      || [];
+    const distritos = [...new Set(catalogo.map(e => e.distrito).filter(Boolean))].sort();
     return distritos.map(d => ({ value: d, label: d }));
-  }, [estacionesRanking]);
+  }, [catalogoEstacionesResult]);
 
   const manejarCambioFiltro = useCallback((nombre, valor) => {
     setFiltros(prev => ({ ...prev, [nombre]: valor }));
     setPaginaActual(1);
+    // Cerrar el detalle: la estacion abierta puede no pertenecer al nuevo
+    // conjunto filtrado (su query es independiente de los filtros) y quedaria
+    // mostrando datos sin relacion con lo que se ve en la tabla/mapa.
+    setEstacionSeleccionada(null);
   }, []);
 
   const limpiarFiltros = useCallback(() => {
     setFiltros({ distrito: '', franjaHoraria: '', mes: '' });
     setPaginaActual(1);
+    setEstacionSeleccionada(null);
   }, []);
 
   const manejarCambioPagina = useCallback((pagina) => {

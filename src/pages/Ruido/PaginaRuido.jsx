@@ -263,18 +263,29 @@ function PaginaRuido() {
     const estacionesRaw = Array.isArray(analisis.estaciones) ? analisis.estaciones : [];
     return {
       resumen: analisis.resumen || null,
-      estaciones: estacionesRaw.slice(0, 10).map(c => {
+      estaciones: estacionesRaw.map(c => {
         const diurno = c.cumplimiento?.diurno || {};
-        const totalMed = c.totalMediciones || (diurno.cumple || 0) + (diurno.incumple || 0);
-        const porcentaje = diurno.porcentaje ?? 0;
+        const global = c.cumplimiento?.global || {};
+        // Total de mediciones-periodo evaluadas (dia + tarde + noche), no solo el
+        // diurno. Si el backend no trae el global (compat), caemos a x3.
+        const totalMed = (global.cumple || 0) + (global.incumple || 0)
+          || (c.totalMediciones ? c.totalMediciones * 3 : 0);
+        // Porcentaje de cumplimiento GLOBAL (los 3 periodos), no solo diurno. El
+        // limite nocturno (55 dB) es mas estricto, asi que ignorarlo sobreestimaba
+        // el cumplimiento: estaciones que incumplen de noche salian al 100%.
+        const porcentaje = global.porcentaje ?? diurno.porcentaje ?? 0;
         return {
           nombre: c.nombre || `Estacion ${c.nmt || '-'}`,
           nmt: c.nmt || '-',
-          cumple: porcentaje >= 100,
+          // Una estacion con >=95% de mediciones dentro del limite se considera
+          // cumplidora; exigir el 100% es irreal con series horarias mensuales
+          // (casi ninguna estacion llegaria y sobredimensionaria el incumplimiento).
+          cumple: porcentaje >= 95,
           porcentajeCumplimiento: porcentaje,
           promedioDiurno: diurno.promedio || 0,
           promedioGeneral: c.promedioGeneralLaeq24 || 0,
-          excedencias: diurno.incumple || 0,
+          // Excedencias de cualquier periodo (incluye las nocturnas, antes ignoradas).
+          excedencias: global.incumple ?? (diurno.incumple || 0),
           totalMediciones: totalMed
         };
       })

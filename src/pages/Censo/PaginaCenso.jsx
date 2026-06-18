@@ -10,7 +10,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { PageLayout } from '../../components/layout';
 import { useCenso, useCensoDashboard, useCensoDistritos, useCensoPiramide } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG, ETIQUETAS_GRUPOS_EDAD } from '../../constants';
-import { formatNumber, formatearNombreDistrito } from '../../utils';
+import { formatNumber, formatearNombreDistrito, aTituloCase } from '../../utils';
 
 import EstadisticasCenso from './EstadisticasCenso';
 import FiltrosCenso from './FiltrosCenso';
@@ -169,6 +169,26 @@ function PaginaCenso() {
     })),
   [distritosNormalizados]);
 
+  // Opciones de barrio del distrito seleccionado. Se derivan de los barrios
+  // que ya trae `distritosNormalizados` (incluirBarrios=true). El value es el
+  // codigo numerico del barrio porque el backend (/censo y /censo/dashboard)
+  // filtra por `barrio.codigo`, no por nombre. Sin distrito la lista va vacia
+  // y el control queda deshabilitado en FiltrosCenso.
+  const opcionesBarrio = useMemo(() => {
+    if (!filtros.distrito) { return []; }
+    const dist = distritosNormalizados.find(
+      d => String(d.codigoDistrito) === filtros.distrito
+    );
+    const barrios = dist?.barrios || [];
+    return [...barrios]
+      .filter(b => b.codigo != null)
+      .sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es'))
+      .map(b => ({
+        value: String(b.codigo),
+        label: aTituloCase(b.nombre || `Barrio ${b.codigo}`)
+      }));
+  }, [filtros.distrito, distritosNormalizados]);
+
   const detalleDistritoData = useMemo(() => {
     if (!distritoDetalle) return null;
     return distritosNormalizados.find(d => d.codigoDistrito === distritoDetalle) || null;
@@ -231,6 +251,7 @@ function PaginaCenso() {
       <FiltrosCenso
         filtros={filtros}
         opcionesDistrito={opcionesDistrito}
+        opcionesBarrio={opcionesBarrio}
         hayFiltrosActivos={hayFiltrosActivos}
         onCambioFiltro={manejarCambioFiltro}
         onLimpiar={limpiarFiltros}

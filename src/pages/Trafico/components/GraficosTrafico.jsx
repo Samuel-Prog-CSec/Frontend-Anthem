@@ -9,7 +9,7 @@
 import { memo, useMemo } from 'react';
 import { BarChartCard } from '../../../components/charts';
 import { Card, CardHeader, CardTitle, CardContent, EmptyState } from '../../../components/common';
-import { CHART_COLORS } from '../../../constants';
+import { CHART_COLORS, nombreDistrito } from '../../../constants';
 
 /**
  * Placeholder para un slot de grafico sin datos tras cargar.
@@ -45,7 +45,8 @@ const GraficosTrafico = memo(function GraficosTrafico({
       .sort((a, b) => (b.porcentajeCongestion || 0) - (a.porcentajeCongestion || 0))
       .slice(0, 12)
       .map(d => ({
-        name: d.zona,
+        // `zona` es el codigo numerico de distrito (1-21): mapear a nombre.
+        name: nombreDistrito(d.zona),
         congestion: d.porcentajeCongestion || 0,
         fluido: d.porcentajeFluido || 0
       }));
@@ -53,10 +54,11 @@ const GraficosTrafico = memo(function GraficosTrafico({
 
   const datosHorarios = useMemo(() => {
     if (!Array.isArray(distribucionHoraria)) {return [];}
+    // Solo `intensidad` se pinta en el BarChart de abajo; antes se mapeaba
+    // tambien `congestion: d.nivelCongestion` que nunca se renderizaba.
     return distribucionHoraria.map(d => ({
       name: d.periodo || '-',
-      intensidad: d.intensidadPromedio || 0,
-      congestion: d.nivelCongestion || 0
+      intensidad: d.intensidadPromedio || 0
     }));
   }, [distribucionHoraria]);
 
