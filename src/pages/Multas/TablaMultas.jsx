@@ -37,7 +37,7 @@ function TablaMultas({
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <TableSkeleton rows={6} columns={8} />
+          <TableSkeleton rows={6} columns={7} />
         ) : error ? (
           <ErrorState message="Error al cargar multas" onRetry={onReintentar} />
         ) : datos.length === 0 ? (
@@ -59,7 +59,6 @@ function TablaMultas({
                     <TableHead>Lugar</TableHead>
                     <TableHead>Calificación</TableHead>
                     <TableHead className="text-right">Importe</TableHead>
-                    <TableHead>Descuento</TableHead>
                     <TableHead className="text-right">Puntos</TableHead>
                     <TableHead>Denunciante</TableHead>
                   </TableRow>
@@ -86,11 +85,6 @@ function TablaMultas({
                       </TableCell>
                       <TableCell className="text-right font-mono">
                         {formatearImporte(multa.importeFinal || multa.importeBoletín)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={multa.tieneDescuento ? 'success' : 'secondary'}>
-                          {multa.tieneDescuento ? 'Sí' : 'No'}
-                        </Badge>
                       </TableCell>
                       <TableCell className="text-right font-mono">
                         {multa.puntosDetraídos || 0}

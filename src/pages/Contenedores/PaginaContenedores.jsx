@@ -192,7 +192,11 @@ function PaginaContenedores() {
     const barrios = listaBarrios?.data?.barrios || [];
     return barrios
       .filter(b => b && b !== 'NO_ESPECIFICADO')
-      .map(b => ({ value: b, label: b }));
+      // El dato de contenedores solo trae el CODIGO de barrio (3 digitos:
+      // distrito*10 + barrio local), no el nombre. Se etiqueta como "Barrio NNN"
+      // para que el desplegable sea legible en vez de un numero suelto; el value
+      // sigue siendo el codigo (el backend filtra por el).
+      .map(b => ({ value: b, label: /^\d+$/.test(String(b)) ? `Barrio ${b}` : b }));
   }, [listaBarrios]);
 
   // KPIs de cabecera. Reaccionan a los filtros activos (barrio / distrito /
