@@ -67,7 +67,7 @@ function EstadisticasMultas({
         <Card className="mb-6 border-warning/20 bg-warning/5">
           <CardContent className="py-3">
             <div className="flex items-start gap-3">
-              <Info className="size-4 text-warning mt-0.5 flex-shrink-0" aria-hidden="true" />
+              <Info className="size-4 text-warning mt-0.5 shrink-0" aria-hidden="true" />
               <p className="text-sm text-muted-foreground">
                 El dataset de multas no incluye distrito normalizado, así que el
                 total y la métrica per cápita siguen siendo de toda Anthem

@@ -11,6 +11,7 @@
  * orquestar dos paneles independientes.
  */
 
+import { useMemo } from 'react';
 import { TrendingUp } from 'lucide-react';
 import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
@@ -33,6 +34,14 @@ function GraficosCalidadAire({
   // una tendencia real); la evolucion correcta es el LineChart de abajo, que
   // proviene del endpoint agregado /calidad-aire/tendencias.
   const unidadTendencia = obtenerUnidadMagnitud(parseInt(magnitudTendencia, 10));
+
+  // Referencia estable de `lines` (solo cambia con la unidad): un literal inline
+  // creaba un array nuevo en cada render, anulando el React.memo de LineChartCard.
+  const lineasTendencia = useMemo(() => [
+    { key: 'promedio', name: `Promedio (${unidadTendencia})`, color: CHART_COLORS.primary },
+    { key: 'maximo', name: `Máximo (${unidadTendencia})`, color: CHART_COLORS.danger },
+    { key: 'minimo', name: `Mínimo (${unidadTendencia})`, color: CHART_COLORS.secondary }
+  ], [unidadTendencia]);
 
   return (
       <Card className="mb-6">
@@ -63,11 +72,7 @@ function GraficosCalidadAire({
               title={`Evolución - ${AIR_QUALITY_MAGNITUDES[magnitudTendencia] || 'Contaminante'}`}
               data={datosTendencia}
               xKey="periodo"
-              lines={[
-                { key: 'promedio', name: `Promedio (${unidadTendencia})`, color: CHART_COLORS.primary },
-                { key: 'maximo', name: `Máximo (${unidadTendencia})`, color: CHART_COLORS.danger },
-                { key: 'minimo', name: `Mínimo (${unidadTendencia})`, color: CHART_COLORS.secondary }
-              ]}
+              lines={lineasTendencia}
               height={300}
             />
           )}

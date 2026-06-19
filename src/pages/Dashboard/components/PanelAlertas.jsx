@@ -25,7 +25,7 @@ const RANGO_DATASET = {
 };
 
 const PanelAlertas = memo(function PanelAlertas() {
-  const { data, isLoading } = useAccidentesEstadisticas(RANGO_DATASET);
+  const { data, isLoading, isError } = useAccidentesEstadisticas(RANGO_DATASET);
 
   const senales = useMemo(() => {
     const resumen = data?.data?.resumen || {};
@@ -62,6 +62,15 @@ const PanelAlertas = memo(function PanelAlertas() {
             {[0, 1, 2].map((i) => (
               <Skeleton key={i} className="h-28 w-full rounded-lg" />
             ))}
+          </div>
+        ) : isError ? (
+          // Estado de ERROR distinto del estado vacio: antes un fallo de carga
+          // mostraba "Sin datos" igual que la ausencia real de datos.
+          <div
+            className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-muted-foreground"
+            role="status"
+          >
+            No se pudieron cargar las señales de seguridad vial. Inténtalo de nuevo más tarde.
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

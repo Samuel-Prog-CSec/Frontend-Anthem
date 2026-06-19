@@ -5,10 +5,28 @@
  */
 
 import L from 'leaflet';
-import { Marker, Popup } from 'react-leaflet';
+import { Marker, Popup, useMapEvents } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { MapaInteractivo } from './MapaInteractivo';
 import { MapaEmptyOverlay } from './MapaEmptyOverlay';
+
+/**
+ * Reporta el bbox del viewport (al terminar pan/zoom) para carga por area.
+ * Se renderiza dentro del MapContainer (tiene contexto de mapa). Solo se monta
+ * cuando el consumidor pasa onBoundsChange, asi el comportamiento por defecto
+ * (cargar todo) no cambia para el resto de mapas.
+ * @param {{ onCambio: (bbox:number[]) => void }} props
+ */
+function ReporteroViewport({ onCambio }) {
+  const map = useMapEvents({
+    moveend: () => {
+      const b = map.getBounds();
+      // Formato bbox del backend: [minLng, minLat, maxLng, maxLat]
+      onCambio([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
+    }
+  });
+  return null;
+}
 
 // Cache de iconos coloreados (divIcon) por color, para no recrearlos en cada
 // render. Permite codificar una categoria por color (p.ej. tipo de contenedor)
@@ -86,7 +104,8 @@ export function MapaClusterizado({
   onLimpiarFiltros,
   tituloVacio,
   descripcionVacio,
-  colorPorFeature
+  colorPorFeature,
+  onBoundsChange
 }) {
   const features = featureCollection?.features || [];
   const autoBbox = bbox || featureCollection?.bbox || null;
@@ -108,6 +127,7 @@ export function MapaClusterizado({
       altura={altura}
       overlay={overlay}
     >
+      {onBoundsChange && <ReporteroViewport onCambio={onBoundsChange} />}
       <MarkerClusterGroup chunkedLoading iconCreateFunction={crearIconoCluster} showCoverageOnHover={false} maxClusterRadius={50}>
         {features.map((feature, idx) => {
           const geom = feature.geometry;

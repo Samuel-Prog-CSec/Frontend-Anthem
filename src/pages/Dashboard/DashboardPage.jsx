@@ -70,6 +70,7 @@ function DashboardPage() {
           icono={MapPin}
           dominio={dominioDeRuta(ROUTES.UBICACIONES)}
           cargando={estadisticas.ubicaciones.cargando}
+          error={estadisticas.ubicaciones.error}
         />
         <TarjetaEstadisticaDashboard
           titulo="Mediciones de aire"
@@ -78,6 +79,7 @@ function DashboardPage() {
           icono={Wind}
           dominio={dominioDeRuta(ROUTES.CALIDAD_AIRE)}
           cargando={estadisticas.calidadAire.cargando}
+          error={estadisticas.calidadAire.error}
         />
         <TarjetaEstadisticaDashboard
           titulo="Mediciones de ruido"
@@ -86,6 +88,7 @@ function DashboardPage() {
           icono={Volume2}
           dominio={dominioDeRuta(ROUTES.RUIDO)}
           cargando={estadisticas.ruido.cargando}
+          error={estadisticas.ruido.error}
         />
         <TarjetaEstadisticaDashboard
           titulo="Accidentes registrados"
@@ -94,6 +97,7 @@ function DashboardPage() {
           icono={AlertTriangle}
           dominio={dominioDeRuta(ROUTES.ACCIDENTES)}
           cargando={estadisticas.accidentes.cargando}
+          error={estadisticas.accidentes.error}
         />
         <TarjetaEstadisticaDashboard
           titulo="Asignaciones de patinetes"
@@ -102,6 +106,7 @@ function DashboardPage() {
           icono={Zap}
           dominio={dominioDeRuta(ROUTES.PATINETES)}
           cargando={estadisticas.patinetes.cargando}
+          error={estadisticas.patinetes.error}
         />
         <TarjetaEstadisticaDashboard
           titulo="Registros de bicicletas"
@@ -110,6 +115,7 @@ function DashboardPage() {
           icono={Bike}
           dominio={dominioDeRuta(ROUTES.BICICLETAS)}
           cargando={estadisticas.bicicletas.cargando}
+          error={estadisticas.bicicletas.error}
         />
         <TarjetaEstadisticaDashboard
           titulo="Filas del censo"
@@ -118,6 +124,7 @@ function DashboardPage() {
           icono={Users}
           dominio={dominioDeRuta(ROUTES.CENSO)}
           cargando={estadisticas.censo.cargando}
+          error={estadisticas.censo.error}
         />
         <TarjetaEstadisticaDashboard
           titulo="Multas de tráfico"
@@ -126,6 +133,7 @@ function DashboardPage() {
           icono={FileWarning}
           dominio={dominioDeRuta(ROUTES.MULTAS)}
           cargando={estadisticas.multas.cargando}
+          error={estadisticas.multas.error}
         />
         <TarjetaEstadisticaDashboard
           titulo="Aforo de bicicletas"
@@ -134,6 +142,7 @@ function DashboardPage() {
           icono={Activity}
           dominio={dominioDeRuta(ROUTES.AFORO_BICICLETAS)}
           cargando={estadisticas.aforoBicicletas.cargando}
+          error={estadisticas.aforoBicicletas.error}
         />
       </div>
 

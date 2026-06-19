@@ -18,7 +18,7 @@
 import { memo } from 'react';
 import { NumeroAnimado } from '../../../components/charts';
 
-function TarjetaEstadisticaDashboardImpl({ titulo, valor, subtitulo, icono, cargando, dominio }) {
+function TarjetaEstadisticaDashboardImpl({ titulo, valor, subtitulo, icono, cargando, error, dominio }) {
   const IconoComponente = icono;
 
   return (
@@ -43,12 +43,20 @@ function TarjetaEstadisticaDashboardImpl({ titulo, valor, subtitulo, icono, carg
         <div className="space-y-2">
           {cargando ? (
             <div className="h-12 w-32 bg-muted/40 animate-pulse rounded-md" aria-label="Cargando" />
+          ) : error ? (
+            // Estado de error explicito: distingue "fallo de carga" de "dato cero".
+            // No mostramos 0 (enganoso); el subtitulo lo aclara.
+            <p className="text-2xl sm:text-3xl text-muted-foreground/80 leading-none" role="status">
+              No disponible
+            </p>
           ) : (
             <p className="stat-number text-3xl sm:text-4xl lg:text-5xl text-foreground leading-none tabular-nums">
               <NumeroAnimado value={valor} />
             </p>
           )}
-          <p className="text-sm text-muted-foreground leading-snug">{subtitulo}</p>
+          <p className="text-sm text-muted-foreground leading-snug">
+            {error ? 'No se pudieron cargar los datos' : subtitulo}
+          </p>
         </div>
       </div>
     </div>

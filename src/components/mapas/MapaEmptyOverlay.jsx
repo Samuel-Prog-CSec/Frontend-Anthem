@@ -37,7 +37,7 @@ const MapaEmptyOverlay = memo(function MapaEmptyOverlay({
       <div className="pointer-events-auto max-w-md bg-[var(--surface)] border border-[var(--border-emphasis)] p-6 rounded-sm shadow-lg">
         <div className="flex items-start gap-4">
           <div
-            className="flex-shrink-0 size-10 rounded-sm border border-[var(--border-emphasis)] flex items-center justify-center text-[var(--ink-tertiary)]"
+            className="shrink-0 size-10 rounded-sm border border-[var(--border-emphasis)] flex items-center justify-center text-[var(--ink-tertiary)]"
             aria-hidden="true"
           >
             <MapPinOff className="size-5" strokeWidth={1.5} />

@@ -25,10 +25,11 @@ import {
   useDistritosContenedores,
   useBarriosContenedores,
   useDensidadContenedores,
-  useMapaContenedores
+  useMapaContenedores,
+  useCensoDistritos
 } from '../../api/hooks';
 import { PAGINATION, DATE_CONFIG } from '../../constants';
-import { formatNumber } from '../../utils';
+import { formatNumber, useDebouncedValue, aTituloCase } from '../../utils';
 import {
   TarjetasEstadisticasContenedores,
   FiltrosContenedores,
@@ -64,6 +65,21 @@ function porTipoDesdeDensidad(filaBarrio) {
     total: v?.cantidad || 0,
     ubicaciones: v?.puntos || 0
   }));
+}
+
+/**
+ * Normaliza un nombre de distrito a una clave comparable: mayusculas, sin
+ * tildes ni guiones. Necesario porque el censo y los contenedores escriben
+ * algunos distritos distinto (p.ej. "VICALVARO" vs "VICÁLVARO").
+ */
+function normalizarClaveDistrito(nombre) {
+  return (nombre || '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toUpperCase()
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function PaginaContenedores() {
@@ -110,6 +126,15 @@ function PaginaContenedores() {
     return params;
   }, [paginacion.currentPage, paginacion.itemsPerPage, filtros]);
 
+  // Bbox del viewport del mapa (carga por area). Se actualiza al terminar cada
+  // pan/zoom; se debouncea para no disparar una peticion por cada movimiento.
+  const [bboxRaw, setBboxRaw] = useState(null);
+  const bboxMapa = useDebouncedValue(bboxRaw, 350);
+  const handleBoundsChange = useCallback((bboxArr) => {
+    // [minLng, minLat, maxLng, maxLat] -> CSV que entiende el backend
+    setBboxRaw(bboxArr.map((n) => n.toFixed(6)).join(','));
+  }, []);
+
   // Filtros que usa el mapa (sin paginacion)
   const filtrosMapa = useMemo(() => {
     const params = {};
@@ -117,8 +142,13 @@ function PaginaContenedores() {
     if (filtros.lote) {params.lote = filtros.lote;}
     if (filtros.distrito) {params.distrito = filtros.distrito;}
     if (filtros.barrio) {params.barrio = filtros.barrio;}
+    // Sin filtros: acotar por el viewport (bbox) para no transferir los ~38k
+    // contenedores. Con un filtro activo se muestra todo lo que matchea (ya
+    // acotado por el cap del backend), ignorando el viewport.
+    const hayFiltro = params.tipoContenedor || params.lote || params.distrito || params.barrio;
+    if (!hayFiltro && bboxMapa) {params.bbox = bboxMapa;}
     return params;
-  }, [filtros]);
+  }, [filtros, bboxMapa]);
 
   // ----- Queries -----
   const {
@@ -167,6 +197,13 @@ function PaginaContenedores() {
     isLoading: cargandoMapa
   } = useMapaContenedores(filtrosMapa);
 
+  // Catalogo censal de barrios (codigo + nombre) para traducir el codigo de
+  // barrio de contenedores a su nombre real. Cacheado por React Query.
+  const { data: censoDistritosResult } = useCensoDistritos({
+    año: DATE_CONFIG.DATASET_YEAR,
+    incluirBarrios: 'true'
+  });
+
   // ----- Datos derivados -----
   const datosListado = useMemo(() => listadoResult?.data || [], [listadoResult?.data]);
   const resumenGeneral = statsResult?.data || null;
@@ -188,16 +225,44 @@ function PaginaContenedores() {
     return distritos.map(d => ({ value: d, label: d }));
   }, [listaDistritos]);
 
+  // Mapa { claveDistrito: { codigoContenedor: NombreBarrio } } derivado del
+  // censo. El dato de contenedores codifica el barrio como distrito*10 + local,
+  // asi que reconstruimos ese mismo codigo desde el censo (distrito.codigo*10 +
+  // barrio.codigo) para poder traducirlo a nombre.
+  const mapaNombresBarrio = useMemo(() => {
+    const barrios = censoDistritosResult?.data?.estadisticasBarrios || [];
+    const mapa = {};
+    for (const b of barrios) {
+      const distCod = b.distrito?.codigo;
+      const barCod = b.barrio?.codigo;
+      const barNom = b.barrio?.nombre;
+      if (b.distrito?.nombre == null || distCod == null || barCod == null || !barNom) { continue; }
+      const clave = normalizarClaveDistrito(b.distrito.nombre);
+      if (!mapa[clave]) { mapa[clave] = {}; }
+      mapa[clave][String(distCod * 10 + barCod)] = aTituloCase(barNom);
+    }
+    return mapa;
+  }, [censoDistritosResult]);
+
   const opcionesBarrio = useMemo(() => {
     const barrios = listaBarrios?.data?.barrios || [];
+    // Nombres reales del distrito seleccionado. Un codigo anomalo (de otro
+    // distrito o inexistente -errores de captura del dataset, p.ej. 159/214 bajo
+    // Hortaleza-) no aparece en este set y cae a "Barrio NNN" en vez de mostrar
+    // un nombre equivocado. El value sigue siendo el codigo (el backend filtra
+    // por el).
+    const nombresDistrito = mapaNombresBarrio[normalizarClaveDistrito(filtros.distrito)] || {};
     return barrios
       .filter(b => b && b !== 'NO_ESPECIFICADO')
-      // El dato de contenedores solo trae el CODIGO de barrio (3 digitos:
-      // distrito*10 + barrio local), no el nombre. Se etiqueta como "Barrio NNN"
-      // para que el desplegable sea legible en vez de un numero suelto; el value
-      // sigue siendo el codigo (el backend filtra por el).
-      .map(b => ({ value: b, label: /^\d+$/.test(String(b)) ? `Barrio ${b}` : b }));
-  }, [listaBarrios]);
+      .map(b => {
+        const codigo = String(b);
+        const nombre = nombresDistrito[codigo];
+        return {
+          value: b,
+          label: nombre || (/^\d+$/.test(codigo) ? `Barrio ${codigo}` : codigo)
+        };
+      });
+  }, [listaBarrios, mapaNombresBarrio, filtros.distrito]);
 
   // KPIs de cabecera. Reaccionan a los filtros activos (barrio / distrito /
   // tipo de contenedor): con barrio se derivan del desglose por tipo de ese
@@ -319,6 +384,7 @@ function PaginaContenedores() {
         cargandoMapa={cargandoMapa}
         featureCollection={featureCollectionMapa}
         filtrosActivos={filtros}
+        onBoundsChange={handleBoundsChange}
       />
 
       {/* Filtros justo bajo el mapa-hero: el control queda pegado a lo que

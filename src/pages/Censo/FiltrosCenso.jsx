@@ -62,7 +62,7 @@ function FiltrosCenso({
       <CardContent>
         {!hayFiltrosActivos && (
           <div className="flex items-start gap-3 mb-4 p-3 rounded-md bg-info/5 border border-info/20">
-            <Info className="size-4 text-info mt-0.5 flex-shrink-0" aria-hidden="true" />
+            <Info className="size-4 text-info mt-0.5 shrink-0" aria-hidden="true" />
             <p className="text-sm text-muted-foreground">
               El censo tiene una fila por persona, edad y sección en cada mes, y hay
               doce meses. Por eso, sin filtros, ves todos los registros del año a la vez.

@@ -174,7 +174,7 @@ function RegisterPage() {
                   className="flex items-start gap-3 rounded-md border border-[var(--alert)] bg-[var(--surface-raised)] p-4"
                   role="alert"
                 >
-                  <AlertCircle className="mt-0.5 size-4 flex-shrink-0 text-[var(--alert)]" aria-hidden="true" />
+                  <AlertCircle className="mt-0.5 size-4 shrink-0 text-[var(--alert)]" aria-hidden="true" />
                   <p className="text-sm leading-snug text-foreground">{error}</p>
                 </div>
               )}

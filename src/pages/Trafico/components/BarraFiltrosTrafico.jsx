@@ -136,7 +136,7 @@ const BarraFiltrosTrafico = memo(function BarraFiltrosTrafico({
 
         {!validacion.valido && (
           <div className="flex items-start gap-2 text-sm text-destructive">
-            <AlertCircle className="size-4 mt-0.5 flex-shrink-0" aria-hidden="true" />
+            <AlertCircle className="size-4 mt-0.5 shrink-0" aria-hidden="true" />
             <span>{validacion.error}</span>
           </div>
         )}

@@ -1,14 +1,18 @@
 /**
  * Correlacion Calidad del aire x Trafico
  *
- * Compara intensidad de trafico vs niveles de NO2 / PM10 por distrito en
- * un periodo dado. Cruza:
- *   - useAnalisisCongestion (groupBy=distrito)
- *   - useCalidadAireStats (con periodos)
+ * Compara la intensidad/congestion del trafico POR DISTRITO con el nivel medio
+ * de NO2 de la ciudad en un periodo dado. Cruza:
+ *   - useAnalisisCongestion (groupBy=distrito) -> trafico por distrito
+ *   - useCalidadAireStats (magnitud=8 NO2) -> NO2 medio del periodo
  *
- * Hipotesis: zonas con mayor intensidad / mayor congestion tienden a tener
- * mayores valores de contaminantes asociados a vehiculos. Esta pagina
- * permite ver la correlacion a nivel agregado por distrito.
+ * LIMITACION IMPORTANTE: el dataset de calidad del aire NO esta georreferenciado
+ * por distrito (air_quality solo tiene provincia/municipio/estacion, sin
+ * distrito ni coordenadas mapeables), por lo que el NO2 NO puede atribuirse a un
+ * distrito. Se muestra como contexto GLOBAL del periodo, no como cruce distrito
+ * a distrito. No se consulta PM10 (solo NO2). Para un cruce real por distrito
+ * habria que mapear cada estacion de aire a su distrito (tabla estatica o por
+ * cercania a centroides) y agrupar NO2 por distrito en el backend.
  */
 
 import { useMemo, useState } from 'react';
@@ -27,6 +31,14 @@ import {
 import { ROUTES, TRAFICO_MAPA_MAX_DIAS, CHART_COLORS, nombreDistrito } from '../../constants';
 import { formatNumber } from '../../utils';
 import { rangoFechasInicial, validarRangoMapa } from '../Trafico/helpers';
+
+// Config de barras estable a nivel de modulo (solo depende de CHART_COLORS):
+// un literal inline creaba un array nuevo cada render y anulaba el React.memo
+// de BarChartCard.
+const BARRAS_AIRE_TRAFICO = [
+  { key: 'intensidad', name: 'Intensidad media (v/h)', color: CHART_COLORS.primary },
+  { key: 'congestion', name: '% Congestión', color: CHART_COLORS.tertiary }
+];
 
 function PaginaAireTrafico() {
   const [borrador, setBorrador] = useState(rangoFechasInicial);
@@ -109,7 +121,7 @@ function PaginaAireTrafico() {
   return (
     <PageLayout
       title="Calidad del aire vs. Tráfico"
-      description="Cruce por distrito entre intensidad/congestión del tráfico y niveles de contaminación en el mismo periodo."
+      description="Intensidad y congestión del tráfico POR DISTRITO frente al nivel medio de NO2 de la ciudad en el mismo periodo. Nota: las mediciones de aire no están georreferenciadas por distrito en el dataset, por lo que el NO2 se muestra como contexto global del periodo, no distrito a distrito."
       actions={
         <Button asChild variant="outline" size="sm">
           <Link to={ROUTES.CORRELACIONES}>
@@ -169,7 +181,7 @@ function PaginaAireTrafico() {
           </div>
           {!validacion.valido && (
             <div className="flex items-start gap-2 mt-3 text-sm text-destructive">
-              <AlertCircle className="size-4 mt-0.5 flex-shrink-0" aria-hidden="true" />
+              <AlertCircle className="size-4 mt-0.5 shrink-0" aria-hidden="true" />
               <span>{validacion.error}</span>
             </div>
           )}
@@ -198,7 +210,7 @@ function PaginaAireTrafico() {
             <StatCard
               title="NO2 promedio"
               value={`${formatNumber(no2.promedio, 1)} μg/m³`}
-              subtitle="media ponderada del periodo"
+              subtitle="NO2 medio diario del periodo (toda la ciudad)"
               icon={Wind}
               isLoading={cargando}
             />
@@ -228,10 +240,7 @@ function PaginaAireTrafico() {
               title="Top 12 distritos por intensidad de tráfico (con % de congestión)"
               data={datosGrafico}
               xKey="name"
-              bars={[
-                { key: 'intensidad', name: 'Intensidad media (v/h)', color: CHART_COLORS.primary },
-                { key: 'congestion', name: '% Congestión', color: CHART_COLORS.tertiary }
-              ]}
+              bars={BARRAS_AIRE_TRAFICO}
               height={400}
             />
           )}

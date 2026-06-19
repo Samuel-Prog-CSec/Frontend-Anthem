@@ -25,10 +25,10 @@ const NODOS = {
 };
 
 const ARISTAS = [
-  { a: 'aire', b: 'trafico', ruta: ROUTES.CORRELACION_AIRE_TRAFICO, titulo: 'Calidad del aire y tráfico', cta: 'Ver aire y tráfico', descripcion: '¿Cómo influye la intensidad del tráfico en los contaminantes (NO2, PM10) por distrito?' },
+  { a: 'aire', b: 'trafico', ruta: ROUTES.CORRELACION_AIRE_TRAFICO, titulo: 'Calidad del aire y tráfico', cta: 'Ver aire y tráfico', descripcion: 'Intensidad del tráfico por distrito frente al nivel medio de NO2 de la ciudad en el mismo periodo.' },
   { a: 'multas', b: 'accidentes', ruta: ROUTES.CORRELACION_MULTAS_ACCIDENTES, titulo: 'Multas y accidentes', cta: 'Ver multas y accidentes', descripcion: '¿Zonas con más multas, tienden a tener más o menos accidentes?' },
   { a: 'censo', b: 'contenedores', ruta: ROUTES.CORRELACION_CENSO_CONTENEDORES, titulo: 'Censo y contenedores', cta: 'Ver censo y contenedores', descripcion: 'Cobertura de contenedores por cada 1.000 habitantes; distritos infra o sobre-cubiertos.' },
-  { a: 'censo', b: 'ruido', ruta: ROUTES.CORRELACION_RUIDO_CENSO, titulo: 'Ruido y censo', cta: 'Ver ruido y censo', descripcion: 'Población expuesta a ruido por encima de los límites diurnos por distrito.' }
+  { a: 'censo', b: 'ruido', ruta: ROUTES.CORRELACION_RUIDO_CENSO, titulo: 'Ruido y censo', cta: 'Ver ruido y censo', descripcion: 'Distritos con estaciones que superan el límite de ruido diurno y su población (cota superior).' }
 ];
 
 function Nodo({ nodo }) {

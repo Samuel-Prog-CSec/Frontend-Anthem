@@ -77,6 +77,12 @@ function prefiereReduccionMovimiento() {
 // Evita Math.random() en render (impuro segun React Compiler)
 const ALTURAS_PLACEHOLDER_BARRAS = [45, 72, 38, 85, 60, 50, 78, 42];
 
+// Umbral de puntos a partir del cual ocultamos los `dot` individuales de las
+// lineas. Cada dot genera un nodo <circle> en el SVG; en series largas (cientos
+// de puntos) eso dispara el numero de nodos del DOM y degrada el INP. Por encima
+// del umbral usamos dot={false} y conservamos solo activeDot para el hover.
+const UMBRAL_DOTS_LINEA = 60;
+
 /**
  * Placeholder de carga para graficos
  * @param {Object} props
@@ -139,6 +145,10 @@ const LineChartCard = memo(function LineChartCard({ data, xKey, lines, title, he
   const CHART_THEME = obtenerTemaChart(esOscuro);
   if (isLoading) return <ChartSkeleton title={title} height={height} />;
 
+  // En series largas desactivamos los dots por punto para no inflar el SVG con
+  // cientos de <circle>. Se mantiene el activeDot para feedback en hover.
+  const mostrarDots = Array.isArray(data) && data.length <= UMBRAL_DOTS_LINEA;
+
   return (
     <Card>
       {title && (
@@ -188,7 +198,7 @@ const LineChartCard = memo(function LineChartCard({ data, xKey, lines, title, he
                 name={line.name}
                 stroke={line.color || Object.values(CHART_COLORS)[index]}
                 strokeWidth={2}
-                dot={{ fill: line.color || Object.values(CHART_COLORS)[index], r: 3 }}
+                dot={mostrarDots ? { fill: line.color || Object.values(CHART_COLORS)[index], r: 3 } : false}
                 activeDot={{ r: 5 }}
                 isAnimationActive={!prefiereReduccionMovimiento()}
                 animationDuration={900}

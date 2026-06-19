@@ -109,7 +109,7 @@ function PaginaRuidoCenso() {
   return (
     <PageLayout
       title="Ruido vs. Censo"
-      description={`Estimación de población expuesta a niveles diurnos superiores al límite legal (${NOISE_LIMITS.DIURNO} dB).`}
+      description={`Distritos con estaciones acústicas que superan el límite diurno (${NOISE_LIMITS.DIURNO} dB) y su población. La cifra de población es una COTA SUPERIOR: cuenta el distrito completo, no solo el entorno de la estación. Muestra parcial (30 estaciones, no todos los distritos tienen sensor).`}
       actions={
         <Button asChild variant="outline" size="sm">
           <Link to={ROUTES.CORRELACIONES}>
@@ -134,9 +134,9 @@ function PaginaRuidoCenso() {
           isLoading={cargando}
         />
         <StatCard
-          title="Población potencial expuesta"
+          title="Población en distritos afectados"
           value={formatNumber(stats.poblacionExpuestaEstimada)}
-          subtitle="suma población distritos afectados"
+          subtitle="cota superior: distrito completo, no solo el entorno de la estación"
           icon={Users}
           isLoading={cargando}
         />

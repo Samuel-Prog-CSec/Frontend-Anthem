@@ -121,9 +121,9 @@ function PaginaMultasAccidentes() {
           isLoading={cargando}
         />
         <StatCard
-          title="Total multas (top 50)"
+          title="Multas en los 50 focos"
           value={formatNumber(totales.totalMultas)}
-          subtitle="agregado por lugar"
+          subtitle="los 50 lugares más sancionados concentran ~50% del total de la ciudad"
           icon={FileWarning}
           isLoading={cargando}
         />

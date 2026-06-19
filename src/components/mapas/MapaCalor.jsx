@@ -3,7 +3,7 @@
  * Util para densidad de accidentes, multas con GPS, etc.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet.heat';
@@ -16,22 +16,52 @@ import { MapaEmptyOverlay } from './MapaEmptyOverlay';
  * @property {number} [radius]
  * @property {number} [blur]
  * @property {number} [maxZoom]
+ * @property {number} [max] - Intensidad maxima para normalizar el gradiente
  */
 
-function CapaCalor({ puntos, radius = 25, blur = 15, maxZoom = 17 }) {
+function CapaCalor({ puntos, radius = 25, blur = 15, maxZoom = 17, max }) {
   const map = useMap();
+  const layerRef = useRef(null);
+
+  // Opciones del heatmap. Solo incluimos `max` cuando viene definido: sin el,
+  // leaflet.heat asume max=1 y satura el gradiente con cualquier intensidad >1.
+  const opciones = useMemo(() => {
+    const opts = { radius, blur, maxZoom };
+    if (Number.isFinite(max)) {opts.max = max;}
+    return opts;
+  }, [radius, blur, maxZoom, max]);
+
   useEffect(() => {
-    // Si no hay puntos no creamos layer y devolvemos undefined: la layer
-    // de la iteracion anterior (si existia) ya fue limpiada por React al
-    // ejecutar su cleanup antes de re-correr el effect, asi que el mapa
-    // queda en el estado correcto sin trabajo extra aqui.
-    if (!puntos || puntos.length === 0) {return undefined;}
-    const layer = L.heatLayer(puntos, { radius, blur, maxZoom });
-    layer.addTo(map);
+    // Si no hay puntos no creamos layer: si existia una previa la limpiamos
+    // para no dejar densidad fantasma en el mapa.
+    if (!puntos || puntos.length === 0) {
+      if (layerRef.current) {
+        map.removeLayer(layerRef.current);
+        layerRef.current = null;
+      }
+      return undefined;
+    }
+    // Reutilizamos la capa existente actualizando datos y opciones en vez de
+    // recrearla en cada cambio (evita parpadeo y recomputo completo del grid).
+    if (layerRef.current) {
+      layerRef.current.setOptions(opciones);
+      layerRef.current.setLatLngs(puntos);
+    } else {
+      layerRef.current = L.heatLayer(puntos, opciones).addTo(map);
+    }
+    return undefined;
+  }, [puntos, opciones, map]);
+
+  // Cleanup al desmontar: retiramos la capa del mapa.
+  useEffect(() => {
     return () => {
-      map.removeLayer(layer);
+      if (layerRef.current) {
+        map.removeLayer(layerRef.current);
+        layerRef.current = null;
+      }
     };
-  }, [puntos, radius, blur, maxZoom, map]);
+  }, [map]);
+
   return null;
 }
 
@@ -45,6 +75,7 @@ function CapaCalor({ puntos, radius = 25, blur = 15, maxZoom = 17 }) {
  * @property {string} [altura]
  * @property {number} [radius]
  * @property {number} [blur]
+ * @property {number} [max] - Intensidad maxima para normalizar el gradiente del heatmap
  */
 
 export function MapaCalor({
@@ -56,6 +87,7 @@ export function MapaCalor({
   altura,
   radius = 25,
   blur = 15,
+  max,
   onLimpiarFiltros,
   tituloVacio = 'Sin densidad para los filtros aplicados',
   descripcionVacio
@@ -63,16 +95,21 @@ export function MapaCalor({
   const features = featureCollection?.features || [];
   const autoBbox = bbox || featureCollection?.bbox || null;
 
-  const puntos = features
-    .map((f) => {
-      const geom = f.geometry;
-      if (!geom || geom.type !== 'Point') {return null;}
-      const [lng, lat] = geom.coordinates;
-      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {return null;}
-      const intensidad = extraerIntensidad ? extraerIntensidad(f.properties || {}) : 1;
-      return [lat, lng, intensidad];
-    })
-    .filter(Boolean);
+  // El array de puntos se recalcula solo cuando cambian las features o la
+  // funcion de intensidad. Sin memoizar, cada render generaba una nueva
+  // referencia que forzaba a CapaCalor a recrear la capa de heatmap.
+  const puntos = useMemo(() => {
+    return features
+      .map((f) => {
+        const geom = f.geometry;
+        if (!geom || geom.type !== 'Point') {return null;}
+        const [lng, lat] = geom.coordinates;
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {return null;}
+        const intensidad = extraerIntensidad ? extraerIntensidad(f.properties || {}) : 1;
+        return [lat, lng, intensidad];
+      })
+      .filter(Boolean);
+  }, [features, extraerIntensidad]);
 
   // featureCollection presente pero sin puntos validos: mostramos overlay.
   // Si featureCollection es undefined/null (todavia cargando), no overlay.
@@ -93,7 +130,7 @@ export function MapaCalor({
       altura={altura}
       overlay={overlay}
     >
-      <CapaCalor puntos={puntos} radius={radius} blur={blur} />
+      <CapaCalor puntos={puntos} radius={radius} blur={blur} max={max} />
     </MapaInteractivo>
   );
 }

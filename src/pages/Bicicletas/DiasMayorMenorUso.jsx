@@ -80,7 +80,7 @@ function DiasMayorMenorUso({ datos }) {
         <Card className="mb-6 border-warning/30 bg-warning/5">
           <CardContent className="py-3">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="size-4 text-warning mt-0.5 flex-shrink-0" aria-hidden="true" />
+              <AlertTriangle className="size-4 text-warning mt-0.5 shrink-0" aria-hidden="true" />
               <div className="text-sm text-foreground/90">
                 <p className="font-medium mb-1">Periodos de servicio interrumpido detectados</p>
                 <p className="text-muted-foreground">

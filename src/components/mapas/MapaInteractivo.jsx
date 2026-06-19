@@ -132,9 +132,23 @@ export function MapaInteractivo({
     const root = contenedorRef.current;
     if (!root) return undefined;
     aplicarA11yLeaflet(root);
-    const observer = new MutationObserver(() => aplicarA11yLeaflet(root));
+    // El observer se dispara en CADA mutacion del subtree (pan/zoom y el
+    // chunked-load de clusters generan cientos de mutaciones). Coalescemos las
+    // rafagas en una sola pasada por frame con requestAnimationFrame para no
+    // ejecutar querySelectorAll sobre toda la raiz en cada mutacion individual.
+    let rafId = null;
+    const observer = new MutationObserver(() => {
+      if (rafId !== null) {return;}
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        aplicarA11yLeaflet(root);
+      });
+    });
     observer.observe(root, { childList: true, subtree: true });
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (rafId !== null) {cancelAnimationFrame(rafId);}
+    };
   }, []);
 
   return (

@@ -9,6 +9,13 @@
 import { BarChartCard } from '../../components/charts';
 import { CHART_COLORS } from '../../constants';
 
+// Configuraciones de barras estables a nivel de modulo: solo dependen de
+// CHART_COLORS (constante), nunca de props/estado. Definirlas fuera del
+// componente garantiza una referencia estable entre renders para que el
+// React.memo de BarChartCard pueda evitar re-renders innecesarios.
+const BARRAS_CALIFICACION = [{ key: 'total', name: 'Total multas', color: CHART_COLORS.primary }];
+const BARRAS_RANKING = [{ key: 'total', name: 'Total multas', color: CHART_COLORS.quaternary }];
+
 function GraficosMultas({ datosGraficoCalificacion, datosGraficoRanking }) {
   const tieneAlgo = datosGraficoCalificacion.length > 0 || datosGraficoRanking.length > 0;
   if (!tieneAlgo) return null;
@@ -20,7 +27,7 @@ function GraficosMultas({ datosGraficoCalificacion, datosGraficoRanking }) {
           title="Distribución por calificación"
           data={datosGraficoCalificacion}
           xKey="nombre"
-          bars={[{ key: 'total', name: 'Total multas', color: CHART_COLORS.primary }]}
+          bars={BARRAS_CALIFICACION}
         />
       )}
       {datosGraficoRanking.length > 0 && (
@@ -28,7 +35,7 @@ function GraficosMultas({ datosGraficoCalificacion, datosGraficoRanking }) {
           title="Top 10 ubicaciones con más multas"
           data={datosGraficoRanking}
           xKey="nombre"
-          bars={[{ key: 'total', name: 'Total multas', color: CHART_COLORS.quaternary }]}
+          bars={BARRAS_RANKING}
         />
       )}
     </div>

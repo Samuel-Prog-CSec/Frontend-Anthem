@@ -29,9 +29,20 @@ const CapaPuntos = memo(function CapaPuntos({
   const features = featureCollection?.features || [];
   if (!features.length) return null;
 
-  const visibles = features.length > limiteMarcadores
-    ? features.slice(0, limiteMarcadores)
-    : features;
+  // Filtrar geometrias validas ANTES de aplicar el cap. Si los primeros N
+  // contuvieran features sin coordenadas validas, se pintarian menos de N
+  // puntos existiendo mas; filtrando antes, el limite cuenta solo puntos
+  // realmente renderizables.
+  const validas = features.filter((f) => {
+    const g = f?.geometry;
+    if (!g || g.type !== 'Point') return false;
+    const [lng, lat] = g.coordinates || [];
+    return Number.isFinite(lat) && Number.isFinite(lng);
+  });
+
+  const visibles = validas.length > limiteMarcadores
+    ? validas.slice(0, limiteMarcadores)
+    : validas;
 
   return (
     <>

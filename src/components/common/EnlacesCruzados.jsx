@@ -20,7 +20,7 @@
 import { memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  AlertTriangle, FileWarning, Recycle, Wind, Volume2, Zap, Bike, Users, Activity, TrafficCone, ArrowRight
+  AlertTriangle, Recycle, Zap, Users, ArrowRight
 } from 'lucide-react';
 import { ROUTES } from '../../constants';
 import { useFiltroGeo } from '../../context';
@@ -29,19 +29,21 @@ import { cn } from '../../utils';
 /**
  * Definicion de modulos disponibles. Cada uno tiene clave (modulosExcluidos),
  * etiqueta corta, icono y ruta.
+ *
+ * IMPORTANTE: solo se incluyen modulos cuyas paginas REALMENTE consumen el
+ * filtro de distrito (via FiltroGeoContext): la vista de distrito (drill-down),
+ * accidentes, patinetes y contenedores. Los demas modulos (multas, calidad de
+ * aire, ruido, bicicletas, aforo, trafico, censo) no leen el distrito al
+ * montar, por lo que un chip "ver en <modulo> para <distrito>" aterrizaba en la
+ * pagina SIN filtro (navegacion-placebo). Se omiten para no prometer un filtro
+ * que no se aplica. Si en el futuro alguna de esas paginas adopta el FiltroGeo,
+ * anadirla aqui.
  */
 const MODULOS = [
   { clave: 'distrito', label: 'Vista distrito', icon: Users, ruta: null /* se calcula con codigo */, esDrillDown: true },
   { clave: 'accidentes', label: 'Accidentes', icon: AlertTriangle, ruta: ROUTES.ACCIDENTES },
-  { clave: 'multas', label: 'Multas', icon: FileWarning, ruta: ROUTES.MULTAS },
   { clave: 'patinetes', label: 'Patinetes', icon: Zap, ruta: ROUTES.PATINETES },
-  { clave: 'contenedores', label: 'Contenedores', icon: Recycle, ruta: ROUTES.CONTENEDORES },
-  { clave: 'calidad-aire', label: 'Calidad aire', icon: Wind, ruta: ROUTES.CALIDAD_AIRE },
-  { clave: 'ruido', label: 'Ruido', icon: Volume2, ruta: ROUTES.RUIDO },
-  { clave: 'bicicletas', label: 'Bicicletas', icon: Bike, ruta: ROUTES.BICICLETAS },
-  { clave: 'aforo-bicicletas', label: 'Aforo bicis', icon: Activity, ruta: ROUTES.AFORO_BICICLETAS },
-  { clave: 'trafico', label: 'Tráfico', icon: TrafficCone, ruta: ROUTES.TRAFICO },
-  { clave: 'censo', label: 'Censo', icon: Users, ruta: ROUTES.CENSO }
+  { clave: 'contenedores', label: 'Contenedores', icon: Recycle, ruta: ROUTES.CONTENEDORES }
 ];
 
 /**

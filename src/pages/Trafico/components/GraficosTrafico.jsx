@@ -11,6 +11,18 @@ import { BarChartCard } from '../../../components/charts';
 import { Card, CardHeader, CardTitle, CardContent, EmptyState } from '../../../components/common';
 import { CHART_COLORS, nombreDistrito } from '../../../constants';
 
+// Configuraciones de barras estables a nivel de modulo: solo dependen de
+// CHART_COLORS (constante). Al estar fuera del componente la referencia es
+// estable entre renders, permitiendo que el React.memo de BarChartCard surta
+// efecto en vez de fallar por un literal inline nuevo en cada render.
+const BARRAS_CONGESTION = [
+  { key: 'congestion', name: 'Congestión', color: CHART_COLORS.danger },
+  { key: 'fluido', name: 'Fluido', color: CHART_COLORS.secondary }
+];
+const BARRAS_HORARIO = [
+  { key: 'intensidad', name: 'Intensidad media', color: CHART_COLORS.primary }
+];
+
 /**
  * Placeholder para un slot de grafico sin datos tras cargar.
  * Mantiene el marco (titulo + tarjeta) del grafico que sustituye y evita
@@ -71,10 +83,7 @@ const GraficosTrafico = memo(function GraficosTrafico({
           title="Top 12 zonas por congestión (%)"
           data={datosCongestion}
           xKey="name"
-          bars={[
-            { key: 'congestion', name: 'Congestión', color: CHART_COLORS.danger },
-            { key: 'fluido', name: 'Fluido', color: CHART_COLORS.secondary }
-          ]}
+          bars={BARRAS_CONGESTION}
           height={320}
           isLoading={isLoading}
         />

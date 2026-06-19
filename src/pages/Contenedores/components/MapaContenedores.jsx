@@ -14,10 +14,18 @@ import { MapaClusterizado } from '../../../components/mapas';
 import { formatNumber } from '../../../utils';
 import { etiquetaTipoContenedor, colorTipoContenedor } from '../helpers';
 
+// Bbox de Madrid [minLng, minLat, maxLng, maxLat] para el encuadre INICIAL del
+// mapa. Es una constante estable: asi el auto-fit del mapa corre una sola vez y
+// no se re-encuadra al recargar datos por viewport (lo que provocaria un bucle
+// mover->recargar->reencuadrar). Tras el encuadre inicial, el usuario controla
+// el mapa y cada pan/zoom recarga los contenedores de la zona via bbox.
+const MADRID_BBOX = [-3.95, 40.30, -3.50, 40.58];
+
 const MapaContenedores = memo(function MapaContenedores({
   cargandoMapa,
   featureCollection,
-  filtrosActivos
+  filtrosActivos,
+  onBoundsChange
 }) {
   const renderPopup = useCallback((props) => (
     <div className="text-sm">
@@ -45,6 +53,7 @@ const MapaContenedores = memo(function MapaContenedores({
   ), []);
 
   const totalPuntos = featureCollection?.features?.length || 0;
+  const truncado = Boolean(featureCollection?.metadata?.truncado);
   const hayFiltros = Boolean(
     filtrosActivos?.tipoContenedor || filtrosActivos?.distrito ||
     filtrosActivos?.barrio || filtrosActivos?.lote
@@ -75,7 +84,9 @@ const MapaContenedores = memo(function MapaContenedores({
         <CardDescription>
           {hayFiltros
             ? `Mostrando ${formatNumber(totalPuntos)} contenedores con los filtros activos.`
-            : `${formatNumber(totalPuntos)} contenedores georreferenciados. Usa los filtros para acotar.`}
+            : truncado
+              ? `Mostrando ${formatNumber(totalPuntos)} contenedores de la zona visible (de 37.954 en total). Acerca el zoom o desplázate para ver otras zonas, o usa los filtros.`
+              : `${formatNumber(totalPuntos)} contenedores en la zona visible. Desplázate o usa los filtros para explorar.`}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -88,6 +99,8 @@ const MapaContenedores = memo(function MapaContenedores({
               altura="480px"
               renderPopup={renderPopup}
               colorPorFeature={colorearPorTipo}
+              bbox={MADRID_BBOX}
+              onBoundsChange={onBoundsChange}
             />
             {tiposPresentes.length > 0 && (
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3">

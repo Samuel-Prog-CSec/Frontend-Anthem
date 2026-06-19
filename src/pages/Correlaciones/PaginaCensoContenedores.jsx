@@ -95,8 +95,12 @@ function PaginaCensoContenedores() {
   }, [filas]);
 
   const filasOrdenadas = useMemo(() => {
+    // Filtrar solo por poblacion (no por ratio>0): un distrito poblado con CERO
+    // contenedores (ratio=0) es justo el caso de infra-cobertura mas critico y
+    // debe MOSTRARSE, no ocultarse. Filtrar por ratio>0 lo borraba en silencio
+    // y enmascararia un futuro join roto de nombres de distrito.
     return [...filas]
-      .filter(f => f.ratio > 0)
+      .filter(f => f.poblacion > 0)
       .sort((a, b) => b.ratio - a.ratio)
       .map(f => ({ ...f, clasificacion: clasificarCobertura(f.ratio, mediaRatio) }));
   }, [filas, mediaRatio]);
