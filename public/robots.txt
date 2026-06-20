@@ -1,0 +1,11 @@
+# Anthem City Dashboard 2051
+# Plataforma cerrada de practica universitaria.
+# No queremos indexacion publica del entorno de desarrollo.
+
+User-agent: *
+Disallow: /
+
+# Para deployments productivos abiertos (no es el caso aqui) cambiar a:
+#   User-agent: *
+#   Allow: /
+#   Sitemap: https://anthem.example.com/sitemap.xml

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1b1f27" />
+
+    <!--
+      Tema sin FOUC: aplica la clase `dark` ANTES del primer paint leyendo la
+      preferencia guardada (por defecto oscuro). El ThemeProvider sincroniza
+      el estado de React despues.
+      SEGURIDAD: este script inline obliga a 'unsafe-inline' en script-src. En
+      produccion, el servidor estatico debe servir este script con un `nonce`
+      (o externalizarlo) y emitir el CSP via header con `script-src 'self'
+      'nonce-XXXX'`, eliminando 'unsafe-inline'. En dev se acepta por simplicidad
+      y porque Vite/HMR ya lo requiere.
+    -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('anthem-tema') || 'dark';
+          document.documentElement.classList.toggle('dark', t === 'dark');
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+    <meta name="description" content="Anthem City - Plataforma de monitorizacion integral para la Smart City simulada en 2051. Calidad del aire, ruido, movilidad, censo y mas." />
+
+    <!--
+      Content Security Policy minima en meta.
+      El CSP principal lo envia Helmet en el backend (frame-ancestors, base-uri,
+      form-action, sandbox NO funcionan via <meta>; deben ir como header).
+      Aqui solo restringimos source defaults para mitigar inyecciones obvias
+      en el HTML del frontend.
+
+      En produccion el servidor estatico (nginx/Caddy) debe enviar este mismo
+      CSP via header con las directivas adicionales que no caben en meta.
+
+      Notas dev:
+        - 'unsafe-inline' en script-src es necesario para HMR de Vite en dev
+        - connect-src incluye localhost para dev; ajustar en deploy
+        - style-src 'unsafe-inline' es necesario para Tailwind v4 y Radix UI
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org https://tile.openstreetmap.org; connect-src 'self' http://localhost:3000 ws://localhost:5173 ws://localhost:4173 https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org"
+    />
+
+    <!-- Preconnect a Google Fonts para reducir latencia del primer paint. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <title>Anthem · Atlas urbano de Madrid</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

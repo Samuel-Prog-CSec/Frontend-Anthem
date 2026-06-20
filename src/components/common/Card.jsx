@@ -1,0 +1,115 @@
+/**
+ * Componente Card
+ *
+ * Contenedor de tarjeta con estilo futurista para el dashboard.
+ * Basado en patrones de Shadcn/ui.
+ *
+ * Documentacion de referencia:
+ * - Shadcn/ui Card: https://ui.shadcn.com/docs/components/card
+ *
+ * Todos los subcomponentes estan envueltos en `memo` porque suelen recibir
+ * props estables (className, hijos jsx) y se renderizan en cantidad: una
+ * pagina del dashboard puede contener decenas de Card. Sin memo, cualquier
+ * cambio de estado en el padre provoca re-render en cascada.
+ */
+
+import { forwardRef, memo } from 'react';
+import { cn } from '../../utils';
+
+/**
+ * Contenedor principal de la tarjeta
+ */
+const Card = memo(forwardRef(({ className, hover = false, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      // Civic Operations Console: borders-only, sin backdrop-blur, sin
+      // shadows. La pieza es una superficie tecnica, no una nube flotante.
+      // Radius pequeno (8px). Background solido en lugar de translucent.
+      'rounded-lg border border-[var(--border-hairline)] bg-card text-card-foreground',
+      'transition-colors duration-150',
+      hover && 'hover-lift hover:border-[var(--border-emphasis)]',
+      className
+    )}
+    {...props}
+  />
+)));
+Card.displayName = 'Card';
+
+/**
+ * Cabecera de la tarjeta
+ */
+const CardHeader = memo(forwardRef(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn('flex flex-col gap-2 p-6 pb-4', className)}
+    {...props}
+  />
+)));
+CardHeader.displayName = 'CardHeader';
+
+/**
+ * Titulo de la tarjeta.
+ *
+ * Por defecto se renderiza como `<h2>`: las tarjetas son secciones de primer
+ * nivel bajo el `<h1>` de la pagina (PageLayout), asi que h2 evita el salto de
+ * nivel h1 -> h3 que penalizaba accesibilidad (WCAG 1.3.1 / Lighthouse
+ * heading-order). El estilo lo da la clase, no la etiqueta, asi que el cambio
+ * es invisible. Acepta `as="h3"`/`as="h4"` para titulos realmente anidados.
+ *
+ * @example
+ *   <CardTitle as="h3">Sub-bloque dentro de una seccion</CardTitle>
+ */
+const CardTitle = memo(forwardRef(({ as = 'h2', className, ...props }, ref) => {
+  // ESLint con JSX no siempre detecta el uso de una variable destructurada
+  // como tag dinamico (`<Component .../>`). Asignar a una variable local con
+  // mayuscula sortea la regla sin necesidad de disable-comment.
+  const Heading = as;
+  return (
+    <Heading
+      ref={ref}
+      className={cn(
+        // Sans medium (no display serif aqui; el serif se reserva para H1/H2
+        // y stat-hero). Tracking ligeramente apretado para densidad.
+        'font-sans text-base font-medium leading-tight tracking-tight text-foreground',
+        className
+      )}
+      {...props}
+    />
+  );
+}));
+CardTitle.displayName = 'CardTitle';
+
+/**
+ * Descripcion de la tarjeta
+ */
+const CardDescription = memo(forwardRef(({ className, ...props }, ref) => (
+  <p
+    ref={ref}
+    className={cn('text-sm text-muted-foreground leading-relaxed', className)}
+    {...props}
+  />
+)));
+CardDescription.displayName = 'CardDescription';
+
+/**
+ * Contenido principal de la tarjeta
+ */
+const CardContent = memo(forwardRef(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />
+)));
+CardContent.displayName = 'CardContent';
+
+/**
+ * Pie de la tarjeta
+ */
+const CardFooter = memo(forwardRef(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn('flex items-center p-6 pt-4', className)}
+    {...props}
+  />
+)));
+CardFooter.displayName = 'CardFooter';
+
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent };
