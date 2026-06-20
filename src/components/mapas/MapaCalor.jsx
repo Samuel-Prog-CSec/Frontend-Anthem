@@ -41,15 +41,33 @@ function CapaCalor({ puntos, radius = 25, blur = 15, maxZoom = 17, max }) {
       }
       return undefined;
     }
+
     // Reutilizamos la capa existente actualizando datos y opciones en vez de
     // recrearla en cada cambio (evita parpadeo y recomputo completo del grid).
-    if (layerRef.current) {
-      layerRef.current.setOptions(opciones);
-      layerRef.current.setLatLngs(puntos);
-    } else {
-      layerRef.current = L.heatLayer(puntos, opciones).addTo(map);
-    }
-    return undefined;
+    const aplicarCapa = () => {
+      // leaflet.heat lanza "IndexSizeError: getImageData source width 0" si
+      // intenta dibujar cuando el contenedor del mapa aun tiene tamaño 0 (carrera
+      // de layout del primer render: el panel se monta antes de tener ancho).
+      // Solo dibujamos cuando el mapa ya tiene dimensiones reales.
+      const { x, y } = map.getSize();
+      if (x === 0 || y === 0) { return false; }
+      if (layerRef.current) {
+        layerRef.current.setOptions(opciones);
+        layerRef.current.setLatLngs(puntos);
+      } else {
+        layerRef.current = L.heatLayer(puntos, opciones).addTo(map);
+      }
+      return true;
+    };
+
+    if (aplicarCapa()) { return undefined; }
+
+    // Aun sin tamaño: reintentar cuando el mapa se redimensione o termine de
+    // cargar, y forzar el recalculo de tamaño tras el layout.
+    const reintentar = () => { if (aplicarCapa()) { map.off('resize load', reintentar); } };
+    map.on('resize load', reintentar);
+    map.invalidateSize(false);
+    return () => { map.off('resize load', reintentar); };
   }, [puntos, opciones, map]);
 
   // Cleanup al desmontar: retiramos la capa del mapa.

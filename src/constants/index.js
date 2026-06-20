@@ -16,7 +16,10 @@ export const API_CONFIG = {
   // cache calentada en dev. El interceptor ya reintenta 3 veces, asi que
   // 10 s × 3 = 30 s de espera total con error final; subir a 30 s da una
   // unica espera larga pero exitosa.
-  TIMEOUT: 30000,
+  // 60 s ademas tolera el COLD START de la API en hosting con hibernacion (p.ej.
+  // Render free tier: la 1a peticion tras inactividad tarda ~20-50 s en despertar
+  // el servidor) para que la primera carga no falle con timeout antes de tiempo.
+  TIMEOUT: 60000,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000 // 1 segundo entre reintentos
 };

@@ -37,8 +37,12 @@ const TarjetasEstadisticasAccidentes = memo(function TarjetasEstadisticasAcciden
         subtitle="conductores, peatones y pasajeros"
         icon={Users}
       />
+      {/* `graves` (esGrave del backend) cuenta accidentes NO leves, e INCLUYE
+          los mortales (umbral de severidad grave+mortal). El titulo lo refleja
+          para no dar a entender que "graves" y "mortales" son disjuntos: al
+          filtrar por gravedad=Mortal ambas tarjetas coinciden, que es correcto. */}
       <StatCard
-        title="Accidentes graves"
+        title="Graves y mortales"
         value={formatNumber(graves)}
         subtitle={subtitle}
         icon={ShieldAlert}
