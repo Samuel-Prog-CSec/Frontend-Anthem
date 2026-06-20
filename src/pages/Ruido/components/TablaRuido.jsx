@@ -91,7 +91,7 @@ const TablaRuido = memo(function TablaRuido({
                           `normal-case` para preservar la mayuscula correcta
                           del decibelio. Mismo patron en IndicadorCumplimiento. */}
                       <Badge
-                        variant={obtenerVarianteBadgeRuido(record.nivelDiurno)}
+                        variant={obtenerVarianteBadgeRuido(record.nivelDiurno, 'diurno')}
                         className="font-mono"
                       >
                         {record.nivelDiurno != null
@@ -101,7 +101,7 @@ const TablaRuido = memo(function TablaRuido({
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge
-                        variant={obtenerVarianteBadgeRuido(record.nivelVespertino)}
+                        variant={obtenerVarianteBadgeRuido(record.nivelVespertino, 'vespertino')}
                         className="font-mono"
                       >
                         {record.nivelVespertino != null
@@ -111,7 +111,7 @@ const TablaRuido = memo(function TablaRuido({
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge
-                        variant={obtenerVarianteBadgeRuido(record.nivelNocturno)}
+                        variant={obtenerVarianteBadgeRuido(record.nivelNocturno, 'nocturno')}
                         className="font-mono"
                       >
                         {record.nivelNocturno != null

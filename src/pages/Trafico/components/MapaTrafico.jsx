@@ -12,7 +12,7 @@ import { MapPin } from 'lucide-react';
 import { MapaInteractivo } from '../../../components/mapas';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Skeleton, EmptyState } from '../../../components/common';
 import { formatNumber } from '../../../utils';
-import { CONGESTION_LEVEL_COLORS } from '../../../constants';
+import { CONGESTION_LEVEL_COLORS, nombreDistrito } from '../../../constants';
 import { colorPorPorcentajeCongestion, etiquetaTipoElemento, nivelDesdePorcentaje, etiquetaCongestion } from '../helpers';
 
 const MapaTrafico = memo(function MapaTrafico({
@@ -85,9 +85,9 @@ const MapaTrafico = memo(function MapaTrafico({
                       <div className="text-xs">
                         <span className="text-muted-foreground">Tipo:</span> {etiquetaTipoElemento(props.tipoElemento)}
                       </div>
-                      {props.distrito && (
+                      {props.distrito != null && props.distrito !== '' && (
                         <div className="text-xs">
-                          <span className="text-muted-foreground">Distrito:</span> {props.distrito}
+                          <span className="text-muted-foreground">Distrito:</span> {nombreDistrito(props.distrito)}
                         </div>
                       )}
                       <div className="text-xs">

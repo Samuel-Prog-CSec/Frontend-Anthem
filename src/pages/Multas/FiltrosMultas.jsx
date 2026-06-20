@@ -58,18 +58,21 @@ function FiltrosMultas({
             value={filtros.calificacion}
             onChange={(e) => onCambioFiltro('calificacion', e.target.value)}
             placeholder="Todas las calificaciones"
+            ariaLabel="Filtrar por calificación"
           />
           <Select
             options={opcionesDenunciante}
             value={filtros.denunciante}
             onChange={(e) => onCambioFiltro('denunciante', e.target.value)}
             placeholder="Todos los denunciantes"
+            ariaLabel="Filtrar por denunciante"
           />
           <Select
             options={opcionesMes}
             value={filtros.mes}
             onChange={(e) => onCambioFiltro('mes', e.target.value)}
             placeholder="Todos los meses"
+            ariaLabel="Filtrar por mes"
           />
         </div>
       </CardContent>

@@ -32,6 +32,7 @@ const FiltrosAccidentes = memo(function FiltrosAccidentes({
               onChange={(e) => manejarCambioFiltro('distrito', e.target.value)}
               options={opcionesDistrito}
               placeholder="Todos los distritos"
+              opcionLimpiar="Todos los distritos"
             />
           </div>
           <div className="flex-1">

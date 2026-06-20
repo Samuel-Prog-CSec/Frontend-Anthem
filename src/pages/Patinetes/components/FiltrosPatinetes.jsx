@@ -32,6 +32,7 @@ const FiltrosPatinetes = memo(function FiltrosPatinetes({
               onChange={(e) => manejarCambioFiltro('distrito', e.target.value)}
               options={districtOptions}
               placeholder="Todos los distritos"
+              opcionLimpiar="Todos los distritos"
             />
           </div>
           <div className="flex-1">

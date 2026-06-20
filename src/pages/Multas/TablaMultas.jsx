@@ -37,7 +37,7 @@ function TablaMultas({
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <TableSkeleton rows={6} columns={7} />
+          <TableSkeleton rows={6} columns={8} />
         ) : error ? (
           <ErrorState message="Error al cargar multas" onRetry={onReintentar} />
         ) : datos.length === 0 ? (
@@ -57,6 +57,7 @@ function TablaMultas({
                     <TableHead>Fecha</TableHead>
                     <TableHead>Hora</TableHead>
                     <TableHead>Lugar</TableHead>
+                    <TableHead>Infracción</TableHead>
                     <TableHead>Calificación</TableHead>
                     <TableHead className="text-right">Importe</TableHead>
                     <TableHead className="text-right">Puntos</TableHead>
@@ -77,6 +78,11 @@ function TablaMultas({
                       <TableCell>{multa.hora ? multa.hora.replace('.', ':') : '-'}</TableCell>
                       <TableCell className="max-w-[200px] truncate" title={multa.lugar}>
                         {formatearLugar(multa.lugar)}
+                      </TableCell>
+                      <TableCell className="max-w-[220px] truncate text-sm" title={multa.descripcionInfraccion || multa.metadatos?.tipoInfraccion || ''}>
+                        {multa.descripcionInfraccion
+                          ? aTituloCase(multa.descripcionInfraccion)
+                          : (multa.metadatos?.tipoInfraccion ? aTituloCase(multa.metadatos.tipoInfraccion) : '-')}
                       </TableCell>
                       <TableCell>
                         <Badge variant={obtenerVarianteBadgeCalificacion(multa.calificacion)}>

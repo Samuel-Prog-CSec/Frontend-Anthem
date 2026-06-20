@@ -16,7 +16,7 @@ import { memo, useCallback } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { useMapaUbicaciones } from '../../../api/hooks';
-import { LOCATION_TYPE_LABELS } from '../../../constants';
+import { LOCATION_TYPE_LABELS, nombreDistrito } from '../../../constants';
 import { crearIconoCluster, iconoDominioDefault } from '../MapaClusterizado';
 
 const CapaUbicacionesMapa = memo(function CapaUbicacionesMapa({ params }) {
@@ -28,7 +28,7 @@ const CapaUbicacionesMapa = memo(function CapaUbicacionesMapa({ params }) {
       <div className="font-semibold mb-1">{props.nombre || props.nmt || 'Ubicación'}</div>
       <div>Tipo: {LOCATION_TYPE_LABELS[props.tipo] || props.tipo || '-'}</div>
       {props.nmt && <div>NMT: {props.nmt}</div>}
-      {props.distrito && <div>Distrito: {props.distrito}</div>}
+      {props.distrito != null && props.distrito !== '' && <div>Distrito: {nombreDistrito(props.distrito)}</div>}
     </div>
   ), []);
 

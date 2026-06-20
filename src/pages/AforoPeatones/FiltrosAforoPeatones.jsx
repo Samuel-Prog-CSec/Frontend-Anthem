@@ -60,21 +60,22 @@ function FiltrosAforoPeatones({
             value={filtros.distrito}
             onChange={(e) => onCambioFiltro('distrito', e.target.value)}
             placeholder="Todos los distritos"
-            aria-label="Filtrar por distrito"
+            ariaLabel="Filtrar por distrito"
+            opcionLimpiar="Todos los distritos"
           />
           <Select
             options={opcionesFranjaHoraria}
             value={filtros.franjaHoraria}
             onChange={(e) => onCambioFiltro('franjaHoraria', e.target.value)}
             placeholder="Todas las franjas"
-            aria-label="Filtrar por franja horaria"
+            ariaLabel="Filtrar por franja horaria"
           />
           <Select
             options={opcionesMes}
             value={filtros.mes}
             onChange={(e) => onCambioFiltro('mes', e.target.value)}
             placeholder="Todos los meses"
-            aria-label="Filtrar por mes"
+            ariaLabel="Filtrar por mes"
           />
         </div>
       </CardContent>

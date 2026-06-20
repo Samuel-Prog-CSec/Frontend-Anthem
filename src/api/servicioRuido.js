@@ -47,8 +47,11 @@ export async function obtenerListaEstacionesRuido({ signal } = {}) {
       signal
     });
 
-    if (statsResponse.data?.success && statsResponse.data?.data?.data) {
-      const statsData = statsResponse.data.data.data;
+    // El endpoint /ruido/estadisticas?groupBy=station devuelve el array de
+    // estaciones bajo data.estadisticas (no data.data). Leerlo por la clave
+    // correcta evita caer siempre al fallback de mediciones crudas (limit 100).
+    if (statsResponse.data?.success && Array.isArray(statsResponse.data?.data?.estadisticas)) {
+      const statsData = statsResponse.data.data.estadisticas;
       return statsData
         .map(s => ({ nmt: s._id?.nmt, nombre: s._id?.nombre || `Estacion ${s._id?.nmt}` }))
         .filter(s => s.nmt != null)

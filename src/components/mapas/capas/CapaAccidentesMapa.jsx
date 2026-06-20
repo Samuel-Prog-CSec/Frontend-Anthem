@@ -7,6 +7,7 @@
 import { memo, useCallback } from 'react';
 import { useMapaAccidentes } from '../../../api/hooks';
 import { formatDate } from '../../../utils';
+import { nombreDistrito } from '../../../constants';
 import { COLORES_CAPA } from '../configCapas';
 import { CapaPuntos } from './CapaPuntos';
 
@@ -21,7 +22,7 @@ const CapaAccidentesMapa = memo(function CapaAccidentesMapa({ params }) {
       {props.fecha && <div>Fecha: {formatDate(props.fecha)}</div>}
       {props.gravedad && <div>Gravedad: {props.gravedad}</div>}
       {props.tipoAccidente && <div>Tipo: {props.tipoAccidente}</div>}
-      {props.distrito && <div>Distrito: {props.distrito}</div>}
+      {props.distrito != null && props.distrito !== '' && <div>Distrito: {nombreDistrito(props.distrito)}</div>}
     </div>
   ), []);
 

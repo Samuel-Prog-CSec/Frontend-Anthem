@@ -38,6 +38,10 @@ export async function obtenerZonasConcentracion(params = {}, { signal } = {}) {
 }
 
 export async function obtenerDetallesArea(distrito, barrio, { signal } = {}) {
-  const response = await apiClient.get(`/patinetes/area/${distrito}/${barrio}`, { signal });
+  // encodeURIComponent: los nombres de distrito/barrio llevan espacios y tildes
+  // ("SAN BLAS-CANILLEJAS", "CHAMBERI") que sin codificar generan una URL
+  // malformada y el panel de detalle no se abre.
+  const ruta = `/patinetes/area/${encodeURIComponent(distrito)}/${encodeURIComponent(barrio)}`;
+  const response = await apiClient.get(ruta, { signal });
   return response.data;
 }

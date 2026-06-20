@@ -78,6 +78,7 @@ function FiltrosCenso({
             onChange={(e) => onCambioFiltro('distrito', e.target.value)}
             placeholder="Todos los distritos"
             ariaLabel="Filtrar por distrito"
+            opcionLimpiar="Todos los distritos"
           />
           <Select
             options={opcionesBarrio}

@@ -12,6 +12,10 @@ import {
 export function useAccidentes(params) {
   return useQuery({
     queryKey: ['accidentes', params],
+    // Distrito pasa params=null hasta resolver el codigo de distrito; sin este
+    // guard la query disparaba con null y reventaba (null.page) provocando un
+    // flash de error en la tabla de accidentes hasta que llegaba el valor real.
+    enabled: params != null,
     queryFn: ({ signal }) => obtenerDatosAccidentes(params, { signal }),
     // Mantener los datos anteriores mientras llega la nueva pagina evita el
     // parpadeo en la tabla al cambiar de pagina o aplicar filtros.

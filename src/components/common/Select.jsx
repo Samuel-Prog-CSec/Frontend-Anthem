@@ -23,9 +23,18 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '../../utils';
 
+// Valor centinela para la opcion "limpiar". Radix no admite un Item con
+// value="" (lo reserva para "sin seleccion"), asi que usamos este centinela y
+// al elegirlo emitimos '' al consumidor para deseleccionar el filtro.
+const VALOR_LIMPIAR = '__limpiar__';
+
 /**
  * Select compatible con la API previa (`options = [{value, label}]`).
  * Internamente envuelve Radix.Select.Root y compone Trigger + Content + Items.
+ *
+ * `opcionLimpiar` (string opcional): si se pasa y hay un valor seleccionado,
+ * muestra una opcion al inicio del desplegable (p.ej. "Todos los distritos")
+ * que deselecciona el filtro (emite onChange con value '').
  */
 const Select = memo(forwardRef(function Select({
   className,
@@ -37,6 +46,7 @@ const Select = memo(forwardRef(function Select({
   name,
   id,
   ariaLabel,
+  opcionLimpiar,
   ...rest
 }, ref) {
   // Radix usa `onValueChange` (callback con string), nosotros exponemos `onChange`
@@ -45,9 +55,14 @@ const Select = memo(forwardRef(function Select({
     if (typeof onChange !== 'function') {
       return;
     }
+    // La opcion "limpiar" deselecciona el filtro (emite cadena vacia).
+    const valorReal = nextValue === VALOR_LIMPIAR ? '' : nextValue;
     // Emular forma minima de evento para no romper handlers existentes
-    onChange({ target: { name: name || id, value: nextValue } });
+    onChange({ target: { name: name || id, value: valorReal } });
   };
+
+  const valorActual = value === undefined || value === null ? '' : String(value);
+  const mostrarLimpiar = Boolean(opcionLimpiar) && valorActual !== '';
 
   return (
     <SelectPrimitive.Root
@@ -93,6 +108,17 @@ const Select = memo(forwardRef(function Select({
           </SelectPrimitive.ScrollUpButton>
 
           <SelectPrimitive.Viewport className="p-1 max-h-[var(--radix-select-content-available-height)]">
+            {mostrarLimpiar && (
+              <SelectPrimitive.Item
+                value={VALOR_LIMPIAR}
+                className={cn(
+                  'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm italic text-muted-foreground outline-none',
+                  'focus:bg-[var(--surface-hover)] focus:text-foreground data-[highlighted]:bg-[var(--surface-hover)]'
+                )}
+              >
+                <SelectPrimitive.ItemText>{opcionLimpiar}</SelectPrimitive.ItemText>
+              </SelectPrimitive.Item>
+            )}
             {options.map((option) => (
               <SelectPrimitive.Item
                 key={option.value ?? '__empty__'}
