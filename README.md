@@ -25,6 +25,7 @@ sirve la [API-Anthem](https://github.com/Samuel-Prog-CSec/API-Anthem).
 - [Características destacadas](#características-destacadas)
 - [Stack tecnológico](#stack-tecnológico)
 - [Requisitos y puesta en marcha](#requisitos-y-puesta-en-marcha)
+- [Modos de uso](#modos-de-uso)
 - [Variables de entorno](#variables-de-entorno)
 - [Scripts npm](#scripts-npm)
 - [Rutas / navegación](#rutas--navegación)
@@ -108,6 +109,53 @@ npm run dev
 
 - App en **http://localhost:5173** (Vite, con HMR).
 - Requiere la **[API-Anthem](https://github.com/Samuel-Prog-CSec/API-Anthem) corriendo** en `http://localhost:3000` (por defecto).
+- Para entrar al dashboard necesitas una **cuenta de usuario**: regístrate en `/register` desde la propia interfaz.
+
+## Modos de uso
+
+El dashboard puede conectarse a la API en local o a la ya desplegada en Render.
+
+### A) Pila completa en local
+
+Requiere la API corriendo en tu máquina (ver
+[API-Anthem](https://github.com/Samuel-Prog-CSec/API-Anthem)). La URL por defecto ya apunta a
+`localhost:3000`, así que no necesitas cambiar nada:
+
+```bash
+npm run dev     # http://localhost:5173
+```
+
+### B) Frontend local + API en Render (sin instalar el backend)
+
+Apunta el frontend a la API desplegada. Crea o edita `.env.local` en la raíz del proyecto
+(`.env.local` tiene prioridad sobre `.env` y no se sube a git):
+
+```bash
+VITE_API_BASE_URL=https://api-anthem.onrender.com/api/v1
+```
+
+Luego:
+
+```bash
+npm run dev
+```
+
+> La primera petición puede tardar ~30 s si la API estaba inactiva (Render suspende los servicios
+> gratuitos tras 15 min sin tráfico). Las siguientes responden con normalidad.
+
+### Ecosistema completo
+
+Los tres repositorios del proyecto trabajan de forma independiente pero coordinada:
+
+| Componente | Repo | Arranque |
+| --- | --- | --- |
+| Base de datos | MongoDB local o [Atlas M0](https://www.mongodb.com/atlas) | `mongod` o conexión remota |
+| API REST | [API-Anthem](https://github.com/Samuel-Prog-CSec/API-Anthem) | `npm run dev` en `:3000` |
+| Dashboard (este repo) | — | `npm run dev` en `:5173` |
+| Simulador IoT | [Simulador-IoT-Anthem](https://github.com/Samuel-Prog-CSec/Simulador-IoT-Anthem) | `node src/index.js` |
+
+El simulador inyecta lecturas en la API, que las persiste en MongoDB; el dashboard las lee y las
+visualiza en tiempo real. Pueden combinarse libremente: API local o Render, BD local o Atlas.
 
 ## Variables de entorno
 
@@ -236,7 +284,7 @@ Frontend-Anthem/
 │   ├── constants/      # constantes del frontend
 │   ├── utils/          # helpers (cn, formatters)
 │   └── App.jsx         # rutas
-├── docs/               # Design_System · Performance · Security · Backend_Integration · Deploy_Heroku
+├── docs/               # Design_System · Performance · Security · Backend_Integration
 │   └── img/            # capturas usadas en este README
 ├── server.cjs          # servidor estático de producción (Express + CSP)
 └── vite.config.js
