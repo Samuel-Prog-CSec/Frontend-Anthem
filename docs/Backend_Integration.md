@@ -335,4 +335,4 @@ VITE_APP_ENV=development
 
 - [Axios Documentation](https://axios-http.com/docs/intro)
 - [React Query](https://tanstack.com/query/latest)
-- [API Documentation](../../API-Anthem/docs/API_Documentation.md)
+- [API Documentation](https://github.com/Samuel-Prog-CSec/API-Anthem/blob/main/docs/API_Documentation.md)

@@ -4,7 +4,7 @@
 
 **Dashboard interactivo de la Smart City de Anthem (Madrid simulado, año 2051).**
 React 19 + Vite 7 + Tailwind v4. Mapas, series temporales y análisis cruzado sobre los datos que
-sirve la [API-Anthem](../API-Anthem).
+sirve la [API-Anthem](https://github.com/Samuel-Prog-CSec/API-Anthem).
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
@@ -34,7 +34,6 @@ sirve la [API-Anthem](../API-Anthem).
 - [Rendimiento](#rendimiento)
 - [Seguridad](#seguridad)
 - [Estructura del proyecto](#estructura-del-proyecto)
-- [Despliegue](#despliegue)
 - [Documentación complementaria](#documentación-complementaria)
 
 ---
@@ -46,7 +45,7 @@ SPA que reúne, sobre un único modelo georreferenciado, doce áreas de datos �
 ruido, tráfico, accidentalidad, multas, censo, residuos, movilidad blanda y aforos— de los **21
 distritos**, con mapas, gráficos y vistas de **análisis cruzado** entre dominios.
 
-Consume la API REST de [**API-Anthem**](../API-Anthem); no funciona sin ella en marcha.
+Consume la API REST de [**API-Anthem**](https://github.com/Samuel-Prog-CSec/API-Anthem); no funciona sin ella en marcha.
 
 ## Capturas
 
@@ -108,15 +107,16 @@ npm run dev
 ```
 
 - App en **http://localhost:5173** (Vite, con HMR).
-- Requiere la **[API-Anthem](../API-Anthem) corriendo** en `http://localhost:3000` (por defecto).
+- Requiere la **[API-Anthem](https://github.com/Samuel-Prog-CSec/API-Anthem) corriendo** en `http://localhost:3000` (por defecto).
 
 ## Variables de entorno
 
-| Variable | Por defecto | Descripción |
+| Variable | Entorno | Valor |
 | --- | --- | --- |
-| `VITE_API_BASE_URL` | `http://localhost:3000/api/v1` | URL base de la API que consume el dashboard. |
+| `VITE_API_BASE_URL` | Local (por defecto) | `http://localhost:3000/api/v1` |
+| `VITE_API_BASE_URL` | Render (desplegado) | `https://api-anthem.onrender.com/api/v1` |
 
-### ¿A qué API apunta el dashboard? (local vs. Heroku)
+### ¿A qué API apunta el dashboard? (local vs. Render)
 
 `VITE_API_BASE_URL` es la variable que decide **de dónde lee los datos** el frontend. **Defínela**
 en `.env` según dónde esté tu backend:
@@ -125,13 +125,13 @@ en `.env` según dónde esté tu backend:
 # A) API en LOCAL (backend corriendo en tu máquina)
 VITE_API_BASE_URL=http://localhost:3000/api/v1
 
-# B) API desplegada en Heroku (u otro host)
-VITE_API_BASE_URL=https://<tu-api>.herokuapp.com/api/v1
+# B) API desplegada en Render (u otro host)
+VITE_API_BASE_URL=https://<tu-api>.onrender.com/api/v1
 ```
 
 > ⚠️ Es una variable **de build** (`import.meta.env`): Vite la "hornea" al compilar. En desarrollo
 > (`npm run dev`) basta con tenerla en `.env`. Para producción, **defínela antes de `npm run build`**
-> (en Heroku, como *config var*); si la cambias, hay que **reconstruir** (`npm run build`).
+> (en Render, como variable de entorno); si la cambias, hay que **reconstruir** (`npm run build`).
 > Asegúrate además de que el origen del frontend está en el `CORS_ORIGINS` del backend.
 
 > Nota: usa `localhost` (no `127.0.0.1`) en local; es el host que el navegador alcanza de forma
@@ -242,19 +242,13 @@ Frontend-Anthem/
 └── vite.config.js
 ```
 
-## Despliegue
-
-Build estático servido por `server.cjs` (Express + Helmet + CSP + compresión). Pensado para
-**Heroku**: define `VITE_API_BASE_URL` (origen del backend) como config var antes del build. Guía
-en [`docs/Deploy_Heroku.md`](docs/Deploy_Heroku.md).
-
 ## Documentación complementaria
 
 - [`docs/Design_System.md`](docs/Design_System.md) — sistema de diseño (color, tipografía, componentes).
 - [`docs/Backend_Integration.md`](docs/Backend_Integration.md) — integración con la API.
 - [`docs/Performance.md`](docs/Performance.md) — optimizaciones de rendimiento.
 - [`docs/Security.md`](docs/Security.md) — seguridad en el frontend.
-- [`../API-Anthem/README.md`](../API-Anthem/README.md) — backend que alimenta este dashboard.
+- [API-Anthem](https://github.com/Samuel-Prog-CSec/API-Anthem) — backend que alimenta este dashboard.
 
 ---
 
